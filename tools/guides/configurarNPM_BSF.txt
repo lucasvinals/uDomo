@@ -1,0 +1,6 @@
+https://jjasonclark.com/how-to-setup-node-behind-web-proxy
+
+
+npm config set strict-ssl false
+npm config set registry "http://registry.npmjs.org/"
+npm config set proxy http://"usuarioSinDominio:pass"@proxy:80

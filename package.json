@@ -1,0 +1,52 @@
+{
+  "name": "udomo_webapplication",
+  "author": "Lucas Vinals",
+  "licenses": [
+    {
+      "type": "GPL-3.0",
+      "url": "http://www.gnu.org/licenses/gpl-3.0-standalone.html"
+    }
+  ],
+  "main": "cluster.js",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "gulp clean && gulp construir",
+    "start": "npm run build && node cluster.js 12078 1",
+    "cluster": "npm run build && node cluster.js 12078",
+    "prepare": "bash ./tools/prepareSystem.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://lucasvinals@bitbucket.org/udomo/udomo.webapplication.git"
+  },
+  "dependencies": {
+    "alertifyjs": "latest",
+    "angular": "latest",
+    "angular-ui-router": "latest",
+    "body-parser": "latest",
+    "bootstrap": "latest",
+    "compression": "latest",
+    "express": "latest",
+    "jquery": "latest",
+    "jsonwebtoken": "latest",
+    "lodash": "latest",
+    "method-override": "latest",
+    "mongoose": "latest",
+    "shelljs": "latest",
+    "socket.io": "latest",
+    "socket.io-adapter-mongo": "latest"
+  },
+  "devDependencies": {
+    "glob": "latest",
+    "google-closure-compiler-js": "latest",
+    "gulp": "latest",
+    "gulp-clean-css": "latest",
+    "gulp-concat": "latest",
+    "gulp-livereload": "latest",
+    "gulp-processhtml": "latest",
+    "mocha": "latest",
+    "morgan": "latest",
+    "psi": "latest",
+    "syntax-error": "latest"
+  }
+}

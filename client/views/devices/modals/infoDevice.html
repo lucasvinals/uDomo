@@ -1,0 +1,64 @@
+<div id='DeviceInfo' tabindex='-1' class='modal fade' role='dialog' aria-labelledby='executionOptionLabel'>
+    <div class='modal-dialog'>
+        <div class='modal-content col-md-10'>
+            <form class='form text-left' role='form'>
+                <table class='table table-condensed table-responsive'>
+                    <caption class="negrita">Detalle del Dispositivo</caption>
+                    <tr> <!-- IP -->
+                        <td>IP</td>
+                        <td data-ng-bind='deviceInfo.IP' class='text-info text-right negrita'></td>
+                    </tr>
+                    <!--<div ng-show='estaGuardado'> POR ALGUNA RAZON NO ME FUNCIONA ESTE DIV ACÁ--> 
+                        <tr ng-show="estaGuardado()"> <!-- Zona -->
+                            <td>Zona</td>
+                            <!-- Viene como un arreglo Areas, tengo que pasarlo como objecto -->
+                             <td data-ng-bind='deviceInfo.Area[0].Name' 
+                                class='text-info text-right negrita'>
+                            </td> 
+                        </tr>
+                        <tr ng-show="estaGuardado()"> <!-- Número -->
+                            <td>Número</td>
+                            <td data-ng-bind='deviceInfo.N' class='text-info text-right negrita'></td>
+                        </tr>
+                    <!--</div>-->
+                    <div ng-show="estaOnline()">
+                        <tr> <!-- Última Temperatura -->
+                            <td>Temperatura</td>
+                            <td data-ng-bind='deviceInfo.T + " °C"' 
+                                class='text-info text-right negrita'></td>
+                        </tr>
+                        <tr ng-show="estaOnline()"> <!-- Última Presión -->
+                            <td>Presión</td>
+                            <td data-ng-bind='deviceInfo.P + " hPa"'
+                                class='text-info text-right negrita'></td>
+                        </tr>
+                        <tr ng-show="estaOnline()"> <!-- Última Altitud -->
+                            <td>Altitud</td>
+                            <td data-ng-bind='deviceInfo.A + " m."'
+                                class='text-info text-right negrita'></td>
+                        </tr>
+                        <tr ng-show="estaOnline()"> <!-- Estado de los pines -->
+                            <table class='table table-condensed table-responsive negrita'>
+                                <caption>Estado de pines</caption>
+                                <tr data-ng-repeat='(pin, value) in deviceInfo.Pins'>
+                                    <td>
+                                        <label class='fa fa-2x negrita' 
+                                               data-ng-bind='pin'>
+                                        </label>
+                                    </td>
+                                    <td class='text-right'>
+                                        <button data-ng-class='{
+                                                    "btn btn-danger" : value === 0, 
+                                                    "btn btn-success": value === 1023}'
+                                                ng-click='changePin(deviceInfo._id, pin, value)'>Cambiar
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table> 
+                        </tr>
+                    </div>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>

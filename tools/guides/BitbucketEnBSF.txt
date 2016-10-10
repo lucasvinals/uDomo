@@ -1,0 +1,16 @@
+Configurar proxy con COMILLAS
+	MAL -> git config --global http.proxy http://SANTAFE\USUARIO:CLAVE@proxy:80
+	BIEN -> git config --global http.proxy "http://SANTAFE\USUARIO:CLAVE@proxy:80" 
+
+Configurar nombre de usuario y mail de git
+	git config user.name "Nombre Apellido"  
+	git config user.email "USUARIO@gmail.com" 
+
+Acciones sin seguridad (como por ejemplo clonar el repositorio)
+	git -c http.sslVerify=false clone https://lucasvinals@bitbucket.org/udomo/udomo.webapplication.git
+
+Opcion 2: Probar directamente:
+
+	git -c http.proxy "http://DOMINIO\usuario:password@ProxyIPorName:ProxyPort" [COMANDO]
+	
+	

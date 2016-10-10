@@ -1,0 +1,8 @@
+Poner versiones de paquetes en package.config y en bower.json
+FIjarse los puertos de Mongo y de la aplicacion que van a correr, tambien
+de los sockets
+Sacar .bowerrcNBSF
+sacar guias y todo lo referente a lo personal
+
+
+

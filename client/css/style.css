@@ -1,0 +1,155 @@
+/*@font-face {
+    font-family: 'Bootstrap';
+    src: url(../../node_modules/bootstrap/fonts/glyphicons-halflings-regular.woff2) format('application/font-woff2');
+    font-weight: 400;
+    font-style: normal
+}
+*{
+    font-family: 'Bootstrap';
+}
+*/
+ html, body{
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+body{
+    display: table;
+    background-color: Beige;
+    background-size : cover;
+}
+
+.jumbotron{
+    background-color:transparent !important;
+}
+
+.my-block{
+    font-family: serif;
+    color:forestgreen;
+    font-weight: bold;
+    font-size: 3em;
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+/******** AlertifyJS custom messages ********/
+.ajs-message{
+    font-weight: bold; 
+}
+.ajs-message.ajs-custom_warning{ 
+    /*color: #FFFFCC; */
+    color: #00002F;
+    background-color: #FF8533;
+}
+.ajs-message.ajs-custom_success{
+    color: #196619;
+    background-color: #ADFFC8;
+}
+.ajs-message.ajs-custom_error{ 
+    font-weight: bold;
+    color: #FFFFFF;
+    background-color: #FF1A1A;
+}
+/********************************************/
+
+/************* 404- Not Found Page ***************/
+#notFound{
+    text-align: center;
+}
+#notFound h1 { 
+    position: fixed; 
+    top: 200px; 
+    left: 0; 
+    width: 100%;
+    text-align: center;
+}
+
+#notFound h1 span { 
+    color: beige; 
+    font: bold 50px/76px Helvetica, Sans-Serif; 
+    letter-spacing: -1px;  
+    background: rgb(0, 0, 0); /* fallback color */
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+}
+
+#notFound h1 span.spacer {
+   padding:0 5px;
+}
+/************************************************/
+
+.boldText{
+	font-weight: bold;
+}
+
+h4{
+    color: cadetblue;
+}
+
+input{
+    border : 0px;
+    outline: 0;
+}
+select{
+    border : 0px;
+    outline: 0;
+}
+.col-centered{
+    float : none;
+    margin: 0 auto;
+}
+
+.negrita{
+    font-weight: bold;
+}
+.deshabilitado{
+    color: #aaaaaa;
+}
+
+.btn-circulo{
+    border-radius: 50%;
+}
+.devOnlineSaved{
+    background-color: #3ADF00;
+}
+.devOnlineNotSaved{
+    background-color: #F39111;
+}
+.devOfflineSaved{
+    background-color: #585858;
+}
+.tdDispositivos{
+    color: white;
+    vertical-align: middle;
+    font-size: medium;
+}
+
+.sacarUnderline:focus .sacarUnderline:hover{
+    text-decoration: none;
+}
+
+.headcol {
+    position:absolute; 
+    right:10em;
+}
+@media(max-width:1200px){
+} 
+@media(max-width:1024px){
+} 
+@media(max-width:980px){
+    .userRegisterInput{
+        width: 100% !important;
+    }
+}    
+@media(max-width:768px){
+    .userRegisterInput{
+        width: 70% !important;
+    }
+}
+@media(max-width:480px){
+}
+@media(max-width:320px){
+} 

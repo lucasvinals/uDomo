@@ -1,0 +1,65 @@
+
+<table class='table table-striped table-condensed'>
+    <thead>
+        <th>Dispositivos (<span ng-bind="devices.length"></span>)</th>
+        <th colspan='3'>Acciones</th>
+    </thead>
+    <tbody>
+        <tr ng-repeat='dev in devices' 
+            class='text-left' 
+            data-dismiss='modal'>
+            <!--<td 
+                ng-include="'views/devices/a.htm'"
+                ng-controller="deviceController"
+                ng-click="gotoAreas()">
+            </td> -->
+            <td class='tdDispositivos' 
+                ng-class='{"devOnlineSaved": dev.Online && dev.Saved, 
+                           "devOnlineNotSaved": dev.Online && !dev.Saved,
+                           "devOfflineSaved": !dev.Online && dev.Saved}'>
+                <label data-ng-bind='dev.Name'></label>
+            </td>
+            <td>
+                <!-- View device info -->
+                <span ng-click='viewInfoDevice(dev._id)'
+                      aria-label='Device Info Información del Dispositivo'
+                      data-toggle='modal'
+                      title='Device Info' 
+                      data-target='#DeviceInfo'
+                      class='glyphicon glyphicon-stats btn btn-circulo btn-primary'>
+                </span>
+                <!-- Save device in database ng-show='!dev.Saved && dev.Online' -->
+                <span ng-show='!dev.Saved && dev.Online'
+                      aria-label='Save Device Guardar Dispositivo'
+                      data-toggle='modal'
+                      title='Save Device' 
+                      data-target='#saveDeviceModal'
+                      class='btn btn-circulo btn-success glyphicon glyphicon-plus' 
+                      ng-click='tempDevice($index)'>
+                </span>
+                <!-- Program device -->
+                <a ng-href='http://{{dev.IP}}:8888/code' class="sacarUnderline" target="_blank">
+                    <span ng-show="dev.Online"
+                      aria-label='Program Device Programar Dispositivo'
+                      title='Program Device' 
+                      class='glyphicon glyphicon-open btn btn-circulo btn-warning'>
+                    </span>
+                </a>
+                <!-- Remove device from the database -->
+                <span ng-show="dev.Saved"
+                      title='Remove Device' 
+                      aria-label='Remove Device Eliminar Dispositivo'
+                      class='glyphicon glyphicon-remove btn btn-circulo btn-danger'
+                      ng-click='removeDevice(dev._id)'></span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Modal Agregar Dispositivos -->
+<ng-include src="'views/devices/modals/saveDevice.html'"></ng-include>  
+<!-- Fin Modal Agregar Dispositivos -->
+
+<!-- Detalle del dispositivo seleccionado--> 
+<ng-include src="'views/devices/modals/infoDevice.html'"></ng-include>
+<!-- Fin Detalle de dispositivo seleccionado -->

@@ -1,0 +1,24 @@
+<div id="createArea"
+     tabindex="-1"
+     class="modal fade"
+     role="dialog"
+     aria-labelledby="executionOptionLabel">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <form class="form text-left col-md-offset-1" role="form">
+                    <h4>Nueva área</h4>
+                    <div class="form-group">
+                        <input  class="form-control"
+                                type="text"
+                                data-ng-model="newArea.Name"
+                                placeholder="Nombre"><br>
+                    </div>
+                    <button type="button"
+                            class="btn btn-sm btn-primary"
+                            data-dismiss="modal"
+                            data-ng-click="createArea(newArea)">Crear
+                    </button>
+                </form><br>
+            </div>
+        </div>
+    </div>

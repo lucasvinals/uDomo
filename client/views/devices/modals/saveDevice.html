@@ -1,0 +1,77 @@
+<div id='saveDeviceModal' 
+     tabindex='-1' 
+     class='modal fade'
+     role='dialog' 
+     aria-labelledby='executionOptionLabel'>
+    <div class='modal-dialog'>
+        <div class='col-md-12 modal-content'>
+            <h4>Datos del Dispositivo</h4>
+            <form class='form text-left' role='form' name='formADispositivo' novalidate>
+                <div class="form-group">
+                    <h5 class="negrita deshabilitado">ID => 
+                        <span ng-bind='tmpDevice._id'></span>
+                    </h5>
+                    <h5 class="negrita deshabilitado">IP => 
+                        <span ng-bind='tmpDevice.IP'></span>
+                    </h5>
+                </div>
+                <div class="form-group" show-errors>
+                    <input  type='text'
+                            required='true' 
+                            name='Nombre'
+                            title='Name'
+                            aria-label='Name of Device'
+                            class='form-control'
+                            placeholder='Nombre'
+                            ng-model='tmpDevice.Name' />
+                </div>
+
+                <div class="form-group" show-errors>
+                    <input  type='number'
+                            required='true' 
+                            title='Número'
+                            aria-label='Number of Device' 
+                            name='Numero'
+                            class='form-control'
+                            placeholder='Numero'
+                            ng-model='tmpDevice.N' />    
+                </div>
+
+                <h4 class='negrita'>Selecione o 
+                    <a  href='/areas'
+                        aria-label='Go to areas Ir a Áreas' 
+                        title='Ir a áreas' 
+                        target-blank> cree una nueva área</a>
+                </h4>
+                <div class='form-group radio' show-errors>
+                    <div data-ng-repeat='area in availableAreas' class="col-md-9">
+                        <label>
+                            <input  required 
+                                    type='radio'
+                                    name='Areas'
+                                    value='{{area.Name}}'
+                                    data-ng-click='tmpDevice.areaSelected = area._id' />
+                            <span   class='negrita'
+                                    data-ng-bind='area.Name'></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class='form-group col-md-12 text-right'>
+                    <input class='btn btn-default' 
+                            type="button"
+                            value="Cerrar"
+                            data-dismiss='modal' />
+                    <input class='btn btn-success' 
+                           type="button"
+                           value="Guardar"
+                           ng-disabled='(formADispositivo.$invalid || 
+                                        availableAreas.length == 0) && 
+                                        tmpDevice.areaSelected != 1'    
+                           data-dismiss='modal'
+                           ng-click='saveDevice(tmpDevice)'/>
+                </div>
+            </form>
+        </div>    
+    </div>
+</div>

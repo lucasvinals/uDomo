@@ -1,0 +1,83 @@
+
+merge de dispositivos guardados con los online!
+Areas en dispositivos viene como ARRAY, tengo que pasarlo como un OBJECTO.
+quitar log de modulos, instanciarlo directamente ahí . asimismo la IP se tiene que calcular en cluster, no en cada server (sin necesidad de pasarle la variable del sistema operativo)!
+*APP/REST: 
+Por alguna extraña razón, no puedo llegar al método GET '/api/Users' 
+desde el servicio de Angular, lo cambio a un POST que sí responde.
+PASA LO MISMO EN ROUTES
+Lo raro es que distintos GET a '/api/Areas' o '/api/Devices' sí funcionan bien!!!
+
+En el dispositivo, crear un UUID nuevo cuando se programa?
+
+*[EDIT] NO ESTARÍA ANDANDO ngTouch! ngClick está siendo reemplazado por ngTouch, ver como funciona y actualizarlo!
+
+*ES6 arrow functions in Controllers DIDN'T WORK. In Services YES! Weird!
+
+*[WON'T DONE - 13/09/16] No hace falta,config/db: Averiguar como poner rutas relativas en vez de absolutas para mayor comodidad del cliente
+*tools: ABM script (cmd o sh) para agregar/modificar/eliminar rutas. Seria genial un script interactivo de consola en node.
+
+*gulpfile.js: Tratar de no usar jquery para los modales y el dropdown, ver como solucionar
+
+                        Posible solución: http://codepen.io/scottohara/pen/lIdfv?editors=1000
+				No se porque no funciona sincrónicamente la tarea clean y luego las demas, 
+				tuve que iniciarlo solo y luego continuar con build.
+
+OBSERVER: Se attachea 3 veces el subscribe!!!!!!!!
+
+
+
+*[MEjora]crear clases abstractas de Observer y heredar (prototype) de ahí en cada módulo
+
+*client/rest/areas y areas.html estan viejos => fijarse en devices
+*client/rest/users y users.html estan viejos => fijarse en devices
+
+
+*client/js/services/commonServices/socket.js: Error en Chrome y Firefox
+"The connection to ws://localhost/socket.io/?EIO=3&transport=websocket&sid=tbrw_aK5LoZNcIfmAAAC was interrupted while the page was loading"
+Posible solución: http://stackoverflow.com/questions/14140414/websocket-interrupted-while-page-is-loading-on-firefox-for-socket-io
+
+
+*app/REST/users: Cuando se crea el usuario la clave debería ser secreta, para cada usuario ejemplo, en BD 
+
+*[SOLUCIONADO] client/js/services: ME faltan hacer los Modify en cada uno de los servicios.
+
+*MODALES: Cuando se apriete enter (intentar sin JQuery), se ejecuta la acción. 
+https://raventools.com/blog/create-a-modal-dialog-using-css-and-javascript/
+
+
+GENERAR FAVICON (El que tengo es muy malo) con una buena imagen desde: http://realfavicongenerator.net/
+
+Patrones: 
+https://www.safaribooksonline.com/library/view/learning-javascript-design/9781449334840/ch09s05.html
+
+Éste tipo la tiene clarísima. 
+https://addyosmani.com/resources/essentialjsdesignpatterns/book/#observerpatternjavascript
+
+
+deviceInfo.Online no se actualiza.. ver como hacer un timeout
+
+TENGO QUE ENCONTRAR UN METODO PARA COMBINAR LOS DISPOSITIVOS ONLINE/GUARDADOS
+
+
+
+*[SOLUCIONADO] cluster.js: Como puedo volver a iniciar la bd y continuar con el 
+            proceso cuando ocurra un error al iniciar el mtor?? 
+            IIFE no funciona, llamar de nuevo al proceso de creación tampoco.
+            Con un timeout para darle tiempo de cerrar tampoco.
+            
+            CREO QUE childprocess es asíncrono, por lo tanto, habría en
+            "informarle" al "iniciar" que "matar" terminó, ya sea con un mensaje
+            o con el evento "exit"
+
+            Tratar de inciarla en vez de sólo informar al cliente que lo vuelva
+            a iniciar.
+
+            [Solución]: Con shelljs sin un callback, se puede hacer síncrono.
+
+
+Producción:
+ * app.js (client/js): 1) Uncomment config services
+ * gulpfile.js : 2) Uncomment google-closure-compiler
+                 3) Comment concat
+

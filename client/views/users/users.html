@@ -1,0 +1,45 @@
+<!--     ng-show="user.Administrator"-->
+<div>
+    <!-- Users List -->
+    <h3 class="text-info">Lista de Usuarios</h3>
+    <table class="table table-striped col-md-6"> 
+<!--        class = header-fixed--> 
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th colspan="2">Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="text-left" ng-repeat="User in users">
+                <!--<td class="glyphicon glyphicon-user"></td>-->
+                <td ng-bind="User.Name"></td>
+                <td>
+                    <span class="glyphicon glyphicon-plus btn btn-info"
+                            data-toggle="modal" 
+                            data-target="#User{{$index}}">
+                    </span>
+                    <span class="glyphicon glyphicon-remove btn btn-danger" ng-click="removeUser(User._id)"></span>
+                </td>
+                <td>
+                    <!-- List of Users -->
+                    <div id="User{{$index}}" tabindex="-1" class="modal fade" role="dialog" aria-labelledby="executionOptionLabel">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form class="form text-left col-md-offset-1" role="form">
+                                    <h4 style="color: cadetblue;">Detalles del Usuario</h4>
+                                    <div class="modal-body">
+                                        Username: <label ng-bind="User.Username"></label><br>
+                                        Email: <label ng-bind="User.Email"></label><br>
+                                        Age: <label ng-bind="User.Age"></label><br>
+                                    </div>
+                                </form><br>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

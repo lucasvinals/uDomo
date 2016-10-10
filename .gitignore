@@ -1,0 +1,18 @@
+#Logs
+*.log
+shelljs_*
+
+#Libraries and builds
+node_modules/
+udomo/
+
+#Database
+db/
+
+#Specific system configuration
+config/db.js
+
+#IDEs
+# Won't be ignored during development
+#.vscode
+
