@@ -11,6 +11,7 @@ const net               = require('net');
 process.env.clusterPort = process.argv[2] || 80;
 process.env.clusterIP   = require('./tools/getIP')(operatingSystem);
 process.env.MongoURL    = db.url;
+process.devices         = [];
 
 let killServer = () => {
     process.kill(process.pid);

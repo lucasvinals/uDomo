@@ -33,8 +33,6 @@ Devices.factory('Device', ['Socket', '$http', 'Message', 'Observer',
            Observer.unsubscribe(observer);
         },
 		getDevices: (callback) => {
-			// Socket.on('devices', (devices) => callback(null, devices));
-
             $http.get('/api/Devices').then(
 	            (data) => {
 	                var e = data.data.Error;
@@ -44,7 +42,7 @@ Devices.factory('Device', ['Socket', '$http', 'Message', 'Observer',
 	                    	log.error(e),
 	                    	callback(error, null)
 	                    ) :
-	                    callback(null, updateArrayDevices(data.data.Devices));
+	                    callback(null, data.data.Devices);
 	            },
 	            (error) => {
 	                Message.error('Ocurrió un error -> [Descripción en consola]', 10);

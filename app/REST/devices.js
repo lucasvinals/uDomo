@@ -113,7 +113,7 @@ module.exports = (app) => {
     .get('/api/Devices', (request, response) => {
         Devices.FindDevices((error, devices) => {
             devices.forEach((d) => Common.mergeDevices(d));
-            response.json({Devices: process.env.devices, Error: error});
+            response.json({Devices: process.devices, Error: error});
         });
     })
     /**
