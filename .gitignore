@@ -13,6 +13,5 @@ db/
 config/db.js
 
 #IDEs
-# Won't be ignored during development
-#.vscode
+.vscode
 

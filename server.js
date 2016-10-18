@@ -1,72 +1,79 @@
-const started     = Date.now();
+const started           = Date.now();
+const morgan            = require('morgan')('dev');
+const compression       = require('compression')();
+const crypto            = require('crypto');
+const fs                = require('fs');
+const io                = require('socket.io')();
+const sioAdapter        = require('socket.io-adapter-mongo');
+const methodOverride    = require('method-override')('X-HTTP-Method-Override');
+let express             = require('express');
+let app                 = express();
+let bodyParser          = require('body-parser');
+let log                 = process.log;
+let wsModules           = [];
 
-module.exports = (serverPort, log, serverOS) => {
+/**
+ * Loads all the scripts in 'app/websockets'
+ */
+fs.readdirSync(__dirname + '/app/websockets').forEach((file, index) => {
+    wsModules[index] = require('./app/websockets/' + file.substring(0, file.indexOf('.js')));
+});
+
+/**
+ * App configuration
+ */
+app
     /**
-     * Connect the MongoDB engine with Node.
+     * Compress using gzip
      */
-    const mongoDB = require('./config/db')(serverOS).url;
-    require('mongoose').connect(mongoDB);
-
-    let express         = require('express');
-    let app             = express();
-    let bodyParser      = require('body-parser'); // Work with JSON in application
-
+    .use(compression)
     /**
-     * App configuration
+     * Log HTTP Requests
      */
-    app
-        /**
-         * Compress using gzip
-         */
-        .use(require('compression')())
-        /**
-         * Log HTTP Requests
-         */
-        .use(require('morgan')('dev'))
-        /**
-         * Override with the X-HTTP-Method-Override header in the request. simulate DELETE/PUT
-         */
-        .use(require('method-override')('X-HTTP-Method-Override'))
-        /**
-         * Accept only application/x-www-form-urlencoded and any type of values (like JSON)
-         */
-        .use(bodyParser.urlencoded({ extended: true }))
-        /**
-         * Parse application/json in request.body
-         */
-        .use(bodyParser.json())
-        /**
-         * Parse application/vnd.api+json as json 
-         */
-        .use(bodyParser.json({ type: 'application/vnd.api+json' }))
-        /**
-         * Set the static files location. User will see --> /js , /css, etc . 
-         */
-        .use(express.static(__dirname + '/udomo'));
-    
+    .use(morgan)
     /**
-     * Se setea la clave 'JWT_SECRET' para usar en las autenticaciones
+     * Override with the X-HTTP-Method-Override header in the request. simulate DELETE/PUT
      */
-    require('crypto').randomBytes(64, function(err, buffer) {
-        process.env.JWT_SECRET = buffer.toString('base64');
-    });
-
-    const fs = require('fs');
-
+    .use(methodOverride)
     /**
-     * RESTful API
+     * Accept only application/x-www-form-urlencoded and any type of values (like JSON)
      */
-    fs.readdirSync(__dirname + '/app/REST').forEach((file) => {
-        require('./app/REST/' + file.substring(0, file.indexOf('.js')))(app, log);
-    });
-
+    .use(bodyParser.urlencoded({ extended: true }))
     /**
-     * Frontend Routes
+     * Parse application/json in request.body
      */
-    app.use('/',(request, response) => {
-        response.sendFile(__dirname + '/udomo/views/index.html');
-    });
+    .use(bodyParser.json())
+    /**
+     * Parse application/vnd.api+json as json 
+     */
+    .use(bodyParser.json({ type: 'application/vnd.api+json' }))
+    /**
+     * Set the static files location. User will see --> /js , /css, etc . 
+     */
+    .use(express.static(__dirname + '/udomo'));
 
+/**
+ * Se setea la clave 'JWT_SECRET' para usar en las autenticaciones
+ */
+crypto.randomBytes(64, function(err, buffer) {
+    process.env.JWT_SECRET = buffer.toString('base64');
+});
+
+/**
+ * RESTful API
+ */
+fs.readdirSync(__dirname + '/app/REST').forEach((file) => {
+    require('./app/REST/' + file.substring(0, file.indexOf('.js')))(app);
+});
+
+/**
+ * Frontend Routes
+ */
+app.use('/',(request, response) => {
+    response.sendFile(__dirname + '/udomo/views/index.html');
+});
+
+module.exports = (args) => {
     /**
      * Cluster (2 or more cores activated): 
      *      Express instanece listening on local port,do not expose to outside.
@@ -75,10 +82,11 @@ module.exports = (serverPort, log, serverOS) => {
      *
      * The server on the main process manage the connections with the clients.
      */
-    const ipServer = require('./tools/getIP')(serverOS);
-    const server  = app.listen(serverPort, ipServer);
-    /* Socket.IO attached to Express instance */
-    const io      = require('socket.io')(server);
+    const server  = app.listen(args.serverPort, process.env.clusterIP);
+    /*
+     * Socket.IO attached to Express instance 
+     */
+    io.attach(server);
 
     /**
      * Websockets
@@ -87,16 +95,16 @@ module.exports = (serverPort, log, serverOS) => {
     /**
      * Store sessions in db 
      */
-    io.adapter(require('socket.io-adapter-mongo')(mongoDB));
+    io.adapter(sioAdapter(process.env.MongoURL));
     /**
      * Prevent EventEmmiter memory leak
      */
     io.sockets.setMaxListeners(0);
     /**
-     * Loads all the scripts in 'app/websockets'
+     * Init ws modules in 'app/websockets'
      */
-    fs.readdirSync(__dirname + '/app/websockets').forEach((file) => {
-        require('./app/websockets/' + file.substring(0, file.indexOf('.js')))(io, log);
+    wsModules.forEach((wsMod) => {
+        wsMod(io);
     });
 
     /**
@@ -113,7 +121,7 @@ module.exports = (serverPort, log, serverOS) => {
     /**
      * If an error occurs, log it
      */
-    process.on('uncaughtException', (err) => { log.error(err); });
+    process.on('uncaughtException', (err) => { log.error(err.stack); });
 
     /**
      * Log server info

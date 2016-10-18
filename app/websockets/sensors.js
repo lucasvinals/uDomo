@@ -7,7 +7,7 @@
 //                                        serverCode.extension, 
 //                                        {mode: 'json'}
 //);
-module.exports = (io, log) => {
+module.exports = (io) => {
 //    sensor.on('message', function (data){
 //            io.sockets.emit('serverSensor', data);
 //    });

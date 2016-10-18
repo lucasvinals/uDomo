@@ -13,16 +13,6 @@ class databaseParams {
         this.secret = secret;
 
         switch (os) {
-            /** AGROFY (GNU/Linux Mint)
-             * this.binaryPath = "/usr/lib/mongodb/bin/mongod "; 
-             * this.storage	= "--dbpath='/root/udomo/db/data/db' "; 
-             * this.defaultLog = "--logpath='/root/udomo/db/logs/log.txt' "; 
-             */
-            /** Notebook (GNU/Linux Kali)
-             * this.binaryPath = "/home/packages/mongodb/bin/mongod ";
-             * this.storage    = "--dbpath='/root/udomo.webapplication/db/data/db' ";
-             * this.defaultLog = "--logpath='/root/udomo.webapplication/db/logs/log.txt' ";
-             */
             case 'linux':
                 /**
                  * Binary path where mongod is located
@@ -31,11 +21,11 @@ class databaseParams {
                 /**
                  * Where database is saved
                  */
-                this.storage = "--dbpath='/home/pi/udomo.webapplication/db/data/db' ";
+                this.storage = "--dbpath='/home/pi/uDomo/db/data/db' ";
                 /**
                  * Where logs are saved
                  */
-                this.defaultLog = "--logpath='/home/pi/udomo.webapplication/db/logs/log.txt' ";
+                this.defaultLog = "--logpath='/home/pi/uDomo/db/logs/log.txt' ";
                 break;
             case 'windows':
                 this.binaryPath = "C:/'Archivos de programa'/MongoDB/Server/3.2/bin/mongod.exe ";

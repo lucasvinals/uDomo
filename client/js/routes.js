@@ -52,7 +52,7 @@ Routes.config(['$stateProvider', '$httpProvider', '$urlRouterProvider','$locatio
 		 * Homepage - Welcome and all the information to the user
 		 */
 		.state('home', {
-			url: '',
+			url: '/',
 			templateUrl: '/views/home/home.html',
 			controller: 'homeController'
 		})
@@ -60,7 +60,7 @@ Routes.config(['$stateProvider', '$httpProvider', '$urlRouterProvider','$locatio
 		 * User management
 		 */
 		.state('users', {
-			url: '/users/',
+			url: '/users',
 			templateUrl: '/views/users/users.html',
 			controller: 'userController'
 		})
@@ -131,7 +131,7 @@ Routes.config(['$stateProvider', '$httpProvider', '$urlRouterProvider','$locatio
 		/**
 		 * Otherwise redirect to the "404 - not found" page
 		 */
-		$urlRouterProvider.otherwise('/notFound');
+		// $urlRouterProvider.otherwise($stateProvider.go('notFound'));
 		/**
 		 * Quits the hashes in the URL..
 		 */

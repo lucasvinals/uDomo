@@ -1,19 +1,16 @@
-const	started         = Date.now();
-/**
- *  Cluster module to spawn X processes and get full advantage of system performance 
- */
-const   cluster         = require('cluster'); 
-/**
- * Custom logger 
- */
-const   log             = require('./tools/logger')('server'); 
-/**
- *  Return current number of CPUs in the system 
- */
-const   machineCPUs     = require('os').cpus().length;
-const   serverPort      = process.argv[2] || 80;
-const   numProcesses    = process.argv[3] || machineCPUs;
-const   operatingSystem = 'linux';
+const started           = Date.now();
+const cluster           = require('cluster');
+const bashCommand       = require('shelljs').exec;
+const machineCPUs       = require('os').cpus().length;
+const operatingSystem   = 'linux';
+const numProcesses      = process.argv[3] || machineCPUs;
+const log               = process.log = require('./tools/logger')('server');
+const db                = require('./config/db')(operatingSystem);
+const mongoose          = require('mongoose');
+const net               = require('net');
+process.env.clusterPort = process.argv[2] || 80;
+process.env.clusterIP   = require('./tools/getIP')(operatingSystem);
+process.env.MongoURL    = db.url;
 
 let killServer = () => {
     process.kill(process.pid);
@@ -25,7 +22,7 @@ let killServer = () => {
  */
 if(numProcesses < 1 || numProcesses > machineCPUs){
     log.error(Array(65).join('*') + 
-                 '\nYou can\'t run cluster with that number of CPUs.\
+                 '\nYou can\'t run cluster with' + numProcesses + ' spawn processes.\
                  \nPlease give a valid number (1 - ' + 
                  machineCPUs + 
                  ')' + 
@@ -35,16 +32,13 @@ if(numProcesses < 1 || numProcesses > machineCPUs){
                 );
     killServer();
 }
-/********************************************************************************************/
 
 if (cluster.isMaster) { // Master
     /**
      * Initialize the database engine inside the master, easy to install in the future 
      */
-    const   db              = require('./config/db')(operatingSystem);
     let     countError      = 0;
-    const   bashCommand     = require('shelljs').exec;
-
+    
     /**
      * Kill mongod process (with it's PID) -> (SIGTERM) if found. Since it's a fast and 
      * simple command, it can be sincronic 
@@ -54,7 +48,7 @@ if (cluster.isMaster) { // Master
                         'kill $(($(ps -C mongod | grep mongod | cut -c 1-5)))',
                         {silent: true}).code == 0){
             /**
-             *  Successfully closed an instance of MongoDB 
+             * Successfully closed an instance of MongoDB 
              */
             log.warning('> Se terminó una instancia de \"mongod\" abierta.');
         }
@@ -85,12 +79,18 @@ if (cluster.isMaster) { // Master
                                     '\nSe intenta terminar con alguna instancia de ' +
                                     '\"mongod\" abierta'
                                );
-                    /* Execute again the mongod killer */
+                    /**
+                     * Execute again the mongod killer
+                     */
                     killMongoInstance();
                     ++countError < 3 ? 
-                        /* Recursive call the inner function! */
+                        /**
+                         * Recursive call the inner function
+                         */
                         initMongo() : 
-                        /* If fails, do not start the cluster/server */
+                        /**
+                         * If fails, do not start the cluster/server
+                         */
                         killServer();
                 }
             }
@@ -98,17 +98,21 @@ if (cluster.isMaster) { // Master
         log.success('> El motor de base de datos se inició correctamente!');
         return initMongo;
     })();
-    /****************************************************************************************/
+
+    /**
+     * Connect to the MongoDB engine
+     */
     
+    mongoose.connect(process.env.MongoURL);
+
     /** 
      * If numProcesses is 1, then it will only run in one core, 
      * so trigger once the server and leave cluster
      */
     if(numProcesses == 1){
-        require('./server')(serverPort, log, operatingSystem);
+        require('./server')({"serverPort": process.env.clusterPort});
         return;
     }
-    /****************************************************************************************/
 
     /** This stores the workers. Need to keep them to be able to reference them based on 
       * source IP address 
@@ -117,22 +121,26 @@ if (cluster.isMaster) { // Master
     let spawn   = (i) => {
         'use strict';
         workers[i] = cluster.fork()
-            /********** Inform that the worker died on exit and then respawn it. ************/
+            /* 
+             * Inform that the worker died on exit and then respawn it. 
+             */
             .on('exit', (worker, code, signal) => {
                 'use strict';
                 log.warning('\n> Worker '+ i + ' died with code ' + code + 
                                 ' and signal ' + signal + ' .Respawning worker ' + i);
                 spawn(i);
             });
-            /********************************************************************************/
     };
     
-    /***************************** Spawn (init) workers. ************************************/
+    /**
+     * Spawn (init) workers.
+     */
     for (let i = numProcesses; --i;) { spawn(i); }
-    /****************************************************************************************/
     
-    /* Get a number from 1 to (numProcesses - 1) accordingly to the given IP */
-    let getWorkerIndex = (ip, cantHilos) =>{
+    /* 
+     * Get a number from 1 to (numProcesses - 1) accordingly to the given IP 
+     */
+    let getWorkerIndex = (ip, cantHilos) => {
         'use strict';
         let s = '';
         for (let i = 0, ipSize = ip.length; i < ipSize; ++i) {
@@ -140,31 +148,32 @@ if (cluster.isMaster) { // Master
                 s += ip[i];
             }
         }
-        /* parseInt because IPv6 is formatted in hexadecimal */
+        /*
+         * parseInt because IPv6 is formatted in hexadecimal
+         */
         return 1 + (parseInt(s, 16) % (cantHilos - 1));
     }
-    /****************************************************************************************/
 
-    /********************* Create the outside facing server listening on PORT ***************/
-    require('net').createServer({ pauseOnConnect: true }, (connection) => {
+    /**
+     * Create the outside facing server listening on PORT
+     */
+    net.createServer({ pauseOnConnect: true }, (connection) => {
         'use strict';
-        /*  We received a connection and need to pass it to the appropriate worker. 
-            Get the worker for this connection's source IP and pass it the connection. */
+        /* 
+         * Received a connection and need to pass it to the appropriate worker. 
+         * Get the worker for this connection's source IP and pass it the connection. 
+         */
         let ip = connection.remoteAddress;
         let worker = workers[getWorkerIndex(ip, numProcesses)];
-        /************************************************************************************/
 
         worker.send('sticky-session:connection', connection);
         log.info('\n> New Connection! Remote Address: ' + ip + 
                     ' assigned to worker N° ' + getWorkerIndex(ip, numProcesses)
                     );
-    }).listen(serverPort);
-    /****************************************************************************************/
+    }).listen(process.env.clusterPort);
 
     log.info('\n> New instance of Master with PID ' + process.pid + 
                     ' started in ' + (Date.now() - started) + 'ms.');
 } else { // Spawn workers
-    /**************** This will call server for each child I have ***************************/
-    require('./server')(0, log, operatingSystem);
-    /****************************************************************************************/
+    require('./server')({"serverPort": 0});
 }

@@ -1,4 +1,5 @@
 let db = require("mongoose");
+let permissions = require('./permissions').schema;
 
 module.exports = db.model("User", new db.Schema({
                                                     _id           : String,
@@ -8,5 +9,5 @@ module.exports = db.model("User", new db.Schema({
                                                     Username      : String,
                                                     Email         : String,
                                                     Password      : String,
-                                                    Permissions   : require('./permissions').schema
+                                                    Permissions   : permissions
                                                 }));

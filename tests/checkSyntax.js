@@ -1,9 +1,11 @@
-module.exports = (log) => {
-    const fs = require('fs');
-    const check = require('syntax-error');
-    const tester = require('glob');
+const fs        = require('fs');
+const check     = require('syntax-error');
+const tester    = require('glob');
 
-    /************************************* Server *************************************/
+module.exports = (log) => {
+    /**
+     * Server
+     */
     log.info('Checking server files for syntax errors');
     const serverArray = [
         './app/**/*.*',
@@ -21,9 +23,10 @@ module.exports = (log) => {
                 log.success(' File: \"' + f + '\" -> Syntax OK ');
         });
     });
-    /*********************************************************************************/
 
-    /************************************* Client ************************************/
+    /**
+     * Client
+     */
     log.info('Checking client js files for syntax errors');
     tester.sync("./client/js/**/*.js").forEach((f) => {
         let error = check(fs.readFileSync(f), f);
@@ -31,5 +34,4 @@ module.exports = (log) => {
             log.error(error) :
             log.success(' File: \"' + f + '\" -> Syntax OK ');
     });
-    /*********************************************************************************/
 };

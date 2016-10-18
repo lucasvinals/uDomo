@@ -6,8 +6,6 @@ module.exports = db.model("Device", new db.Schema({
                                                     Name        : String, // Human readable name
                                                     IP          : String, // IP
                                                     N           : Number, // Number
-                                                   // Z           : String, // Zone-Area
-                                                    //idZ         : String, // Zone-Area
                                                     Saved       : Boolean, // Saved?
                                                     Online      : Boolean, // Online?
                                                     Area        : Areas.schema,                                     

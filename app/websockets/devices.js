@@ -1,4 +1,7 @@
-module.exports = (io, log) => {
+var log     = log || process.log;
+let Devices = require('../models/devices');
+
+module.exports = (io) => {
     'use strict';
     const time1 = Date.now();
     /***************************************** User/device is now connected **********************************************/
@@ -6,7 +9,7 @@ module.exports = (io, log) => {
         /* WS request devices */
         socket.on('requestStoredDevices', () => {
             /* Find all devices stored in the database */
-            require('../models/devices').find({}, (error, devices) => {
+            Devices.find({}, (error, devices) => {
                 io.sockets.emit('dbStoredDevices', {"Error": error, "Devices": devices});
             });
         });

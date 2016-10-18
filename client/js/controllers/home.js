@@ -1,3 +1,3 @@
 angular.module('Home', []).controller('homeController', ['$scope', function($scope){
-    console.log("Llega a HOME!");
+    log.success("Llega a HOME!");
 }]);

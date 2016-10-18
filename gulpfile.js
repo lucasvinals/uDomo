@@ -44,9 +44,14 @@ const log = {
     }
 };
 
-const gulp = require('gulp');
-const concat = require('gulp-concat');
-const livereload = require('gulp-livereload');
+const gulp          = require('gulp');
+const concat        = require('gulp-concat');
+const cleanCSS      = require('gulp-clean-css');
+const processHTML   = require('gulp-processhtml');
+const livereload    = require('gulp-livereload');
+const checkSyntax   = require('./tests/checkSyntax');
+const psi           = require('psi');
+const googleCC      = require('google-closure-compiler-js').gulp;
 
 function psilog(speed, usability, type) {
     speed < 30 && log.error('Speed score for ' + type + ': ' + speed);
@@ -86,15 +91,15 @@ gulp.task('jsScripts', () => {
         /**
          * Comment for production (faster in dev)
          */
-        // .pipe(concat('udomo.min.js'))
+        .pipe(concat('udomo.min.js'))
         /**
          * Uncomment for production. (takes some time to minify)
          */
-        .pipe(require('google-closure-compiler-js').gulp()({
-            compilationLevel: 'SIMPLE',
-            jsOutputFile: 'udomo.min.js',
-            angularPass: true
-        }))
+        // .pipe(googleCC()({
+        //     compilationLevel: 'SIMPLE',
+        //     jsOutputFile: 'udomo.min.js',
+        //     angularPass: true
+        // }))
         .pipe(gulp.dest('./udomo/js'));
 })
 
@@ -109,7 +114,7 @@ gulp.task('jsScripts', () => {
             // './node_modules/angular-ui-bootstrap/dist/ui-bootstrap.css',
             './client/css/style.css'
         ])
-        .pipe(require('gulp-clean-css')())
+        .pipe(cleanCSS())
         .pipe(concat('styles.min.css'))
         .pipe(gulp.dest('./udomo/css'));
 })
@@ -122,7 +127,7 @@ gulp.task('jsScripts', () => {
     gulp.src('./node_modules/bootstrap/fonts/*.wof*')
         .pipe(gulp.dest('./udomo/fonts'));
     gulp.src('./client/views/**/*')
-        .pipe(require('gulp-processhtml')({
+        .pipe(processHTML({
                                             data:{
                                                     "versionApp": Math.floor(Math.random() * 1000)
                                                     }
@@ -146,7 +151,7 @@ gulp.task('jsScripts', () => {
  * TASK - Search errors in server/client files
  */
 .task('checkSyntax', () => {
-    require('./tests/checkSyntax')(log);
+    checkSyntax(log);
 })
 
 .task('watch', ['construir'], function () {
@@ -158,7 +163,7 @@ gulp.task('jsScripts', () => {
  * ngrok falla, por lo tanto no tiene sentido probarlo ahora.
  */
 .task('mobileTest', () => {
-    return require('psi')('localhost', {
+    return psi('localhost', {
         nokey: 'true',
         strategy: 'mobile',
     }).then((data) => {
@@ -167,7 +172,7 @@ gulp.task('jsScripts', () => {
 })
 
 .task('desktopTest', () => {
-    return require('psi')('localhost', {
+    return psi('localhost', {
         nokey: 'true',
         strategy: 'desktop',
     }).then((data) => {
