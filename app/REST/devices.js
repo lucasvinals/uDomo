@@ -1,4 +1,5 @@
-var Device = require("../models/devices");
+let Device  = require("../models/devices");
+let Common  = require('../common');
 var log     = log || process.log;
 
 var Devices = {
@@ -111,7 +112,8 @@ module.exports = (app) => {
      */
     .get('/api/Devices', (request, response) => {
         Devices.FindDevices((error, devices) => {
-            response.json({Devices: devices, Error: error});
+            devices.forEach((d) => Common.mergeDevices(d));
+            response.json({Devices: process.env.devices, Error: error});
         });
     })
     /**

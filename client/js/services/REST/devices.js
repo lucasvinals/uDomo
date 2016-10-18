@@ -3,7 +3,7 @@ let Devices = angular.module('Devices', []);
 Devices.factory('Device', ['Socket', '$http', 'Message', 'Observer', 
 (Socket, $http, Message, Observer) => {
 	'use strict';
-	var currentDevices = [];
+	let alreadySet = false;
 	/* 
 		Hacer que:
 		* Cuando no está online ni guardado, sacarlo de la lista directamente si previamente
@@ -25,27 +25,7 @@ Devices.factory('Device', ['Socket', '$http', 'Message', 'Observer',
         });
     }, 3000);*/
 
-	let updateArrayDevices = (devObject) => {
-		/**
-		 * Cuando tienen el mismo ID, los mergeo y agrego las propiedades (del online sobre el guardado)
-		 */
-		let merge = (sD, oD) => (sD._id === oD._id) && /** Es el mismo dispositivo */ _.merge(sD, oD);
-
-		/*let tmpArray = currentDevices;
-		let notSaved = true;
-		devObject.forEach((oD) => {
-			tmpArray.forEach((sD) => {
-				merge(sD, oD);
-				notSaved = false;
-			});
-			if(notSaved){
-				currentDevices.push(oD);
-			}
-		});*/
-		 return _.unionBy(currentDevices, _.merge(currentDevices, devObject), 'id');
-	}
-
-	return{
+	let Facade = {
 		Subscribe: (observer) => {
             Observer.subscribe(observer);
         },
@@ -53,20 +33,8 @@ Devices.factory('Device', ['Socket', '$http', 'Message', 'Observer',
            Observer.unsubscribe(observer);
         },
 		getDevices: (callback) => {
-			Socket.on('onlineDevice', (data) => {
-		        callback(null, updateArrayDevices([data]));
-		    });
-			Socket.on('dbStoredDevices', (data) => {
-		        var e = data.Error;
-		        e ?
-		        	(
-		        		Message.error('Ocurrió un error recuperando los ' + 
-		        			'dispositivos de la base de datos', 10),
-		            	log.error(e),
-		        		callback(e, null)
-		        	) : 
-		        	callback(null, updateArrayDevices(data.Devices));
-		    });
+			// Socket.on('devices', (devices) => callback(null, devices));
+
             $http.get('/api/Devices').then(
 	            (data) => {
 	                var e = data.data.Error;
@@ -159,7 +127,14 @@ Devices.factory('Device', ['Socket', '$http', 'Message', 'Observer',
 		},
 		sendMessage: (listener, message) => {
 			Socket.emit(listener, message);
-			//Socket.emitDevices(listener, message);
+		},
+		/**
+		 * To prevent listener attach on every request
+		 */
+		triggerWithSocketIncomming: () => {
+			!alreadySet && Socket.on('devices', (devices) => Facade.getDevices((null, devices))) && (alreadySet = true);
 		}
 	};
+
+	return Facade;
 }]);

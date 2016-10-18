@@ -133,17 +133,15 @@ void setDeviceIP(){
 
 bool actionReceived(){  
   /**************************************************** Pin JSON decoder *************************************/
-  if(RID == "deviceChangePin"){
+  if(RID == "changePin"){
     String str = Rcontent; // Because Rcontent could change in any moment..
     StaticJsonBuffer<200> jsonActions;
     String payload = "{" + str.substring(0, str.lastIndexOf('}'));
     JsonObject& incomingDevice = jsonActions.parseObject(payload);
     if (incomingDevice["_id"] == DEVICEID){
       analogWrite(incomingDevice["pin"], incomingDevice["value"]);
-      //sendMessageServer();
     }
   }
-  /***********************************************************************************************************/
   return true;
 }
 
@@ -259,10 +257,7 @@ void setup(){
   const char SSID_PASS_IP[][25] = {
     /* SSIDs        Passwords         	      Fixed server IP (in router) */
     "Lucasnet"    , "uD0m0_uk"                , "192.168.43.43",
-    "Casa_01"     , "esta_es.la:casa/vinals"  , "192.168.0.4",
-    "UAI-FI" 		  , "AccesosUAI" 		          , "10.11.91.152",
-    "FIBERTEL804" , "0143657874" 		          , "192.168.0.16",
-    "Softing" 		, "softing3b" 		          , "192.168.50.118"
+    "Casa_01"     , "Pilarjazmin3"            , "192.168.0.4",
   };    
 
   /********************************************** Connect to Access Point, check if it's connected. ***************************************/

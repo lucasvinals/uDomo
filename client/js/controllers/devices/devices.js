@@ -9,26 +9,26 @@ function(Device, Area, $scope){
         $scope.deviceInfo = $scope.devices.filter((dev) => dev._id == lastID)[0];
     };
 
-    /************************* Get all devices, online and saved ***********************************/
     let getDevices = (function iifeGetDevices(){
         Device.getDevices((error, devices) => {
-            if(error){
-                log.error('Error obteniendo dispositivos de la base de datos ->' + error);
-            }else{
+            if(!error){
                 $scope.devices = devices;
                 setDeviceInfo();
                 $scope.cantidadDisp = $scope.devices.length;
+            }else{
+                log.error('Error obteniendo dispositivos de la base de datos ->' + error);
             }
         });
         return iifeGetDevices;
     })();
-    /***********************************************************************************************/
 
-    /************************************** Observer pattern ***************************************/
+    Device.triggerWithSocketIncomming();
+
+    /**
+     * Observer
+     */
     Device.Subscribe(getDevices);
-    /***********************************************************************************************/
 
-    /**************************************** Save a Device ****************************************/
     $scope.saveDevice = (device) => {
         try{
             device.Saved = true;
@@ -42,9 +42,7 @@ function(Device, Area, $scope){
             log.error('Ocurrió un problema guardando el dispositivo -> ' + e.stack);
         }
     };
-    /***********************************************************************************************/
 
-    /************************************** Remove a Device ****************************************/
     $scope.removeDevice = (id) => {
         try {
             Device.deleteDevice(id);
@@ -52,7 +50,6 @@ function(Device, Area, $scope){
             log.error('Ocurrió un problema al eliminar el dispositivo: ' + ex.stack);
         }
     };
-    /***********************************************************************************************/
 
     $scope.tempDevice = (index) => {
         $scope.tmpDevice = $scope.devices[index];
@@ -65,11 +62,13 @@ function(Device, Area, $scope){
     };
 
     $scope.changePin = (_id, Pin, val) => {
-        Device.sendMessage('clientChangePin', {
-                                                '_id'   : _id,
-                                                'pin'   : +Pin,
-                                                'value' : val === 0 ? 1023 : 0
-                                              });
+        Device.sendMessage(
+            'rChangePin', {
+                            '_id'   : _id,
+                            'pin'   : +Pin,
+                            'value' : val,
+                            'mode': 'light'
+                        });
     };
 
     /* Mejora. Iniciar los modales desde acá, no en la vista */
