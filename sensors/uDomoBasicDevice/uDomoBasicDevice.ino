@@ -257,7 +257,7 @@ void setup(){
   const char SSID_PASS_IP[][25] = {
     /* SSIDs        Passwords         	      Fixed server IP (in router) */
     "Lucasnet"    , "uD0m0_uk"                , "192.168.43.43",
-    "Casa_01"     , "Pilarjazmin3"            , "192.168.0.4",
+    "Casa_01"     , "Pilarjazmin3"            , "192.168.0.4"
   };    
 
   /********************************************** Connect to Access Point, check if it's connected. ***************************************/

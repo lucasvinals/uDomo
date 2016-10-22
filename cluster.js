@@ -58,6 +58,7 @@ if (cluster.isMaster) { // Master
 
     let initMongoInstance = (initMongo = () => {
         log.info('> Iniciando el motor de base de datos...');
+        bashCommand("mongod --repair " + db.storage + "", {silent: true});
         /**
          * From: "https://www.npmjs.com/package/shelljs" (80% page) 10/07/2016: 
          * "For long-lived processes, it's best to run exec() asynchronously as the current 
