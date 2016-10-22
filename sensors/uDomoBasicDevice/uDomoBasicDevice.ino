@@ -183,6 +183,7 @@ void sendPeriodically(){
 }
 
 void setup(){
+  // Connection.erasePreviousNetwork();
   
   #ifdef DEBUG
     Serial.begin(115200);
@@ -192,9 +193,9 @@ void setup(){
   #endif
 
   /************************************************* Give time to the device to boot properly *********************************************/
-  debugPrintln(F("************************************************************"));
-  debugPrintln(F("********************** Booting Device **********************"));
-  debugPrintln(F("************************************************************"));
+  // debugPrintln(F("************************************************************"));
+  // debugPrintln(F("********************** Booting Device **********************"));
+  // debugPrintln(F("************************************************************"));
   unsigned char t = 4;
   while (t){
     debugFlush();
@@ -204,86 +205,84 @@ void setup(){
   /****************************************************************************************************************************************/
 
   /******************************************** Initialize all outputs and set them LOW. **************************************************/
-  debugPrintln(F("************************************************************"));
+  // debugPrintln(F("************************************************************"));
   
   for (unsigned char index = 0; index < sizeof(OUTPUTS) / sizeof(unsigned char); ++index){
-    debugPrint(F("> Setting: ")); debugPrint(OUTPUTS[index]); debugPrintln(F(" as OUTPUT."));
+    // debugPrint(F("> Setting: ")); debugPrint(OUTPUTS[index]); debugPrintln(F(" as OUTPUT."));
     pinMode(OUTPUTS[index], OUTPUT);
     digitalWrite(OUTPUTS[index], LOW);
   }
-  debugPrintln(F("************************************************************")); debugPrintln();
+  // debugPrintln(F("************************************************************")); debugPrintln();
   /****************************************************************************************************************************************/
 
   /***************************************************** Initialize all inputs ************************************************************/
-  debugPrintln(F("************************************************************"));
+  // debugPrintln(F("************************************************************"));
   for (unsigned char index = 0; index < sizeof(INPUTS) / sizeof(unsigned char); ++index){
-    debugPrint(F("> Setting: ")); debugPrint(INPUTS[index]); debugPrintln(F(" as INPUT."));
+    // debugPrint(F("> Setting: ")); debugPrint(INPUTS[index]); debugPrintln(F(" as INPUT."));
     pinMode(INPUTS[index], INPUT);
 //    attachInterrupt(digitalPinToInterrupt(INPUTS[index]), checkButtons, HIGH); // ONLY for relay actions, COMMENT if any INPUT has a different behaviour.IT DOES NOT WORK WELL WITH 2 BUTTONS
   }
   attachInterrupt(digitalPinToInterrupt(INPUTS[0]), changeB1, HIGH);
   attachInterrupt(digitalPinToInterrupt(INPUTS[1]), changeB2, HIGH);
-  debugPrintln(F("************************************************************")); debugPrintln();
+  // debugPrintln(F("************************************************************")); debugPrintln();
   
   Sensor.calibrate();
   
   /**
    * Network parameters 
    */
-  const char SSID_PASS_IP[][25] = {
-    /* SSIDs        Passwords         	      Fixed server IP (in router) */
-    "Lucasnet"    , "uD0m0_uk"                , "192.168.43.43",
-    "Casa_01"     , "Pilarjazmin3"            , "192.168.0.4",
-  };    
+  // const char SSID_PASS_IP[][25] = {
+  //   /* SSIDs        Passwords         	      Fixed server IP (in router) */
+  //   "Lucasnet"    , "uD0m0_uk"                , "192.168.43.43",
+  //   "Casa_01"     , "Pilarjazmin3"            , "192.168.0.4",
+  // };    
 
   /********************************************** Connect to Access Point, check if it's connected. ***************************************/
-  debugPrintln(F("************************************************************"));
+  // debugPrintln(F("************************************************************"));
 
-  unsigned char index = sizeof SSID_PASS_IP / sizeof SSID_PASS_IP[0];
-  while (index > 2) {
-    debugPrint(F("> Adding SSID: \""));
-    debugPrint(SSID_PASS_IP[index - 3]);
-    debugPrint(F("\" with password: \""));
-    debugPrint(SSID_PASS_IP[index - 2]);
-    debugPrintln(F("\""));
-    Connection.addAP(SSID_PASS_IP[index - 3], SSID_PASS_IP[index - 2]);
-    index -= 3;
-  }
+  // unsigned char index = sizeof SSID_PASS_IP / sizeof SSID_PASS_IP[0];
+  // while (index > 2) {
+  //   debugPrint(F("> Adding SSID: \""));
+  //   debugPrint(SSID_PASS_IP[index - 3]);
+  //   debugPrint(F("\" with password: \""));
+  //   debugPrint(SSID_PASS_IP[index - 2]);
+  //   debugPrintln(F("\""));
+    Connection.setup();
+  //   index -= 3;
+  // }
 
-  debugPrintln(F("************************************************************")); debugPrintln();
+  // debugPrintln(F("************************************************************")); debugPrintln();
 
-  while (!Connection.isWifiConnected()) {
-    debugPrint(F("Ping...."));delay(300);debugPrint(F("Pong....\n"));
-  }
   
-  debugPrintln(F("UUID try: ")); debugPrintln(ESP.getFlashChipId());
+  
+  // debugPrintln(F("UUID try: ")); debugPrintln(ESP.getFlashChipId());
   /****************************************************************************************************************************************/
 
-  /**************** Based on which network has an active connection, get the common (fixed on the router) server IP address ***************/
-  debugPrintln(F("************************************************************"));
-  index = sizeof SSID_PASS_IP / sizeof SSID_PASS_IP[0];
-  String ssidTemp = WiFi.SSID();
-  while (index > 2) {
-    debugPrint(F("> Testing SSID: ")); debugPrint(ssidTemp); debugPrint(F(" against: ")); debugPrintln(SSID_PASS_IP[index - 3]);
-    if (ssidTemp == SSID_PASS_IP[index - 3]) {
-      debugPrint(F("> Found: \"")); debugPrint(SSID_PASS_IP[index - 3]); debugPrint(F("\" with it's server IP: ")); debugPrintln(SSID_PASS_IP[index - 1]);
-      // serverIP = SSID_PASS_IP[index - 1];
-      index = 3; //Network found, break here.
-    }
-    index -= 3;
-  }
-  debugPrintln(F("************************************************************")); debugPrintln();
+  // /**************** Based on which network has an active connection, get the common (fixed on the router) server IP address ***************/
+  // debugPrintln(F("************************************************************"));
+  // index = sizeof SSID_PASS_IP / sizeof SSID_PASS_IP[0];
+  // String ssidTemp = WiFi.SSID();
+  // while (index > 2) {
+  //   debugPrint(F("> Testing SSID: ")); debugPrint(ssidTemp); debugPrint(F(" against: ")); debugPrintln(SSID_PASS_IP[index - 3]);
+  //   if (ssidTemp == SSID_PASS_IP[index - 3]) {
+  //     debugPrint(F("> Found: \"")); debugPrint(SSID_PASS_IP[index - 3]); debugPrint(F("\" with it's server IP: ")); debugPrintln(SSID_PASS_IP[index - 1]);
+  //     // serverIP = SSID_PASS_IP[index - 1];
+  //     index = 3; //Network found, break here.
+  //   }
+  //   index -= 3;
+  // }
+  // debugPrintln(F("************************************************************")); debugPrintln();
   /****************************************************************************************************************************************/
 
   /*************************************** Update sketch Over The Air. Upload code from the webpage of uDomo. *****************************/
-  Connection.initHTTPServer();
-  debugPrint(F("[INFO] To upload a sketch, go to \"http://"));
-  debugPrint(Connection.deviceIP());
-  debugPrint(F(":"));
+  // Connection.initHTTPServer();
+  // debugPrint(F("[INFO] To upload a sketch, go to \"http://"));
+  // debugPrint(Connection.deviceIP());
+  // debugPrint(F(":"));
   // debugPrint(UPDATERPORT);
-  debugPrintln(F("/device\" in your browser."));
+  // debugPrintln(F("/device\" in your browser."));
   
-  debugPrint(F("Free memory SETUP: ")); debugPrintln(ESP.getFreeHeap());
+  // debugPrint(F("Free memory SETUP: ")); debugPrintln(ESP.getFreeHeap());
 }
 
 void loop() {

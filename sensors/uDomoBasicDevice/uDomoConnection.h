@@ -12,18 +12,27 @@
             uDomoConnection();
             void clientESP();
             bool isSocketConnected();
-            bool isWifiConnected();
             String deviceIP();
             bool hasMessage();
             bool sendJSON(const char*, char*);
-            void addAP(const char*, const char*);
-            void initHTTPServer();
+            void setup();
        private:
-            
+            void addAPs();
+            void connectWifi();
+            void initHTTPServer();
+            // void erasePreviousNetwork();
+            char* findServerIP();
+            unsigned char getNetworkParamsSize();
             const int _PORT = 12078;
             const char* _updaterPassword = "uDomo";
             const char* _updaterUser = "uDomo";
             const char* _updaterPath = "/device";
-            char* _serverIP = "192.168.0.4";
+            char* _serverIP;
+            char* _networks[25] = {
+                /* SSIDs        Passwords         	      Fixed server IP (in router) */
+                "Lucasnet"    , "uD0m0_uk"                , "192.168.43.43",
+                "Casa_01"     , "Pilarjazmin3"            , "192.168.0.12",
+                "MLuz"        , "36578742luz"             , "192.168.1.3"
+            };
     };
 #endif
