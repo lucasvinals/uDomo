@@ -13,5 +13,5 @@ db/
 config/db.js
 
 #IDEs
-.vscode
+.vscode/
 

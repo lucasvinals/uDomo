@@ -1,6 +1,7 @@
+var _ = require('lodash');
+
 function updateOneDevice(dev){
-    process.devices = process.devices.filter((d) => d._id !== dev._id);
-    process.devices.push(dev);
+    _.merge(process.devices[_.findIndex(process.devices, {"_id": dev._id})], dev);
 };
 
 function mergeDev(device){
@@ -8,6 +9,11 @@ function mergeDev(device){
     return process.devices;
 };
 
+function delDevice(id){
+    _.set(process.devices[_.findIndex({"_id": dev._id})].Saved, false);
+}
+
 module.exports = {
-    mergeDevice: mergeDev
+    mergeDevice: mergeDev,
+    deletedDevice : delDevice
 };

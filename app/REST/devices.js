@@ -112,7 +112,7 @@ module.exports = (app) => {
      */
     .get('/api/Devices', (request, response) => {
         Devices.FindDevices((error, devices) => {
-            devices.forEach((d) => Common.mergeDevices(d));
+            devices.forEach((d) => Common.mergeDevice(d));
             response.json({Devices: process.devices, Error: error});
         });
     })
@@ -136,6 +136,7 @@ module.exports = (app) => {
      * Delete a device
      */
     .delete('/Device/:id', (request, response) => {
+        Common.deletedDevice(request.params.id);
         Devices.DeleteDevice(request.params.id, (error, device) => {
             response.json({Device : device, Error: error});
         });

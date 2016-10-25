@@ -1,7 +1,7 @@
 var User = require('../models/users');
 var log     = log || process.log;
 
-module.exports = (io, log) => {
+module.exports = (io) => {
     io.on('connection', (socket) => {
         socket.on('Users/User/Read/Request', () => {
             User.find({}, (error, users) => {

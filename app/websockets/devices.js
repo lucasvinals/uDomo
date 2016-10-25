@@ -2,26 +2,6 @@ var log     = log || process.log;
 let Devices = require('../models/devices');
 let Common  = require('../common');
 
-// let allDevices = [];
-
-/**
- * Otra forma de actualizar el arreglo
- */
-// a.map((e, i) => {
-//     if(a.some((f) => f.id == 8)){
-//        a[i] = {"a": 33, "id": 11};
-//     }
-// });
-
-// function updateOneDevice(dev){
-//     allDevices = allDevices.filter((d) => d._id !== dev._id);
-//     allDevices.push(dev);
-// };
-
-// function mergeDevices(device){
-//     allDevices.some((d) => d._id == device._id) ? updateOneDevice(device) : allDevices.push(device);
-// };
-
 module.exports = (io) => {
     'use strict';
     
@@ -29,22 +9,25 @@ module.exports = (io) => {
         socket.on('deviceRequest', (device) => {
             device.Online = true;
             device.lastMessage = Date.now();
-            io.sockets.emit('devices', Common.mergeDevices(device));
+            io.sockets.emit('devices', Common.mergeDevice(device));
         });
-        
-        socket.on('rChangePin', (json) => {
+        socket.on('rChangePin', (r) => {
             try {
-                switch(json.mode){
+                var json = {};
+                switch(r.mode){
                     case 'digital':
-                        json.value = json.value == 0 ? 1023 : 0;
+                        r.value = r.value == 0 ? 1023 : 0;
                     break;
                     case 'analog':
-                        if(json.value < 0 || json.value > 1023){
+                        if(r.value < 0 || r.value > 1023){
                             throw 'The value has to be between 0 and 1023';
                         }
                     break;
                 }
-                socket.broadcast.emit('changePin', {device: json});
+                var type = r.mode;
+                delete r.mode;
+                json[type] = r;
+                socket.broadcast.emit('changePin', json);
             } catch (e){
                 log.error('Something happened trying to send the message to the device', e);
             }

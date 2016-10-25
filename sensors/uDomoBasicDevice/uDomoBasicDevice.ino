@@ -26,16 +26,10 @@
   Observer: http://osdevlab.blogspot.com.ar/2016/05/observer-design-pattern-in-arduino.html
 */
 
-/******************************************************* Libraries *********************************************************/
-#include <ESP8266WiFiMulti.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266HTTPUpdateServer.h>
-#include <SocketIOClient.h>
 #include <ArduinoJson.h>
 #include "bmp.h"
-/***************************************************************************************************************************/
+#include "uDomoConnection.h"
 
-/******************************************************* DEBUG ********************************************************************/
 #define DEBUG // UNCOMMENT to enable DEBUG outputs in the console (Ctrl + Shift + m). Comment for PRODUCTION release.
 #ifdef DEBUG
 #define debugPrintln(x)  Serial.println(x)
@@ -46,37 +40,36 @@
 #define debugPrintln(x)
 #define debugFlush()
 #endif
-/**********************************************************************************************************************************/
 
-/************************************************** Device constants and variables ************************************************/
 const unsigned char	BUTTONS	= 2;
 volatile const unsigned char INPUTS[BUTTONS] = { 13, 12 }; // Inputs.  Available pins: 2, 12, 13, 14 and 16. DO NOT repeat in outputs[]
 volatile const unsigned char	OUTPUTS[BUTTONS] = { 14, 16 }; // Outputs. Available pins: 2, 12, 13, 14 and 16. DO NOT repeat in inputs[]
 
-const short UPDATERPORT = 8888;
+// const short UPDATERPORT = 8888;
 const short DEBOUNCE = 400;
 
-const unsigned short PORT = 12078;
+// const unsigned short PORT = 12078;
 
 const bool SENSORPRESENT = true; // Flag to indicate if this pressure/temperature/altitude/light sensor is present or not.
 
-volatile bool stateInput[BUTTONS] = { false }; // Input pins.For example: Button switches...
+// volatile bool stateInput[BUTTONS] = { false }; // Input pins.For example: Button switches...
 volatile bool stateOutput[BUTTONS] = { false }; // State
-volatile bool prevStateOut[BUTTONS]	= { false };
+// volatile bool prevStateOut[BUTTONS]	= { false };
 volatile bool buttonPressed = true;
 
 String deviceIP	= "";
-String serverIP = "";
+// String serverIP = "";
 const String DEVICEID = "39da52b9-2a6e-4b2a-bd60-9bdb0ace038d";
 
-volatile unsigned long timeLapse[BUTTONS] = { 0 };
+// volatile unsigned long timeLapse[BUTTONS] = { 0 };
 /**********************************************************************************************************************************/
 
 /******************************************************* Libraries instances ******************************************************/
-ESP8266WiFiMulti WiFiMulti;
-SocketIOClient socketio;
-ESP8266WebServer httpServer(UPDATERPORT);
-ESP8266HTTPUpdateServer httpUpdater;
+// ESP8266WiFiMulti WiFiMulti;
+// SocketIOClient socketio;
+// ESP8266WebServer httpServer(UPDATERPORT);
+// ESP8266HTTPUpdateServer httpUpdater;
+uDomoConnection Connection;
 BMP Sensor;
 /*********************************************************************************************************************************/
 
@@ -94,7 +87,7 @@ bool sendMessageServer(){
   /***********************************************************************************************************/
 
   /*********************************************** Build JSON object *****************************************/
-  root["IP"] = deviceIP;
+  root["IP"] = Connection.deviceIP();
   root["_id"] = DEVICEID;
   /***********************************************************************************************************/
   /**************************** Add all output pins with their respective reading ****************************/
@@ -115,20 +108,15 @@ bool sendMessageServer(){
   /**********************************************************************************************************/
 
   /*********************** Build the char array to send the builded JSON to server **************************/
-  char bufferLoop[sizeof(jsonLoop)];
-  root.printTo(bufferLoop, sizeof(bufferLoop));
-  socketio.sendJSON("bufferLoop", bufferLoop);
+  char deviceRequest[sizeof(jsonLoop)];
+  root.printTo(deviceRequest, sizeof(deviceRequest));
+  Connection.sendJSON("deviceRequest", deviceRequest);
   /**********************************************************************************************************/
   #ifdef DEBUG
     root.prettyPrintTo(Serial);
     debugPrintln();
   #endif
   return true;
-}
-
-void setDeviceIP(){
-  IPAddress ip = WiFi.localIP();
-  deviceIP = String(ip[0]) + "." + String(ip[1]) + "." + String(ip[2]) + "." + String(ip[3]);
 }
 
 bool actionReceived(){  
@@ -140,6 +128,7 @@ bool actionReceived(){
     JsonObject& incomingDevice = jsonActions.parseObject(payload);
     if (incomingDevice["_id"] == DEVICEID){
       analogWrite(incomingDevice["pin"], incomingDevice["value"]);
+      sendMessageServer();
     }
   }
   return true;
@@ -168,45 +157,31 @@ bool actionReceived(){
 //}
 
 void changeB1(){
-  delayMicroseconds(DEBOUNCE * 1000);
   char button = 0;
   stateOutput[button] = !stateOutput[button];
   digitalWrite(OUTPUTS[button], stateOutput[button]);
   buttonPressed = true;
+  delayMicroseconds(DEBOUNCE * 1000);
 }
 
 void changeB2(){
-  delayMicroseconds(DEBOUNCE * 1000);
   char button = 1;
   stateOutput[button] = !stateOutput[button];
   digitalWrite(OUTPUTS[button], stateOutput[button]);
   buttonPressed = true;
-}
-
-bool checkConnection() {
-  if (!socketio.connected()) {
-    char hostBuffer[16];
-    serverIP.toCharArray(hostBuffer, sizeof(hostBuffer));
-    if (!socketio.connect(hostBuffer, PORT)) {
-      debugPrint(F("> Connection with the server listening at ")); debugPrint(hostBuffer);
-      debugPrint(F(":")); debugPrint(PORT); debugPrintln(F(" FAILED!"));
-      delay(400);
-      return false;
-    }
-  }
-  return true;
+  delayMicroseconds(DEBOUNCE * 1000);
 }
 
 void sendPeriodically(){
   static unsigned long last = 0;
   if (abs(millis() - last) > 5000){ // Send the status of all pins connected, physics measures and other variables every 5 seconds.
-//    SENSORPRESENT && bmp.getTempPress(); // Update variables of temperature, altitude and pressure
     sendMessageServer();
     last = millis();
   }
 }
 
 void setup(){
+  // Connection.erasePreviousNetwork();
   
   #ifdef DEBUG
     Serial.begin(115200);
@@ -216,9 +191,9 @@ void setup(){
   #endif
 
   /************************************************* Give time to the device to boot properly *********************************************/
-  debugPrintln(F("************************************************************"));
-  debugPrintln(F("********************** Booting Device **********************"));
-  debugPrintln(F("************************************************************"));
+  // debugPrintln(F("************************************************************"));
+  // debugPrintln(F("********************** Booting Device **********************"));
+  // debugPrintln(F("************************************************************"));
   unsigned char t = 4;
   while (t){
     debugFlush();
@@ -228,97 +203,92 @@ void setup(){
   /****************************************************************************************************************************************/
 
   /******************************************** Initialize all outputs and set them LOW. **************************************************/
-  debugPrintln(F("************************************************************"));
+  // debugPrintln(F("************************************************************"));
   
   for (unsigned char index = 0; index < sizeof(OUTPUTS) / sizeof(unsigned char); ++index){
-    debugPrint(F("> Setting: ")); debugPrint(OUTPUTS[index]); debugPrintln(F(" as OUTPUT."));
+    // debugPrint(F("> Setting: ")); debugPrint(OUTPUTS[index]); debugPrintln(F(" as OUTPUT."));
     pinMode(OUTPUTS[index], OUTPUT);
     digitalWrite(OUTPUTS[index], LOW);
   }
-  debugPrintln(F("************************************************************")); debugPrintln();
+  // debugPrintln(F("************************************************************")); debugPrintln();
   /****************************************************************************************************************************************/
 
   /***************************************************** Initialize all inputs ************************************************************/
-  debugPrintln(F("************************************************************"));
+  // debugPrintln(F("************************************************************"));
   for (unsigned char index = 0; index < sizeof(INPUTS) / sizeof(unsigned char); ++index){
-    debugPrint(F("> Setting: ")); debugPrint(INPUTS[index]); debugPrintln(F(" as INPUT."));
+    // debugPrint(F("> Setting: ")); debugPrint(INPUTS[index]); debugPrintln(F(" as INPUT."));
     pinMode(INPUTS[index], INPUT);
 //    attachInterrupt(digitalPinToInterrupt(INPUTS[index]), checkButtons, HIGH); // ONLY for relay actions, COMMENT if any INPUT has a different behaviour.IT DOES NOT WORK WELL WITH 2 BUTTONS
   }
   attachInterrupt(digitalPinToInterrupt(INPUTS[0]), changeB1, HIGH);
   attachInterrupt(digitalPinToInterrupt(INPUTS[1]), changeB2, HIGH);
-  debugPrintln(F("************************************************************")); debugPrintln();
+  // debugPrintln(F("************************************************************")); debugPrintln();
   
   Sensor.calibrate();
   
   /**
    * Network parameters 
    */
-  const char SSID_PASS_IP[][25] = {
-    /* SSIDs        Passwords         	      Fixed server IP (in router) */
-    "Lucasnet"    , "uD0m0_uk"                , "192.168.43.43",
-    "Casa_01"     , "Pilarjazmin3"            , "192.168.0.4"
-  };    
+  // const char SSID_PASS_IP[][25] = {
+  //   /* SSIDs        Passwords         	      Fixed server IP (in router) */
+  //   "Lucasnet"    , "uD0m0_uk"                , "192.168.43.43",
+  //   "Casa_01"     , "Pilarjazmin3"            , "192.168.0.4",
+  // };
 
   /********************************************** Connect to Access Point, check if it's connected. ***************************************/
-  debugPrintln(F("************************************************************"));
+  // debugPrintln(F("************************************************************"));
 
-  unsigned char index = sizeof SSID_PASS_IP / sizeof SSID_PASS_IP[0];
-  while (index > 2) {
-    debugPrint(F("> Adding SSID: \""));
-    debugPrint(SSID_PASS_IP[index - 3]);
-    debugPrint(F("\" with password: \""));
-    debugPrint(SSID_PASS_IP[index - 2]);
-    debugPrintln(F("\""));
-    WiFiMulti.addAP(SSID_PASS_IP[index - 3], SSID_PASS_IP[index - 2]);
-    index -= 3;
-  }
+  // unsigned char index = sizeof SSID_PASS_IP / sizeof SSID_PASS_IP[0];
+  // while (index > 2) {
+  //   debugPrint(F("> Adding SSID: \""));
+  //   debugPrint(SSID_PASS_IP[index - 3]);
+  //   debugPrint(F("\" with password: \""));
+  //   debugPrint(SSID_PASS_IP[index - 2]);
+  //   debugPrintln(F("\""));
+    Connection.setup();
+  //   index -= 3;
+  // }
 
-  debugPrintln(F("************************************************************")); debugPrintln();
+  // debugPrintln(F("************************************************************")); debugPrintln();
 
-  while (WiFiMulti.run() != WL_CONNECTED) {
-    debugPrint(F("Ping...."));delay(300);debugPrint(F("Pong....\n"));
-  }
   
-  setDeviceIP();
-
-  debugPrintln(F("UUID try: ")); debugPrintln(ESP.getFlashChipId());
+  
+  // debugPrintln(F("UUID try: ")); debugPrintln(ESP.getFlashChipId());
   /****************************************************************************************************************************************/
 
-  /**************** Based on which network has an active connection, get the common (fixed on the router) server IP address ***************/
-  debugPrintln(F("************************************************************"));
-  index = sizeof SSID_PASS_IP / sizeof SSID_PASS_IP[0];
-  String ssidTemp = WiFi.SSID();
-  while (index > 2) {
-    debugPrint(F("> Testing SSID: ")); debugPrint(ssidTemp); debugPrint(F(" against: ")); debugPrintln(SSID_PASS_IP[index - 3]);
-    if (ssidTemp == SSID_PASS_IP[index - 3]) {
-      debugPrint(F("> Found: \"")); debugPrint(SSID_PASS_IP[index - 3]); debugPrint(F("\" with it's server IP: ")); debugPrintln(SSID_PASS_IP[index - 1]);
-      serverIP = SSID_PASS_IP[index - 1];
-      index = 3; //Network found, break here.
-    }
-    index -= 3;
-  }
-  debugPrintln(F("************************************************************")); debugPrintln();
+  // /**************** Based on which network has an active connection, get the common (fixed on the router) server IP address ***************/
+  // debugPrintln(F("************************************************************"));
+  // index = sizeof SSID_PASS_IP / sizeof SSID_PASS_IP[0];
+  // String ssidTemp = WiFi.SSID();
+  // while (index > 2) {
+  //   debugPrint(F("> Testing SSID: ")); debugPrint(ssidTemp); debugPrint(F(" against: ")); debugPrintln(SSID_PASS_IP[index - 3]);
+  //   if (ssidTemp == SSID_PASS_IP[index - 3]) {
+  //     debugPrint(F("> Found: \"")); debugPrint(SSID_PASS_IP[index - 3]); debugPrint(F("\" with it's server IP: ")); debugPrintln(SSID_PASS_IP[index - 1]);
+  //     // serverIP = SSID_PASS_IP[index - 1];
+  //     index = 3; //Network found, break here.
+  //   }
+  //   index -= 3;
+  // }
+  // debugPrintln(F("************************************************************")); debugPrintln();
   /****************************************************************************************************************************************/
 
   /*************************************** Update sketch Over The Air. Upload code from the webpage of uDomo. *****************************/
-  httpUpdater.setup(&httpServer, "/device", "uDomoLucas","uDomoLucas");
-  httpServer.begin();
-  debugPrint(F("[INFO] To upload a sketch, go to \"http://"));
-  debugPrint(deviceIP);
-  debugPrint(F(":"));
-  debugPrint(UPDATERPORT);
-  debugPrintln(F("/device\" in your browser."));
+  // Connection.initHTTPServer();
+  // debugPrint(F("[INFO] To upload a sketch, go to \"http://"));
+  // debugPrint(Connection.deviceIP());
+  // debugPrint(F(":"));
+  // debugPrint(UPDATERPORT);
+  // debugPrintln(F("/device\" in your browser."));
   
-  debugPrint(F("Free memory SETUP: ")); debugPrintln(ESP.getFreeHeap());
+  // debugPrint(F("Free memory SETUP: ")); debugPrintln(ESP.getFreeHeap());
 }
 
 void loop() {
-  httpServer.handleClient(); // OTA Update. Upload code from the webpage of uDomo.
+  Connection.clientESP();
   
-  if (checkConnection()) { // Check if the device is connected with the server
+  if (Connection.isSocketConnected()) { // Check if the device is connected with the server
     buttonPressed && sendMessageServer() && (buttonPressed = false);
     sendPeriodically();
-    socketio.monitor() && actionReceived();
+    Connection.hasMessage() && actionReceived();
   }
 }

@@ -48,7 +48,6 @@ const gulp          = require('gulp');
 const concat        = require('gulp-concat');
 const cleanCSS      = require('gulp-clean-css');
 const processHTML   = require('gulp-processhtml');
-const livereload    = require('gulp-livereload');
 const checkSyntax   = require('./tests/checkSyntax');
 const psi           = require('psi');
 const googleCC      = require('google-closure-compiler-js').gulp;
@@ -121,7 +120,6 @@ gulp.task('jsScripts', () => {
 
 /**
  * TASK - fonts/ -> .woff y .woff2  para renderizar bien los íconos
- * Ver gulp-preprocess para armar maquetados
  */
 .task('copyStatic', () => {
     gulp.src('./node_modules/bootstrap/fonts/*.wof*')
@@ -154,13 +152,9 @@ gulp.task('jsScripts', () => {
     checkSyntax(log);
 })
 
-.task('watch', ['construir'], function () {
-    livereload.listen();
-    gulp.watch('./client/js/*.js', ['construir']);
-})
 /**
  * PageSpeed tests
- * ngrok falla, por lo tanto no tiene sentido probarlo ahora.
+ * ngrok fails...
  */
 .task('mobileTest', () => {
     return psi('localhost', {
@@ -183,9 +177,11 @@ gulp.task('jsScripts', () => {
 /**
  * TASK - Build actions
  */
-.task('construir', [
-    'checkSyntax',
-    'copyStatic',
-    'minStyles',
-    'jsScripts'
-], function(){livereload();});
+.task('construir',  [
+                        'clean',
+                        'checkSyntax',
+                        'copyStatic',
+                        'minStyles',
+                        'jsScripts'
+                    ]
+);
