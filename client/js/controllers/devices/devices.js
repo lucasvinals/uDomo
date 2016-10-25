@@ -22,8 +22,6 @@ function(Device, Area, $scope){
         return iifeGetDevices;
     })();
 
-    Device.triggerWithSocketIncomming();
-
     /**
      * Observer
      */
@@ -64,10 +62,10 @@ function(Device, Area, $scope){
     $scope.changePin = (_id, Pin, val) => {
         Device.sendMessage(
             'rChangePin', {
-                            '_id'   : _id,
-                            'pin'   : +Pin,
-                            'value' : val,
-                            'mode': 'light'
+                            "_id"   : _id,
+                            "pin"   : +Pin,
+                            "value" : val,
+                            "mode"  : "digital"
                         });
     };
 

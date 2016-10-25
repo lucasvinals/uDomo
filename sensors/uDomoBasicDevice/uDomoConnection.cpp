@@ -6,6 +6,12 @@ ESP8266WiFiMulti WiFiMulti;
 SocketIOClient socketio;
 ESP8266WebServer httpServer(80);
 ESP8266HTTPUpdateServer httpUpdater;
+char _networks[][25] = {
+    /* SSIDs        Passwords         	      Fixed server IP (in router) */
+    "Lucasnet"    , "uD0m0_uk"                , "192.168.43.43",
+    "Casa_01"     , "Pilarjazmin3"            , "192.168.0.12",
+    "MLuz"        , "36578742luz"             , "192.168.1.3"
+};
 
 /**
  * Public methods
@@ -49,26 +55,14 @@ bool uDomoConnection::sendJSON(const char* room, char* message){
  */
 void uDomoConnection::connectWifi(){ while (WiFiMulti.run() != WL_CONNECTED){ delay(300); } }
 
-unsigned char uDomoConnection::getNetworkParamsSize(){ return sizeof _networks[0]; }
+unsigned char uDomoConnection::getNetworkParamsSize(){ return sizeof(_networks)/sizeof(_networks[0]); }
 
 void uDomoConnection::addAPs(){
-  // void uDomoConnection::connectWifi(){
   unsigned char index = getNetworkParamsSize();
   while (index > 2) {
     WiFiMulti.addAP(_networks[index - 3], _networks[index - 2]);
-    Serial.print("Agregando ");
-    Serial.print(_networks[index - 3]);
-    Serial.print(" con pass: ");
-    Serial.println(_networks[index - 2]);
     index -= 3;
   }
-
-  // unsigned char index = getNetworkParamsSize();
-  // while (index > 2 && WiFi.status() != WL_CONNECTED) {
-  //   WiFi.begin(_networks[index - 3], _networks[index - 2]);
-  //   delay(500);
-  //   index -= 3;
-  // }
 }
 
 void uDomoConnection::initHTTPServer(){
@@ -76,19 +70,12 @@ void uDomoConnection::initHTTPServer(){
   httpServer.begin();
 }
 
-// void uDomoConnection::erasePreviousNetwork(){ spi_flash_erase_sector(0x7E); }
-
 char* uDomoConnection::findServerIP(){
   unsigned char index = getNetworkParamsSize();
-  char* ip = "";
   while (index > 2) {
     if(WiFi.SSID() == _networks[index - 3]){
-      ip = _networks[index - 1];
-      index = 3;
+      return _networks[index - 1];
     }
     index -= 3;
   }
-  Serial.print("IP: ");
-  Serial.println(ip);
-  return ip;
 }

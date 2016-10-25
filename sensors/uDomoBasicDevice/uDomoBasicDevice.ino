@@ -108,10 +108,9 @@ bool sendMessageServer(){
   /**********************************************************************************************************/
 
   /*********************** Build the char array to send the builded JSON to server **************************/
-  char message[sizeof(jsonLoop)];
-  root.printTo(message, sizeof(message));
-  Connection.sendJSON("bufferLoop", message);
-  // socketio.sendJSON();
+  char deviceRequest[sizeof(jsonLoop)];
+  root.printTo(deviceRequest, sizeof(deviceRequest));
+  Connection.sendJSON("deviceRequest", deviceRequest);
   /**********************************************************************************************************/
   #ifdef DEBUG
     root.prettyPrintTo(Serial);
@@ -129,6 +128,7 @@ bool actionReceived(){
     JsonObject& incomingDevice = jsonActions.parseObject(payload);
     if (incomingDevice["_id"] == DEVICEID){
       analogWrite(incomingDevice["pin"], incomingDevice["value"]);
+      sendMessageServer();
     }
   }
   return true;
@@ -175,8 +175,6 @@ void changeB2(){
 void sendPeriodically(){
   static unsigned long last = 0;
   if (abs(millis() - last) > 5000){ // Send the status of all pins connected, physics measures and other variables every 5 seconds.
-//    SENSORPRESENT && bmp.getTempPress(); // Update variables of temperature, altitude and pressure
-    debugPrint(F("Free memory: ")); debugPrintln(ESP.getFreeHeap());
     sendMessageServer();
     last = millis();
   }

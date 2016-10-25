@@ -33,6 +33,9 @@ Devices.factory('Device', ['Socket', '$http', 'Message', 'Observer',
            Observer.unsubscribe(observer);
         },
 		getDevices: (callback) => {
+			Socket.clear('devices');
+			Socket.on('devices', (devices) => { callback(null, devices); });
+			
             $http.get('/api/Devices').then(
 	            (data) => {
 	                var e = data.data.Error;
@@ -81,13 +84,6 @@ Devices.factory('Device', ['Socket', '$http', 'Message', 'Observer',
                         					  'Véase en la consola.', 10);
                         		log.error(e);
                         	}else{
-                            	res.ok && 
-                            	res.n && 
-                            	/**
-                            		* Ésto fue necesario porque currenDevices (cliente), no se actualiza
-                            		* por más que haga el GET a Devices, así que lo remuevo manualmente
-                        		*/
-                            	_.remove(currentDevices, {'_id': id}) &&
                             	Message.success('El dispositivo fue eliminado.', 10);
                             	Observer.notify();
                         	}
@@ -120,17 +116,11 @@ Devices.factory('Device', ['Socket', '$http', 'Message', 'Observer',
 		},
 		clearListeners: (clearInter) => {
 			Observer.unsubscribeAll();
-			Socket.clear();
+			Socket.clear('devices');
         	clearInterval(clearInter);
 		},
 		sendMessage: (listener, message) => {
 			Socket.emit(listener, message);
-		},
-		/**
-		 * To prevent listener attach on every request
-		 */
-		triggerWithSocketIncomming: () => {
-			!alreadySet && Socket.on('devices', (devices) => Facade.getDevices((null, devices))) && (alreadySet = true);
 		}
 	};
 

@@ -3,8 +3,8 @@ let Sockets = angular.module('Common');
 Sockets.factory('Socket', ['$rootScope', 
 ($rootScope) => {
     'use strict';
-	let proto = location.protocol.slice(0, location.protocol.length - 1);
-    let socketURL = proto === 'https' ? 'wss://' + location.host : 'ws://' + location.host;
+    let socketURL = location.protocol.slice(0, location.protocol.length - 1) == 'https' ? 'wss://': 'ws://';
+    socketURL += location.host;
     const socketOptions = {
         "force new connection": true,
         "reconnect" : true,
@@ -33,14 +33,10 @@ Sockets.factory('Socket', ['$rootScope',
             });
 		},
         clear: (eventName) => {
-            socket.removeListener(eventName);
+            socket.off(eventName);
         },
         cleanExit: () => {
             socket.close();
         }
-        //,
-        //emitDevices: (eventName, data, cb) => {
-        //    io.sockets.emit(eventName, data);
-        //}
 	};
 }]);
