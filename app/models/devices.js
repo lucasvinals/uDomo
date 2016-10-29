@@ -14,5 +14,6 @@ module.exports = db.model("Device", new db.Schema({
                                                     Pressure    : Number,
                                                     Altitude    : Number,
                                                     Humidity    : Number,
-                                                    Light       : Number
+                                                    Light       : Number,
+                                                    Mode        : String
                                                 }));
