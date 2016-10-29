@@ -1,5 +1,5 @@
-Devices.controller('deviceController', ['Device', 'Area', '$scope',
-function(Device, Area, $scope){
+Devices.controller('deviceController', ['Device', 'Area', '$scope','$window',
+function(Device, Area, $scope, $window){
     'use strict';
     
     let lastID = '';
@@ -77,6 +77,10 @@ function(Device, Area, $scope){
 
     $scope.estaOnline   = () => typeof $scope.deviceInfo !== 'undefined' && $scope.deviceInfo.Online === true || false;
     $scope.estaGuardado = () => typeof $scope.deviceInfo !== 'undefined' && $scope.deviceInfo.Saved  === true || false;
+
+    $scope.programDevice = function(ip){
+        $window.open("http://" + ip + "/device", "_blank");
+    };
 
     /* Clean exit */
     $scope.$on('$destroy', (event) => {

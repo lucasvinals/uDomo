@@ -38,13 +38,12 @@
                       ng-click='tempDevice($index)'>
                 </span>
                 <!-- Program device -->
-                <a ng-href='http://{{dev.IP}}:8888/code' class="sacarUnderline" target="_blank">
-                    <span ng-show="dev.Online"
-                      aria-label='Program Device Programar Dispositivo'
-                      title='Program Device' 
-                      class='glyphicon glyphicon-open btn btn-circulo btn-warning'>
-                    </span>
-                </a>
+                <span ng-show="dev.Online"
+                        aria-label='Program Device Programar Dispositivo'
+                        title='Program Device' 
+                        class='glyphicon glyphicon-open btn btn-circulo btn-warning'
+                        ng-click='programDevice(dev.IP)'>
+                </span>
                 <!-- Remove device from the database -->
                 <span ng-show="dev.Saved"
                       title='Remove Device' 
