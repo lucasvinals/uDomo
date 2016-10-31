@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include "bmp.h"
+#include "uDomoBMP.h"
 #include "uDomoConnection.h"
 
 #ifndef uDomoActions_h

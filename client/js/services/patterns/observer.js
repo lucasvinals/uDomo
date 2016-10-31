@@ -28,7 +28,7 @@ angular.module('Patterns', []).factory('Observer', () => {
          */
         notify(){
             angular.forEach(this.Observers, (observer) => {
-              observer();
+              var exec = observer();
             });
         }
     }
