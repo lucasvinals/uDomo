@@ -1,7 +1,5 @@
-#include "Arduino.h"
-#include "bmp.h"
-#include <Wire.h>
-#include "TSL2561.h"
+#include "uDomoBMP.h"
+
 TSL2561 tsl(TSL2561_ADDR_FLOAT); 
 
 BMP::BMP(){
