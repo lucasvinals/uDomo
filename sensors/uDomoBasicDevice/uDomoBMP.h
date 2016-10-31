@@ -1,8 +1,12 @@
 /**
  * Header file for the BMP sensor used in uDomo
  */
-#ifndef bmp_h
-    #define bmp_h
+#include "Arduino.h"
+#include <Wire.h>
+#include "TSL2561.h"
+
+#ifndef BMP_h
+    #define BMP_h
 
     struct tpa{
         float temperature;

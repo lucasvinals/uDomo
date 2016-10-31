@@ -82,7 +82,7 @@ Devices.factory('Device', ['Socket', '$http', 'Message', 'Observer',
                         	if(e){
                         		Message.error('Ocurrió un error eliminando el dispositivo. '+
                         					  'Véase en la consola.', 10);
-                        		log.error(e);
+                        		log.error(JSON.parse(e));
                         	}else{
                             	Message.success('El dispositivo fue eliminado.', 10);
                             	Observer.notify();

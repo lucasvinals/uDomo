@@ -21,23 +21,28 @@
                             <td data-ng-bind='deviceInfo.N' class='text-info text-right negrita'></td>
                         </tr>
                     <!--</div>-->
-                    <div ng-show="estaOnline()">
-                        <tr> <!-- Última Temperatura -->
+                    <div>
+                        <tr>
                             <td>Temperatura</td>
                             <td data-ng-bind='deviceInfo.T + " °C"' 
                                 class='text-info text-right negrita'></td>
                         </tr>
-                        <tr ng-show="estaOnline()"> <!-- Última Presión -->
+                        <tr>
                             <td>Presión</td>
                             <td data-ng-bind='deviceInfo.P + " hPa"'
                                 class='text-info text-right negrita'></td>
                         </tr>
-                        <tr ng-show="estaOnline()"> <!-- Última Altitud -->
+                        <tr>
                             <td>Altitud</td>
                             <td data-ng-bind='deviceInfo.A + " m."'
                                 class='text-info text-right negrita'></td>
                         </tr>
-                        <tr ng-show="estaOnline()"> <!-- Estado de los pines -->
+                         <tr>
+                            <td>Luz</td>
+                            <td data-ng-bind='deviceInfo.L + " luxes."'
+                                class='text-info text-right negrita'></td>
+                        </tr>
+                        <tr>
                             <table class='table table-condensed table-responsive negrita'>
                                 <caption>Estado de pines</caption>
                                 <tr data-ng-repeat='(pin, value) in deviceInfo.Pins'>

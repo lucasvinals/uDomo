@@ -10,7 +10,7 @@ function mergeDev(device){
 };
 
 function delDevice(id){
-    _.set(process.devices[_.findIndex({"_id": dev._id})].Saved, false);
+    process.devices[_.findIndex(process.devices, {"_id": id})].Saved = false;
 }
 
 module.exports = {
