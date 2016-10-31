@@ -1,23 +1,67 @@
-<!--
-    Replace this webpage in the uDomoBasicDevice.ino upload method.
-    (Escaping lines with '\')
--->
 <html>
-<head>
-<meta charset='UTF-8'>
-<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u'
-crossorigin='anonymous'>
-<style>
-.fileUpload{position:relative;overflow:hidden;margin:10px}.fileUpload input.upload{position:absolute;top:0;right:0;margin:0;padding:0;font-size:20px;cursor:pointer;opacity:0;filter:alpha(opacity=0)}.title{color:#fff}#container{min-width:100%;min-height:100%;text-align:center;background:linear-gradient(90deg,#34947b,#1c4d40,#122d26,#133442,#390b3c,#3d1061,#521f7c);background-size:300% 300%;-webkit-animation:MoveBG 13s ease infinite;-moz-animation:MoveBG 13s ease infinite;-o-animation:MoveBG 13s ease infinite;animation:MoveBG 13s ease infinite}@-webkit-keyframes MoveBG{0%,100%{background-position:0 84%}50%{background-position:100% 16%}}@-moz-keyframes MoveBG{0%,100%{background-position:0 84%}50%{background-position:100% 16%}}
-</style>
-<style id='CustomAnimation' class='keyframe-style' type='text/css'>
-@keyframes CustomAnimation{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}
-</style>
-</head>
-<body class='text-center' >
-<div id='container' style='position:fixed; top:0; width: 100%;'> <h1 class='title'>Programador de uDomo</h1> <h3 class='title'>Lucas Vi&ntilde;als</h3> <form class='form' method='POST' enctype='multipart/form-data'> <div id='codeToUpload' class='fileUpload btn btn-lg btn-danger'> <input id='inputUpload' type='file' class='upload'/><span id='tSubir'>Click para subir código!</span></div><button id='subir' type='submit' disabled class='btn btn-lg btn-primary'>Subir c&oacute;digo a dispositivo </button> </form> </div>
-</body>
-<script>
-(function(c){var e=c.getElementById('subir'),d=c.getElementById('inputUpload'),b=c.getElementById('codeToUpload');d.onchange=function(){console.log(d.value);var a;a=d.value;if(a='.bin'===a.substr(a.lastIndexOf('.'))?a.substr(0,a.lastIndexOf('.')):!1)c.getElementById('tSubir').innerHTML='<b>'+a+'</b>',b.className=b.className.replace(new RegExp('btn-danger'.replace(/([.?*+^$[\]\\(){}|-])/g,'\\$1'),'g'),''),b.className+=' btn-success',e.disabled=!1}})(document);
-</script>
+    <head><title>Programador de uDomo</title></head>
+    <style>
+        .title{
+            color:#FFFAAA
+        }
+        #container{
+            position:fixed;
+            top:0;
+            width:100%;
+            height:100%;
+            text-align:center;
+            background:linear-gradient(90deg,#34947b,#1c4d40,#122d26,#133442,#390b3c,#3d1061,#521f7c);
+            background-size:300% 300%;
+            -webkit-animation:MoveBG 13s ease infinite;
+            -moz-animation:MoveBG 13s ease infinite;
+            -o-animation:MoveBG 13s ease infinite;
+            animation:MoveBG 13s ease infinite
+        }
+        @-webkit-keyframes MoveBG{
+            0%,100%{
+                background-position:0 84%
+            }
+            50%{
+                background-position:100% 16%
+            }
+        }
+        @-moz-keyframes MoveBG{
+            0%,100%{
+                background-position:0 84%
+            }
+            50%{
+                background-position:100% 16%
+            }
+        }
+    </style>
+    <style id='CustomAnimation' class='keyframe-style' type='text/css'>
+        @keyframes CustomAnimation{
+            0%,100%{
+                background-position:0 50%
+            }
+            50%{
+                background-position:100% 50%
+            }
+        }
+    </style>
+    <body>
+    <div id='container'>
+        <h1 class='title'>Programador de Dispositivos uDomo</h1> 
+        <h2 class='title'>by Lucas Vi&ntilde;als</h2>
+        <form method='POST' action='' enctype='multipart/form-data'>
+            <input type='file' name='update'>
+            <input type='submit' id='submit' value='Update' disabled='disabled'>
+        </form>
+    </div>
+    </body>
+    <script>
+        var ub = document.getElementsByName('update')[0];
+        var sb = document.getElementById('submit');
+        ub.onchange = function(e){
+        if(ub.value.substr(ub.value.lastIndexOf('.') + 1) == 'bin'){
+            sb.setAttribute('style','background-color:#009f40;color:#FFFAAA');
+            sb.disabled = false;
+        }
+        };
+    </script>
 </html>
