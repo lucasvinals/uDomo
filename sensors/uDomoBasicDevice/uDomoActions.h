@@ -1,5 +1,7 @@
 #include <Arduino.h>
-#include <ArduinoJson.h>
+#include <EEPROM.h>
+#include "ESP8266TrueRandom.h"
+#include "thirdParty/ArduinoJson/ArduinoJson.h"
 #include "uDomoBMP.h"
 #include "uDomoConnection.h"
 
@@ -21,5 +23,6 @@
             bool sendMessage();
             void sendPeriodically();
             void initPins();
+            void getDeviceUUID();
     };
 #endif

@@ -3,7 +3,7 @@
  */
 #include "Arduino.h"
 #include <Wire.h>
-#include "TSL2561.h"
+#include "thirdParty/TSL2561.h"
 
 #ifndef BMP_h
     #define BMP_h
