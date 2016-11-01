@@ -5,6 +5,8 @@ shelljs_*
 #Libraries and builds
 node_modules/
 udomo/
+sensors/uDomoBasicDevice/thirdParty
+etc
 
 #Database
 db/
