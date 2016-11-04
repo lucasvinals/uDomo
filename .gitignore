@@ -5,8 +5,10 @@ shelljs_*
 #Libraries and builds
 node_modules/
 udomo/
-sensors/uDomoBasicDevice/thirdParty
-etc
+devices/main/thirdParty
+node*
+binaries/
+etc/
 
 #Database
 db/
