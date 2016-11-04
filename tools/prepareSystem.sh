@@ -18,7 +18,8 @@ LIBRARIESDIR='/root/Arduino/libraries'
 
 # Actualizar/Obtener GIT
 echo -e "\e[103m\e[91m> Actualizando el sistema e instalando aplicaciones necesarias \e[0m"
-sudo apt-get update && sudo apt-get --yes --force-yes install git tar
+# MongoDB installs 2.4 (04/10/2016) in Raspbian (Debian) but we're good for now.
+sudo apt-get update && sudo apt-get --yes --force-yes install git tar mongodb
 
 BINARIESDIR=$MAINDIR'/binaries'
 if [ -d "$BINARIESDIR" ]; then
@@ -41,7 +42,7 @@ mkdir $BINARIESDIR/nodejs && mv $BINARIESDIR/node-*/* $BINARIESDIR/nodejs
 rm -r $BINARIESDIR/node-* $BINARIESDIR/nodejs.org
 # Pruebo que ande bien
 $BINARIESDIR/nodejs/bin/node -e "console.log('\n\x1b[42m\x1b[37m\x1b[1m','NodeJS se instalo correctamente\!','\x1b[0m\n');"
-
+ 
 # Si no existe el directorio, lo creo.
 [ ! -d "$LIBRARIESDIR" ] &&
 mkdir $LIBRARIESDIR &&
