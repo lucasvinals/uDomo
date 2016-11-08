@@ -23,7 +23,7 @@
             bool sendMessage();
             void sendPeriodically();
             void initPins();
-            void getDeviceUUID();
+            void setDeviceUUID();
             char* makeRandomUUID();
     };
 #endif

@@ -9,7 +9,7 @@ volatile const unsigned char INPUTS[2] = { 13, 12 };
 volatile const unsigned char OUTPUTS[2] = { 14, 16 };
 volatile bool buttonPressed = false;
 volatile bool stateOutput[2] = { false };
-
+String DEVICEIP = "";
 String DEVICEID = "";
 
 /**
@@ -24,21 +24,24 @@ void uDomoActions::setup(){
   /**
    * Give the uC some time to properly start..
    */
+  delay(1000);
   Serial.println(F("************************************************************"));
   Serial.println(F("********************** Booting Device **********************"));
   Serial.println(F("************************************************************"));
-  unsigned char t = 4;
+  uint8_t t = 4;
   while (t){
     Serial.flush();
     delay(1000);
     t--;
   }
-  
-  getDeviceUUID();
+
+  // EEPROM.begin(16);
+  setDeviceUUID();
   initPins();
 
   Sensor.BMP_Calibrate();
   Connection.setup();
+  DEVICEIP = Connection.deviceIP();
 }
 
 void uDomoActions::loop(){
@@ -60,7 +63,7 @@ bool uDomoActions::sendMessage(){
     JsonObject& root = jsonLoop.createObject();
     JsonObject& Pins = root.createNestedObject("Pins");
 
-    root["IP"] = Connection.deviceIP();
+    root["IP"] = DEVICEIP;
     root["_id"] = DEVICEID;
     
     /**
@@ -131,62 +134,8 @@ void uDomoActions::initPins(){
   }
 }
 
-void uDomoActions::getDeviceUUID(){
-  // EEPROM.get(0, DEVICEID);
-  // Serial.print(F("Saved UUID is: "));
-  // Serial.println(DEVICEID);
-  // if(DEVICEID.length() == 0){
-    // Serial.println(F("Filling EEPROM with the device UUID.."));
+void uDomoActions::setDeviceUUID(){
     byte uuidNumber[16];
     ESP8266TrueRandom.uuid(uuidNumber);
-    // String UUID = ESP8266TrueRandom.uuidToString(uuidNumber);
-    // EEPROM.put(0, UUID);
-    // DEVICEID = UUID;
     DEVICEID = ESP8266TrueRandom.uuidToString(uuidNumber);
-    // Serial.print(F("Now the device UUID (in EEPROM) is:"));
-    // Serial.println(DEVICEID);
-  // }
 }
-
-/**
- * Prueba sin put/get -> read/write
- */
-
-// void uDomoActions::getDeviceUUID(){
- 
-  
-//   int address = 0;
-//   while(address < 512){
-//     strcat(DEVICEID, (const char*)EEPROM.read(address));
-//     ++address;
-//   }
-
-//   Serial.print(F("Saved UUID is: "));
-//   Serial.println(DEVICEID);
-  
-//   if(strlen(DEVICEID) == 0){
-//     Serial.println(F("Filling EEPROM with the device UUID.."));
-//     char* UUID = makeRandomUUID();
-//     address = 0;
-//     while(address < 512){
-//       EEPROM.write(address, UUID[address]);
-//       ++address;
-//     }
-
-//     DEVICEID = UUID;
-//     Serial.print(F("Now the device UUID (in EEPROM) is:"));
-//     Serial.println(DEVICEID);
-
-//     EEPROM.end();
-//   }
-// }
-
-// char* uDomoActions::makeRandomUUID(){
-//   char* a = "";
-//   byte uuidNumber[16];
-//   ESP8266TrueRandom.uuid(uuidNumber);
-//   String u = ESP8266TrueRandom.uuidToString(uuidNumber);
-//   u.toCharArray(a, u.length());
-//   return a;
-// }
- 
