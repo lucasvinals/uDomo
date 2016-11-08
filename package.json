@@ -11,8 +11,8 @@
   "version": "1.0.0",
   "scripts": {
     "build": "gulp clean && gulp construir",
-    "start": "npm run build && node cluster.js 12078 1",
-    "cluster": "npm run build && node cluster.js 12078",
+    "start": "./binaries/nodejs/bin/npm run build && ./binaries/nodejs/bin/node cluster.js 12078 1",
+    "cluster": "./binaries/nodejs/bin/npm run build && ./binaries/nodejs/bin/node cluster.js 12078",
     "prepare": "bash ./tools/prepareSystem.sh"
   },
   "repository": {
