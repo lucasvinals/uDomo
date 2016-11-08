@@ -3,7 +3,7 @@
 
 * Author, Designer, Programmer and Tester: - [Lucas Viñals](https://github.com/lucasvinals)
 
-## Steps to get this running:
+## Steps to get uDomo running:
 * Clone this repository
 * client/js/app.js (development -> production):
  * Uncomment config services
@@ -23,7 +23,7 @@
 + [Client] Angular-Translate
 + [Client] [Server] Scenes ABM
 + [Client] Scenes Activation
-+ [Server] HTTPS server instead of NET. Verify if ESP8266 ws support security!
++ [Server] HTTPS server instead of NET module. Verify if ESP8266 ws support security!
 + [Device] Auto-discover server IP based on it's MAC.
 
 ##Common problems

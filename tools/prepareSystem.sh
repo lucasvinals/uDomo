@@ -91,4 +91,4 @@ if [ ! -f $MAINDIR'/config/db.js' ]; then
   echo -e "\n\e[91m\e[103m> No existe un archivo de configuración de la base de datos.\n> Por favor, edite el archivo en " $MAINDIR "/config/db.js de acuerdo a su sistema.\e[0m\n"
 fi
 
-echo -e "\e[42m\e[97mTodo instalado. Iniciar servicio de uDomo con \"npm start\" o \"npm run cluster\" una vez que todo esté configurado.\e[0m"
+echo -e "\n\e[42m\e[97mTodo instalado. Iniciar servicio de uDomo con \"npm start\" o \"npm run cluster\" una vez que todo esté configurado.\e[0m"
