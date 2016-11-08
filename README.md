@@ -3,23 +3,27 @@
 
 * Author, Designer, Programmer and Tester: - [Lucas Viñals](https://github.com/lucasvinals)
 
-## Steps to get this running:
+## Steps to get uDomo running:
 * Clone this repository
-* app.js (client/js) [Production only]:
+* client/js/app.js (development -> production):
  * Uncomment config services
-* gulpfile.js [Production only]: 
+* gulpfile.js (development -> production): 
  * Uncomment google-closure-compiler
  * Comment concat
-* Execute in a bash: npm run prepare
-* Change configuration in ./config/db.js (Secret key, paths, etc)
+* Change in tools/prepareSystem.sh acordingly to your setup:
+ * MAINDIR
+ * LIBRARIESDIR
+ * ARCHITECTURE_uDomo
+* Execute in a console: bash tools/prepareSystem.sh
+* Change database configuration in ./config/db.js (Secret key, paths, etc)
 * Change OS in ./cluster.js (in case it's not GNU/Linux)
-* Then, execute: npm run cluster (cluster mode - all cores) or npm start (only one core)
+* Then, execute: **npm run cluster** (cluster mode - all cores) or **npm start** (only one core)
 
 ##TODO
 + [Client] Angular-Translate
 + [Client] [Server] Scenes ABM
 + [Client] Scenes Activation
-+ [Server] HTTPS server instead of NET. Verify if ESP8266 ws support security!
++ [Server] HTTPS server instead of NET module. Verify if ESP8266 ws support security!
 + [Device] Auto-discover server IP based on it's MAC.
 
 ##Common problems

@@ -1,19 +1,14 @@
 #include "uDomoBMP.h"
 
-TSL2561 tsl(TSL2561_ADDR_FLOAT); 
+short counter = 0;
 
-BMP::BMP(){
-    tsl.begin();
-    tsl.setGain(TSL2561_GAIN_16X);
-    tsl.setTiming(TSL2561_INTEGRATIONTIME_13MS);
-    Wire.begin(); // Wire.begin(int sda, int scl) => Wire.begin(4, 5) by default.
-}
+BMP::BMP(){}
 
 void BMP::calibrate(){
     getCalibrationData();
 }
 
-void BMP::getCalibrationData(){
+bool BMP::getCalibrationData(){
     ac1 = read16(0xAA);
     ac2 = read16(0xAC);
     ac3 = read16(0xAE);
@@ -28,6 +23,8 @@ void BMP::getCalibrationData(){
     mb = read16(0xBA);
     mc = read16(0xBC);
     md = read16(0xBE);
+    
+    return true;
 }
 
 void BMP::write8(unsigned char reg, unsigned char val){
@@ -67,7 +64,13 @@ unsigned short BMP::read16(unsigned char reg){
     return data;
 }
 
-struct tpa BMP::getTPAL(){
+struct tpa BMP::getTPA(){
+    /**
+     * Every 10 calls, calibrate the sensor
+     */
+    counter == 9 && getCalibrationData() && (counter = 0);
+    ++counter;
+
     int UT, UP, B3, B5, B6, X1, X2, X3, p, T;
     unsigned int B4, B7;
 
@@ -119,7 +122,6 @@ struct tpa BMP::getTPAL(){
     p = p + ((X1 + X2 + 3791) >> 4);
 
     struct tpa returnValues;
-    returnValues.light = tsl.getLuminosity(TSL2561_VISIBLE);
     returnValues.pressure = p / 100.0;
     returnValues.temperature = T < 0 ? -1 * T / 10.0 : T / 10.0;
     const float constExpPressure = 0.190295;

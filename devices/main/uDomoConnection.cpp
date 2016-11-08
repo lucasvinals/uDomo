@@ -1,16 +1,14 @@
 #include "uDomoConnection.h"
-/**
- * Init global objects
- */
+
 ESP8266WiFiMulti WiFiMulti;
 SocketIOClient socketio;
 ESP8266WebServer httpServer(80);
 ESP8266HTTPUpdateServer httpUpdater;
+
 char _networks[][25] = {
     /* SSIDs        Passwords         	      Fixed server IP (in router) */
     "Lucasnet"    , "uD0m0_uk"                , "192.168.43.43",
-    "Casa_01"     , "Pilarjazmin3"            , "192.168.0.12",
-    "MLuz"        , "36578742luz"             , "192.168.1.3"
+    "Casa_01"     , "Pilarjazmin3"            , "192.168.0.8"
 };
 
 /**
@@ -19,7 +17,6 @@ char _networks[][25] = {
 uDomoConnection::uDomoConnection(){}
 
 void uDomoConnection::setup(){
-  // erasePreviousNetwork();
   addAPs();
   connectWifi();
   _serverIP = findServerIP();

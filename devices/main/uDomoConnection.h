@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <ESP8266WiFiMulti.h>
-#include <SocketIOClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
+#include "SocketIOClient.h"
 
 #ifndef uDomoConnection_h
     #define uDomoConnection_h

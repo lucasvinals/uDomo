@@ -1,5 +1,5 @@
 /**
- *  Define database parameters 
+ *  Database parameters
  */
 const port = '12079';
 const dbName = 'uDomo';
@@ -8,7 +8,7 @@ const secret = '3ud-!AMDepHhemCPh*n#'; // Change this to a different secret stri
 class databaseParams {
     constructor(os) {
         this.url = "mongodb://127.0.0.1:" + port + "/" + dbName;
-        this.dbPort = "--port=" + port + " "; // 'mongod' listening port // URL access
+        this.dbPort = "--port=" + port; // 'mongod' listening port // URL access
         this.extras = "--smallfiles --logappend"; // Useful extras
         this.secret = secret;
 
@@ -17,29 +17,23 @@ class databaseParams {
                 /**
                  * Binary path where mongod is located
                  */
-                this.binaryPath = "/usr/bin/mongod ";
+                this.binaryPath = "/usr/bin/mongod";
                 /**
-                 * Where database is saved
+                 * Where database is saved, DO NOT forget the simple quotes.
                  */
-                this.storage = "--dbpath='/home/pi/uDomo/db/data/db' ";
+                this.storage = "--dbpath='/home/pi/uDomo/db/data/db'";
                 /**
-                 * Where logs are saved
+                 * Where database logs are saved, DO NOT forget the simple quotes.
                  */
-                this.defaultLog = "--logpath='/home/pi/uDomo/db/logs/log.txt' ";
-                break;
+                this.defaultLog = "--logpath='/home/pi/uDomo/db/logs/log.txt'";
+            break;
             case 'windows':
                 this.binaryPath = "C:/'Archivos de programa'/MongoDB/Server/3.2/bin/mongod.exe ";
-                this.storage = "--dbpath=C:/Users/LViñals/Desktop/uDomo/db/data/db ";
-                this.defaultLog = "--logpath=C:/Users/LViñals/Desktop/uDomo/db/logs/log.txt ";
-                break;
+                this.storage = "--dbpath=C:/Users/Lucas/Desktop/uDomo/db/data/db ";
+                this.defaultLog = "--logpath=C:/Users/Lucas/Desktop/uDomo/db/logs/log.txt ";
+            break;
         };
     }
 }
 
-/** 
- * Meti mas variables para que sea mucho mas ordenado en cluster. 
- * Si se usa el sistema en linux, usar la keyword 'linux', de la misma forma para windows, arm, etc
- */
-module.exports = (os) => {
-    return new databaseParams(os);
-};
+module.exports = (os) => { return new databaseParams(os); };

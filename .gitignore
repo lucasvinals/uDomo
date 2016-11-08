@@ -5,6 +5,10 @@ shelljs_*
 #Libraries and builds
 node_modules/
 udomo/
+devices/main/thirdParty
+node*
+binaries/
+etc/
 
 #Database
 db/
