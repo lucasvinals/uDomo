@@ -2,10 +2,10 @@
 <html lang='es'>
     <head>
         <meta charset='UTF-8'>
-        <base href="/">
+        <base href='/'>
         <link rel='icon' href='img/favicon.ico' type='image/x-icon' />
         <title>uDomo - Simple Automation</title>
-        <link rel="stylesheet" type="text/css" href="css/styles.min.css" >
+        <link rel='stylesheet' type='text/css' href='css/styles.min.css' >
     </head>
     <body ng-app='uDomoApp' ng-style='ChangeImage'>
         <div>
@@ -16,10 +16,37 @@
                 </div>
                 <!-- Links -->
                 <ul class='row nav navbar-nav'> <!-- Menú -->
-                    <li><a ui-sref="users" data-ng-click="getUsers()">Users</a></li>
-                    <li><a ui-sref="devices" data-ng-click="getDevices()">Devices</a></li>
-                    <li><a ui-sref="areas" data-ng-click="getAreas()">Areas</a></li>
-                    <!--<li><a ui-sref="configur" data-ng-click="getConfigurations()">Configurations</a></li>-->
+                    <li><a ui-sref='users' data-ng-click='getUsers()'>Users</a></li>
+                    <li>
+                        <a id='Users' data-toggle='dropdown'>Users</a>
+                        <ul class='dropdown-menu' role='menu' aria-labelledby='Users'>
+                            <li role='presentation'>
+                                <a  target='_self'
+                                    role='menuitem'
+                                    data-ng-click='getUsers()'
+                                    ui-sref='users'>List of Users
+                                </a>
+                            </li>
+                            <li role='presentation' class='divider'></li>
+                            <li role='presentation'>
+                                <a target='_self'
+                                    role='menuitem'
+                                    data-ng-click='getPermissions()'
+                                    ui-sref='permissions'>Permissions
+                                </a>
+                            </li>
+                            <li role='presentation'>
+                                <a target='_self'
+                                    role='menuitem'
+                                    data-ng-click='getConfigurations()'
+                                    ui-sref='configurations'>Configurations
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a ui-sref='devices' data-ng-click='getDevices()'>Devices</a></li>
+                    <li><a ui-sref='areas' data-ng-click='getAreas()'>Areas</a></li>
+                    <!--<li><a ui-sref='configur' data-ng-click='getConfigurations()'>Configurations</a></li>-->
                     <!-- <li data-ng-show='Token'><a ng-href='/Me'>Me</a></li> -->
                     <!-- <li data-ng-hide='Token'><a ng-href='/SignIn'>Signin</a></li> -->
                     <!-- <li data-ng-hide='Token'><a ng-href='/Register'>Register</a></li> -->
@@ -30,11 +57,11 @@
                         <a id='Readings' data-toggle='dropdown'>Readings</a>
                         <ul class='dropdown-menu' role='menu' aria-labelledby='Readings'>
                             <li role='presentation'>
-                                <a role='menuitem'  target="_self">Server</a>
+                                <a role='menuitem'  target='_self'>Server</a>
                             </li>
                             <li role='presentation' class='divider'></li>
                             <li role='presentation'>
-                                <a role='menuitem' target="_self">Other Readings</a>
+                                <a role='menuitem' target='_self'>Other Readings</a>
                             </li>
                         </ul>   
                     </li>
@@ -43,10 +70,10 @@
                     <li>
                         <a id='Security' data-toggle='dropdown'>Security</a>
                         <ul class='dropdown-menu' role='menu' aria-labelledby='Security'>
-                            <li role='presentation'><a target="_self" role='menuitem' >Video</a></li>
-                            <li role='presentation'><a target="_self" role='menuitem' >Perimeter</a></li>
+                            <li role='presentation'><a target='_self' role='menuitem' >Video</a></li>
+                            <li role='presentation'><a target='_self' role='menuitem' >Perimeter</a></li>
                             <li role='presentation' class='divider'></li>
-                            <li role='presentation'><a role='menuitem' target="_self"   >Last Warnings</a></li>
+                            <li role='presentation'><a role='menuitem' target='_self'   >Last Warnings</a></li>
                         </ul>
                     </li>
 
@@ -74,7 +101,7 @@
                 </ul>
             </nav>
             
-            <div ng-controller="mainController">
+            <div ng-controller='mainController'>
                 <!-- New Users -->
                 <div id='newUsers' class='modal fade' role='dialog'>
                     <div class='modal-dialog'>
@@ -82,38 +109,43 @@
                             <form class='form text-center' role='form' id='cForm'>
                                 <h4>Crear Usuario</h4>
                                 <div class='form-group'>
-                                    <input type='text' 
-                                            class='col-md-6 userRegisterInput'
+                                    <div class='col-md-6'>
+                                        <input type='text' 
+                                            class='form-control userRegisterInput'
                                             ng-model='cUser.Name' 
                                             placeholder='Nombre' 
                                             autofocus 
                                             required>
-                                    <input type='text' 
-                                            class='col-md-6 userRegisterInput'
-                                            ng-model='cUser.Username' 
-                                            placeholder='Usuario'
-                                            required>
-                                    <input type='email' 
-                                            class='col-md-6 userRegisterInput'
+                                        <input type='email' 
+                                            class='form-control userRegisterInput'
                                             ng-model='cUser.Email' 
                                             placeholder='Email'
                                             required>
-                                    <input type='number'
-                                            class='col-md-6 userRegisterInput'
-                                            ng-model='cUser.Age'
-                                            placeholder='Edad'
-                                            required
-                                            min="1">
-                                    <input type='password' 
-                                            class='col-md-6 userRegisterInput'
+                                        <input type='password' 
+                                            class='form-control userRegisterInput'
                                             ng-model='cUser.Password' 
                                             placeholder='Contraseña'
                                             required>
+                                    </div>
+                                    <div class='col-md-6'>
+                                        <input type='text' 
+                                            class='form-control userRegisterInput'
+                                            ng-model='cUser.Username' 
+                                            placeholder='Usuario'
+                                            required>
+                                        <input type='number'
+                                                class='form-control userRegisterInput'
+                                                ng-model='cUser.Age'
+                                                placeholder='Edad'
+                                                required
+                                                min='1'>
                                         <input type='password' 
-                                            class='col-md-6 userRegisterInput'
+                                            class='form-control userRegisterInput'
                                             ng-model='cUser.Password2' 
                                             placeholder='Repita contraseña'
                                             required>
+                                    </div>
+                                    
                                     <!--  <select ng-model='selPerm' 
                                             ng-options='Perm as Perm.Name for Perm in Permissions'
                                             ng-change='addNewPermission(selPerm)'
@@ -129,12 +161,18 @@
                                         </li>
                                     </ul> -->
                                 </div>
-                                <button type='button'
-                                        class='btn btn-sm btn-primary'
-                                        data-dismiss='modal'
-                                        ng-click='CreateUser(cUser)'
-                                        ng-disabled='cForm.$invalid || cForm.$error'>Crear
-                                </button>
+                                <div class='form-footer'>
+                                    <button type='button'
+                                            class='btn btn-sm btn-primary'
+                                            data-dismiss='modal'
+                                            ng-click='CreateUser(cUser)'
+                                            ng-disabled='cForm.$invalid || cForm.$error'>Crear
+                                    </button>
+                                    <button type='button'
+                                            class='btn btn-sm btn-default'
+                                            data-dismiss='modal'>Salir
+                                    </button>
+                                </div>
                             </form><br>
                         </div>
                     </div>
@@ -171,9 +209,9 @@
         * Author: Webpgr http://webpgr.com by Falko Krause <falko@webpgr.com>
         * License: MIT
         */
-        function _cacheScript(c,d,e){var a=new XMLHttpRequest;a.onreadystatechange=function(){4==a.readyState&&(200==a.status?localStorage.setItem(c,JSON.stringify({content:a.responseText,version:d})):console.warn("error loading "+e))};a.open("GET",e,!0);a.send()}
-        function _loadScript(c,d,e,a){var b=document.createElement("script");b.async=true;b.readyState?b.onreadystatechange=function(){if("loaded"==b.readyState||"complete"==b.readyState)b.onreadystatechange=null,_cacheScript(d,e,c),a&&a()}:b.onload=function(){_cacheScript(d,e,c);a&&a()};b.setAttribute("src",c);document.getElementsByTagName("body")[0].appendChild(b)}
-        function _injectScript(c,d,e,a){var b=document.createElement("script");b.type="text/javascript";c=JSON.parse(c);var f=document.createTextNode(c.content);b.appendChild(f);document.getElementsByTagName("head")[0].appendChild(b);c.version!=e&&localStorage.removeItem(d);a&&a()}
+        function _cacheScript(c,d,e){var a=new XMLHttpRequest;a.onreadystatechange=function(){4==a.readyState&&(200==a.status?localStorage.setItem(c,JSON.stringify({content:a.responseText,version:d})):console.warn('error loading '+e))};a.open('GET',e,!0);a.send()}
+        function _loadScript(c,d,e,a){var b=document.createElement('script');b.async=true;b.readyState?b.onreadystatechange=function(){if('loaded'==b.readyState||'complete'==b.readyState)b.onreadystatechange=null,_cacheScript(d,e,c),a&&a()}:b.onload=function(){_cacheScript(d,e,c);a&&a()};b.setAttribute('src',c);document.getElementsByTagName('body')[0].appendChild(b)}
+        function _injectScript(c,d,e,a){var b=document.createElement('script');b.type='text/javascript';c=JSON.parse(c);var f=document.createTextNode(c.content);b.appendChild(f);document.getElementsByTagName('head')[0].appendChild(b);c.version!=e&&localStorage.removeItem(d);a&&a()}
         function requireScript(c,d,e,a){var b=localStorage.getItem(c);null==b?_loadScript(e,c,d,a):_injectScript(b,c,d,a)};
     
         requireScript('udomoLibraries', '0.0.<%= versionApp %>', 'js/udomo.min.js');
