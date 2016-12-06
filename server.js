@@ -15,8 +15,10 @@ let wsModules           = [];
 /**
  * Loads all the scripts in 'app/websockets'
  */
-fs.readdirSync(__dirname + '/app/websockets').forEach((file, index) => {
-    wsModules[index] = require('./app/websockets/' + file.substring(0, file.indexOf('.js')));
+fs.readdir(__dirname + '/app/websockets', (e, files) => {
+    files.forEach((file, index) => {
+        wsModules[index] = require('./app/websockets/' + file.substring(0, file.indexOf('.js')));
+    });
 });
 
 /**
@@ -62,8 +64,10 @@ crypto.randomBytes(64, function(err, buffer) {
 /**
  * RESTful API
  */
-fs.readdirSync(__dirname + '/app/REST').forEach((file) => {
-    require('./app/REST/' + file.substring(0, file.indexOf('.js')))(app);
+fs.readdir(__dirname + '/app/REST', (e, files) => {
+    files.forEach((file) => {
+        require('./app/REST/' + file.substring(0, file.indexOf('.js')))(app);
+    });
 });
 
 /**
