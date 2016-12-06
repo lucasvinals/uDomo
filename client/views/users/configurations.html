@@ -1,3 +1,39 @@
 <div>
-    <h1 style="color:red">Lucas AMA a Luz</h1>
+    <h1>Configurations</h1>
+    <button type='button'
+            class='btn btn-sm btn-primary'
+            data-toggle='modal'
+            data-target='#newConf'>New Configuration
+    </button>
+    <div id='newConf' class='modal fade' role='dialog'>
+        <div class='modal-dialog modal-sm'>
+            <div class='modal-content'>
+                <form class='form text-left' style='padding:1em;' role='form'>
+                    <h4>New Configuration</h4>
+                    <div class='form-group'>
+                        <input class='form-control' type='text' ng-model='conf.Name' placeholder='Name'>
+                        <button type='button'
+                                class='btn btn-default form-control'
+                                ng-class='{"btn-success": conf.Security}'
+                                ng-click='toggleSec()'
+                                title='Security'>Security
+                        </button>
+                        <button type='button' ng-bind='conf.Readings' title='Readings'></button>
+                        <button type='button' ng-bind='conf.Scenes' title='Scenes'></button>
+                        <button type='button' ng-bind='conf.Devices' title='Devices'></button>
+                        <button type='button' ng-bind='conf.Users' title='Users'></button>
+                    </div>
+                    <button type='button'
+                            class='btn btn-sm btn-primary'
+                            data-dismiss='modal'
+                            ng-click='CreateConfiguration(conf)'>Create
+                    </button>
+                    <button type='button'
+                            class='btn btn-sm btn-default'
+                            data-dismiss='modal'>Exit
+                    </button>
+                </form><br>
+            </div>
+        </div>
+    </div>
 </div>

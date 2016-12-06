@@ -1,10 +1,12 @@
-var Configs = require("../models/routes");
-var log     = log || process.log;
+const ConfigurationsSchema = require("../models/configurations");
+var log = log || process.log;
 
-var Configurations = {
-    GetConfigurations: (callback) => {
-        Configs.find({}, (e, c) => {
-            e ? callback(e, null) : callback(null, c);
+const Configurations = {
+    FindConfigurations: (callback) => {
+        ConfigurationsSchema.find({}, (e, c) => {
+            e?
+                (!log.error(e) && callback(e, null)):
+                callback(null, c);
         });
     }
 };
@@ -12,8 +14,8 @@ var Configurations = {
 module.exports = (app) => {
     app
     .get('/api/Configurations', (request, response) => {
-        Configurations.GetConfigurations((error, configs) => {
-            response.json({Configurations : configs, Error : error});
+        Configurations.FindConfigurations((error, configs) => {
+            response.json({"Configurations": configs, "Error": error});
         });
     });
 };
