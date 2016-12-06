@@ -1,11 +1,10 @@
 let Users = angular.module('Users', []);
 
-Users.factory('User', ['Socket', '$http', 'Message', 'Storage', 
-(Socket, $http, Message, Storage) => {
-    'use strict';    
-    let changeUser = (user) => {
-        angular.extend(currentUser, user);
-    }
+Users.factory('User', ['Socket', '$http', 'Message', 'Observer', 'Storage', 
+(Socket, $http, Message, Observer, Storage) => {
+    'use strict';
+
+    let changeUser = (user) => { angular.extend(currentUser, user); };
 
     let urlBase64Decode = (str) => {
         var output = str.replace('-', '+').replace('_', '/');
@@ -33,64 +32,11 @@ Users.factory('User', ['Socket', '$http', 'Message', 'Storage',
         return user;
     }
 
+    let configs = [{"Name": "Lucas"}, {"Name": "Dummy"}];
+    let perm = [{"Name": "Luz"}, {"Name": "Dummy2"}];
+
     var currentUser = getUserFromToken();
 
-    /*var requestUsers = function(){
-        //Emit the event so other users see the current users
-        Socket.emit('Users/User/Read/Request', {}); 
-    };
-    requestUsers();*/
-
-    /*
-           Socket.on('Users/User/Read/Response', function(data){
-                var error = data.Error;
-                var users = data.Users;
-
-                if(error){
-                    callback(error, null);
-                    Message.error('Ocurrió un error' + error, 7);
-                    log(error, 'error');
-                }else{
-                    callback(null, users);
-                }
-            });
-           */
-
-    /******************************* Design Pattern: Observer.  *************************/
-    class ObserverPattern{
-
-        /* Init the pattern */
-        constructor(){
-            this.Observers = [];
-        }
-
-        /* Register an observer (callback function) */
-        subscribe(observer){
-            this.Observers.push(observer);
-        }
-
-        /* Quit an observer (callback function) */
-        unsubscribe(observer){
-            this.Observers = this.Observers.filter((o) => o != observer);
-        }
-
-        /* Reset the observers to make a clean exit */
-        unsubscribeAll(){
-            this.Observers = [];
-        }
-
-        /* Listener. Call when something changes.. Ex: CRUD operations */
-        notify(){
-            angular.forEach(this.Observers, (observer) => {
-              observer();
-            });
-        }
-    }
-
-    /* New instance of the pattern */
-    let Observer = new ObserverPattern();
-    /***********************************************************************************/
-  
     return{
         Subscribe: (observer) => {
             Observer.subscribe(observer);
@@ -176,6 +122,12 @@ Users.factory('User', ['Socket', '$http', 'Message', 'Storage',
                         });
                 }
             });
+        },
+        GetPermissions: function(cb){
+            return cb(perm, null);
+        },
+        GetConfigurations: function(cb){
+            return cb(configs, null);
         },
         Login : (user, callback) => {
             $http.post('/Authenticate', user).then(
