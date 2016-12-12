@@ -16,9 +16,9 @@
                 </div>
                 <!-- Links -->
                 <ul class='row nav navbar-nav'> <!-- Menú -->
-                    <li><a ui-sref='users' data-ng-click='getUsers()'>Users</a></li>
+                    <!--<li><a ui-sref='users' data-ng-click='getUsers()'>Users</a></li>-->
                     <li>
-                        <a id='Users' data-toggle='dropdown'>Users</a>
+                        <a href='#' id='Users' data-toggle='dropdown'>Users</a>
                         <ul class='dropdown-menu' role='menu' aria-labelledby='Users'>
                             <li role='presentation'>
                                 <a  target='_self'
@@ -54,14 +54,14 @@
                     
                     <!-- Readings -->
                     <li>
-                        <a id='Readings' data-toggle='dropdown'>Readings</a>
+                        <a href='#' id='Readings' data-toggle='dropdown'>Readings</a>
                         <ul class='dropdown-menu' role='menu' aria-labelledby='Readings'>
                             <li role='presentation'>
-                                <a role='menuitem'  target='_self'>Server</a>
+                                <a ui-sref='serverReadings' role='menuitem'  target='_self'>Server</a>
                             </li>
                             <li role='presentation' class='divider'></li>
                             <li role='presentation'>
-                                <a role='menuitem' target='_self'>Other Readings</a>
+                                <a ui-sref='otherReadings' role='menuitem' target='_self'>Other Readings</a>
                             </li>
                         </ul>   
                     </li>
@@ -200,7 +200,6 @@
         <div ui-view></div>
     </body>
 
-    
     <!-- build:template:construir
     <script>
         /* 
