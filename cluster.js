@@ -1,3 +1,4 @@
+'use strict';
 const started           = Date.now();
 const cluster           = require('cluster');
 const bashCommand       = require('shelljs').exec;
@@ -8,7 +9,7 @@ const log               = process.log = require('./tools/logger')('server');
 const db                = require('./config/db')(operatingSystem);
 const mongoose          = require('mongoose');
 const net               = require('net');
-process.env.clusterPort = process.argv[2] || 80;
+process.env.clusterPort = process.argv[2] || 8080;
 process.env.clusterIP   = require('./tools/getIP')(operatingSystem);
 process.env.MongoURL    = db.url;
 process.devices         = [];
@@ -38,12 +39,15 @@ if (cluster.isMaster) { // Master
     /**
      * Initialize the database engine inside the master, easy to install in the future
      */
-    let     countError      = 0;
+    let countError = 0;
 
     /**
      * Kill mongod process (with it's PID) -> (SIGTERM) if found. Since it's a fast and
      * simple command, it can be synchonous
      */
+    let kmi = () => {};
+    let initMongo = () => {};
+
     let killMongoInstance = (kmi = () => {
         if(bashCommand(
                         'kill $(($(ps -C mongod | grep mongod | cut -c 1-5)))',
