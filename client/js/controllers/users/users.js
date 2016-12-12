@@ -36,4 +36,16 @@ function($scope, User){
     $scope.canRemove = () => {
         return $rootScope.currentUser.Administrator === true ? true : false;
     };
+    
+    $scope.getPermissions = function(){
+        User.GetPermissions(function(permissions, errors){
+            $scope.permissions = permissions;
+        });
+    };
+
+    $scope.getConfigurations = function(){
+        User.GetConfigurations(function(configurations, errors){
+            $scope.configurations = configurations;
+        });
+    };
 }]);
