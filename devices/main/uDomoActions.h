@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <EEPROM.h>
 #include "ArduinoJson.h"
 #include "ESP8266TrueRandom.h"
 #include "uDomoSensors.h"

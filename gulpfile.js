@@ -140,9 +140,9 @@ gulp.task('jsScripts', () => {
  */
 .task('clean', () => {
     let removeFiles = require('./tools/removeFiles');
-    removeFiles("./udomo/", function(){});
-    removeFiles("./shelljs_*", function(){});
-    removeFiles("./*.log", function(){});
+    removeFiles("udomo/", function(){});
+    removeFiles("shelljs_*", function(){});
+    removeFiles("*.log", function(){});
 })
 
 /**
@@ -177,7 +177,7 @@ gulp.task('jsScripts', () => {
 /**
  * TASK - Build actions
  */
-.task('construir',  [
+.task('build',  [
                         'clean',
                         'checkSyntax',
                         'copyStatic',

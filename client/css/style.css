@@ -135,6 +135,11 @@ select{
     position:absolute; 
     right:10em;
 }
+
+ .userRegisterInput{
+    margin: 0.3em;
+}
+
 @media(max-width:1200px){
 } 
 @media(max-width:1024px){

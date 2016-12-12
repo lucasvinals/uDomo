@@ -10,7 +10,7 @@
   "main": "cluster.js",
   "version": "1.0.0",
   "scripts": {
-    "build": "gulp clean && gulp construir",
+    "build": "gulp",
     "start": "./binaries/nodejs/bin/npm run build && ./binaries/nodejs/bin/node cluster.js 12078 1",
     "cluster": "./binaries/nodejs/bin/npm run build && ./binaries/nodejs/bin/node cluster.js 12078",
     "prepare": "bash ./tools/prepareSystem.sh"

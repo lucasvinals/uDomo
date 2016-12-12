@@ -72,6 +72,7 @@ fs.readdir(__dirname + '/app/REST', (e, files) => {
 
 /**
  * Frontend Routes
+ * Cuando tenga NGINX funcionando, ésto se tiene que sacar.
  */
 app.use('/',(request, response) => {
     response.sendFile(__dirname + '/udomo/views/index.html');

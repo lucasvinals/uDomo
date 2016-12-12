@@ -34,8 +34,7 @@ void uDomoActions::setup(){
     delay(1000);
     t--;
   }
-
-  // EEPROM.begin(16);
+  
   setDeviceUUID();
   initPins();
 
