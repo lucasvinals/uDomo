@@ -94,12 +94,13 @@ if [ ! -f $MAINDIR'/config/db.js' ]; then
 fi
 
 # Añado un cron para que se inicie con un sólo hilo por lo menos (npm start), cuando levante la red (if-up)
-FILECRON='/etc/network/if-up.d/uDomo'
-sudo /bin/cat <<EOM >$FILECRON
+sudo bash -c 'cat << EOF > /etc/network/if-up.d/uDomo
 #!/bin/bash
 ( cd /home/pi/uDomo && ./binaries/nodejs/bin/npm start )
-EOM
+EOF'
 # Le doy permisos de lectura y ejecución
-sudo chmod 0600 $FILECRON
+sudo chmod 0600 /etc/network/if-up.d/uDomo
+
+# Hacer lo mismo con if-down, que termine el proceso de uDomo.
 
 echo -e "\n\e[42m\e[97mTodo instalado. Iniciar servicio de uDomo con \""$BINARIESDIR"/nodejs/bin/npm start\" o \""$BINARIESDIR"/nodejs/bin/npm run cluster\" una vez que todo esté configurado.\e[0m"
