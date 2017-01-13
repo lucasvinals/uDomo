@@ -32,9 +32,6 @@ Users.factory('User', ['Socket', '$http', 'Message', 'Observer', 'Storage',
         return user;
     }
 
-    let configs = [{"Name": "Lucas"}, {"Name": "Dummy"}];
-    let perm = [{"Name": "Luz"}, {"Name": "Dummy2"}];
-
     var currentUser = getUserFromToken();
 
     return{
@@ -51,7 +48,7 @@ Users.factory('User', ['Socket', '$http', 'Message', 'Observer', 'Storage',
                     e ? 
                         (
                             Message.error("Ocurrió un error" + e, 10),
-                            log.error(e),
+                            log.error(JSON.stringify(e)),
                             callback(e, null)
                         ) :
                         callback(null, res.data.Users);
@@ -123,17 +120,66 @@ Users.factory('User', ['Socket', '$http', 'Message', 'Observer', 'Storage',
                 }
             });
         },
-        GetPermissions: function(cb){
-            return cb(perm, null);
+        GetPermissions: function(callback){
+            $http.get('/api/Permissions').then(
+                (res) => {
+                    var e = res.data.Error;
+                    e ? 
+                        (
+                            Message.error("Ocurrió un error" + e, 10),
+                            log.error(JSON.stringify(e)),
+                            callback(e, null)
+                        ) :
+                        callback(null, res.data.Permissions);
+                },
+                (error) => {
+                    Message.error("Ocurrió un error -> [Descrito en consola]", 10);
+                    log.error(JSON.stringify(error));
+            });
         },
-        GetConfigurations: function(cb){
-            return cb(configs, null);
+        GetConfigurations: function(callback){
+            $http.get('/api/Configurations').then(
+                (res) => {
+                    var e = res.data.Error;
+                    e ? 
+                        (
+                            Message.error("Ocurrió un error" + e, 10),
+                            log.error(JSON.stringify(e)),
+                            callback(e, null)
+                        ) :
+                        callback(null, res.data.Configurations);
+                },
+                (error) => {
+                    Message.error("Ocurrió un error -> [Descrito en consola]", 10);
+                    log.error(JSON.stringify(error));
+            });
+        },
+        CreateConfiguration: (config, callback) => {
+            $http.post('/Configuration', config).then(
+				(r) => {
+					var e = r.data.Error
+                    var c = r.data.Configuration;
+					if(e){
+                        Message.warning(e, 10);
+                        callback(e, null);
+					}else{
+                        Message.success('Configuración ' + c.Name + ' creada con éxito.', 10);
+                        Observer.notify();
+                        callback(null, c);
+					}
+				},
+				(error) => {
+                    Message.error(JSON.stringify(error), 10);
+                    callback('Ocurrió un error creando la configuración, ' +
+                             'puede verlo revisando la consola.', null);
+					log.error(JSON.stringify(error));
+				});
         },
         Login : (user, callback) => {
             $http.post('/Authenticate', user).then(
                 (r) => {
                     var e = r.data.Error;
-                    e ? 
+                    e ? false
                         (
                             Message.error('Error:' + e, 10),
                             callback(e, null)
@@ -142,7 +188,7 @@ Users.factory('User', ['Socket', '$http', 'Message', 'Observer', 'Storage',
                 }, 
                 (e) => {
                     Message.error('Error:' + e, 10);
-                    log.error('Ocurrió un error-> ' + e);
+                    log.error('Ocurrió un error-> ' + JSON.stringify(e));
                 });
         },
         Logout: () => {
