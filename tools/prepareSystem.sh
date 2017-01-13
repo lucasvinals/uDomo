@@ -6,12 +6,12 @@
 # Creado: 04/2016
 
 # Directorio principal [directorio dentro del cual esta uDomo, Arduino, etc]
-HOMEDIR='/home/pi'
+HOMEDIR='~'
 # Arquitectura de procesador (cambiar dependiendo de el sistema donde corra)
 # RaspberryPi: armv7l, armv6l, arm64
 # x64: linux-x64
 # x86: linux-x86
-ARCHITECTURE_uDomo='armv7l'
+ARCHITECTURE_uDomo='linux-x64'
 # Bibliotecas de ESP8266
 LIBRARIESDIR=$HOMEDIR'/Arduino/libraries'
 
@@ -54,7 +54,7 @@ fi
 if [ ! -d $LIBRARIESDIR'/Socket.io-v1.x-Library' ]; then
   echo -e "\e[103m\e[91m> Descargando SocketIO...\e[0m"
   ( cd $LIBRARIESDIR && git clone https://github.com/washo4evr/Socket.io-v1.x-Library.git )
-fi
+filet
 
 # Descargo ArduinoJSON
 if [ ! -d $LIBRARIESDIR'/ArduinoJson' ]; then
