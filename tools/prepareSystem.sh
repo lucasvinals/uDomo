@@ -6,7 +6,7 @@
 # Creado: 04/2016
 
 # Directorio principal [directorio dentro del cual esta uDomo, Arduino, etc]
-HOMEDIR='~'
+HOMEDIR='/root'
 # Arquitectura de procesador (cambiar dependiendo de el sistema donde corra)
 # RaspberryPi: armv7l, armv6l, arm64
 # x64: linux-x64
@@ -54,7 +54,7 @@ fi
 if [ ! -d $LIBRARIESDIR'/Socket.io-v1.x-Library' ]; then
   echo -e "\e[103m\e[91m> Descargando SocketIO...\e[0m"
   ( cd $LIBRARIESDIR && git clone https://github.com/washo4evr/Socket.io-v1.x-Library.git )
-filet
+fi
 
 # Descargo ArduinoJSON
 if [ ! -d $LIBRARIESDIR'/ArduinoJson' ]; then
@@ -90,7 +90,7 @@ $BINARIESDIR/nodejs/bin/npm install --prefix $MAINDIR
 # No existe un archivo de configuracion de la base de datos, así que copio el ejemplo e informo que se edite...
 if [ ! -f $MAINDIR'/config/db.js' ]; then
   cp $MAINDIR'/config/dbExample.js' $MAINDIR'/config/db.js'
-  echo -e "\n\e[91m\e[103m> No existe un archivo de configuración de la base de datos.\n> Por favor, edite el archivo en " $MAINDIR "/config/db.js de acuerdo a su sistema.\e[0m\n"
+  echo -e "\n\e[91m\e[103m> No existe un archivo de configuración de la base de datos.\n> Por favor, edite el archivo en "$MAINDIR"/config/db.js de acuerdo a su sistema.\e[0m\n"
 fi
 
 # Añado un cron para que se inicie con un sólo hilo por lo menos (npm start), cuando levante la red (if-up)
