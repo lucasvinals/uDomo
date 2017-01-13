@@ -1,6 +1,5 @@
-/**
- *  Me hice un logger para mostrar los mensajes de manera mas llamativa en la consola 
- */
+const ENV = 'development'; // "development" or "production"
+
 const log = {
     success: (m) => {
         console.log(
@@ -65,11 +64,11 @@ function psilog(speed, usability, type) {
 /**
  *  TASK - Compress Javascript Libraries and Modules in 'udomo.min.js' script 
  */
-gulp.task('jsScripts', () => {
+gulp.task('buildLibs', () => {
     gulp.src([
             /**
              * Intentar sacar jquery, modal y dropdown. Hacerlo solo con CSS
-             * No debería ser necesario tener todo jquery para esta pavada
+             * No debería ser necesario tener jQuery para esta pavada
              */ 
             './node_modules/jquery/dist/jquery.min.js',
             './node_modules/bootstrap/js/modal.js',
@@ -78,28 +77,43 @@ gulp.task('jsScripts', () => {
             './node_modules/alertifyjs/build/alertify.min.js',
             './node_modules/angular/angular.min.js',
             './node_modules/angular-ui-router/release/angular-ui-router.min.js',
-            './node_modules/socket.io-client/socket.io.js',
-            './node_modules/lodash/lodash.min.js',
-            './client/js/services/**/*.js',
-            './client/js/filters/*.js',
-            './client/js/controllers/**/*.js',
-            './client/js/directives/*.js',
-            './client/js/app.js',
-            './client/js/routes.js',
-        ])
+            './node_modules/socket.io-client/dist/socket.io.min.js',
+            './node_modules/lodash/lodash.min.js'])
         /**
-         * Comment for production (faster in dev)
+         * Concatenate all
          */
-        .pipe(concat('udomo.min.js'))
-        /**
-         * Uncomment for production. (takes some time to minify)
-         */
-        // .pipe(googleCC()({
-        //     compilationLevel: 'SIMPLE',
-        //     jsOutputFile: 'udomo.min.js',
-        //     angularPass: true
-        // }))
+        .pipe(concat('lib.min.js'))
         .pipe(gulp.dest('./udomo/js'));
+})
+/**
+ *  TASK - Compress Javascript Libraries and Modules in 'udomo.min.js' script 
+ */
+.task('jsScripts', ['buildLibs'], () => {
+    if(ENV === 'development'){
+        gulp.src(['./client/js/**/*']).pipe(gulp.dest('./udomo/js'));
+    }else if (ENV === 'production'){
+         gulp
+            .src([
+                './udomo/js/lib.min.js',
+                './client/js/services/**/*.js',
+                './client/js/filters/*.js',
+                './client/js/controllers/**/*.js',
+                './client/js/directives/*.js',
+                './client/js/app.js',
+                './client/js/routes.js'
+            ])
+             /**
+             * Minify all and concatenate. 
+             * Takes some time at build time but using this it's 
+             * much faster than all scripts separated 
+             */
+            .pipe(googleCC()({
+                compilationLevel: 'SIMPLE',
+                jsOutputFile: 'udomo.min.js',
+                angularPass: true
+            }))
+            .pipe(gulp.dest('./udomo/js'));
+    }
 })
 
 /**
@@ -126,10 +140,9 @@ gulp.task('jsScripts', () => {
         .pipe(gulp.dest('./udomo/fonts'));
     gulp.src('./client/views/**/*')
         .pipe(processHTML({
-                                            data:{
-                                                    "versionApp": Math.floor(Math.random() * 1000)
-                                                    }
-                                            }))
+                            data:{ versionApp: Math.floor(Math.random() * 1000) },
+                            environment: (ENV === 'development'? 'development': 'production')
+                        }))
         .pipe(gulp.dest('./udomo/views'));
     gulp.src('./client/img/**/*')
         .pipe(gulp.dest('./udomo/img'));
