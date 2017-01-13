@@ -2,14 +2,14 @@
 const started           = Date.now();
 const cluster           = require('cluster');
 const bashCommand       = require('shelljs').exec;
-const machineCPUs       = require('os').cpus().length;
+const machineCPUs       = +require('os').cpus().length;
 const operatingSystem   = 'linux';
-const numProcesses      = process.argv[3] || machineCPUs;
+const numProcesses      = +process.argv[3] || machineCPUs;
 const log               = process.log = require('./tools/logger')('server');
 const db                = require('./config/db')(operatingSystem);
 const mongoose          = require('mongoose');
 const net               = require('net');
-process.env.clusterPort = process.argv[2] || 8080;
+process.env.clusterPort = +process.argv[2] || 8080;
 process.env.clusterIP   = require('./tools/getIP')(operatingSystem);
 process.env.MongoURL    = db.url;
 process.devices         = [];
@@ -35,7 +35,7 @@ if(numProcesses < 1 || numProcesses > machineCPUs){
     killServer();
 }
 
-if (cluster.isMaster) { // Master
+function spawnMaster(){
     /**
      * Initialize the database engine inside the master, easy to install in the future
      */
@@ -45,22 +45,21 @@ if (cluster.isMaster) { // Master
      * Kill mongod process (with it's PID) -> (SIGTERM) if found. Since it's a fast and
      * simple command, it can be synchonous
      */
-    let kmi = () => {};
     let initMongo = () => {};
 
-    let killMongoInstance = (kmi = () => {
+    function killMongoInstance(){
         if(bashCommand(
                         'kill $(($(ps -C mongod | grep mongod | cut -c 1-5)))',
                         {silent: true}).code == 0){
             /**
-             * Successfully closed an instance of MongoDB
+             * Instance of MongoDB successfully closed.
              */
             log.warning('> Se terminó una instancia de \"mongod\" abierta.');
         }
-        return kmi;
-    })();
+    }
 
-    let initMongoInstance = (initMongo = () => {
+    function initMongoInstance(){
+        let e = false;
         log.info('> Iniciando el motor de base de datos...');
         bashCommand("mongod --repair " + db.storage, {silent: true});
         /**
@@ -81,34 +80,39 @@ if (cluster.isMaster) { // Master
             {silent: true},
             (code, stdout, stderr) => {
                 if(code != 0){
+                    killMongoInstance();
                     log.warning( '> Error en el inicio de la base de datos.' +
                                     '\nSe intenta terminar con alguna instancia de ' +
                                     '\"mongod\" abierta'
                                );
-                    /**
-                     * Execute again the mongod killer
-                     */
-                    killMongoInstance();
-                    ++countError < 3 ?
+                       
+                    if(++countError < 3){
                         /**
                          * Recursive call the inner function
                          */
-                        initMongo() :
+                        initMongoInstance();
+                        mongoose.connect(process.env.MongoURL);
+                    } else {
                         /**
                          * If fails, do not start the cluster/server
                          */
                         killServer();
+                        e = true;
+                    }
+                        
                 }
             }
         );
         log.success('> El motor de base de datos se inició correctamente!');
-        return initMongo;
-    })();
+        return !e;
+    }
 
     /**
      * Connect to the MongoDB engine
      */
-    mongoose.connect(process.env.MongoURL);
+    initMongoInstance();
+    
+    // mongoose.connect(process.env.MongoURL);
 
     /**
      * If numProcesses is 1, then it will only run in one core,
@@ -119,9 +123,10 @@ if (cluster.isMaster) { // Master
         return;
     }
 
-    /** This stores the workers. Need to keep them to be able to reference them based on
-      * source IP address
-      */
+    /** 
+     * This stores the workers. Need to keep them to be able to reference them based on
+     * source IP address
+     */
     let workers = [];
     let spawn   = (i) => {
         'use strict';
@@ -179,6 +184,10 @@ if (cluster.isMaster) { // Master
 
     log.info('\n> New instance of Master with PID ' + process.pid +
                     ' started in ' + (Date.now() - started) + 'ms.');
-} else { // Spawn workers
+}
+
+function spawnServerWorker(){
     require('./server')({"serverPort": 0});
 }
+
+cluster.isMaster ? spawnMaster() : spawnServerWorker();
