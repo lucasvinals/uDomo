@@ -1,4 +1,5 @@
 var Area    = require('../models/areas');
+let Devices = require('../models/devices');
 var log     = log || process.log;
 
 var Areas = {
@@ -86,7 +87,13 @@ var Areas = {
      * Delete an Area
      */
     DeleteArea: (id, callback) => {
-        Area.findOne({_id: id}).remove((e, r) => {
+        let area = Area.findOne({_id: id});
+        Devices.find({"Area": area}, (e, devs) => {
+            devs.forEach((d) => {
+                Devices.remove({_id: d._id});
+            });
+        });
+        area.remove((e, r) => {
             let error = () => {
                 log.error('> Something happened removing the area with GUID: \"' +
                             id + '\"\n\n' + e);
