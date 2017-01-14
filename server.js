@@ -9,15 +9,25 @@ const methodOverride    = require('method-override')('X-HTTP-Method-Override');
 let express             = require('express');
 let app                 = express();
 let bodyParser          = require('body-parser');
+var Promise             = require('promise');
 let log                 = process.log;
-let wsModules           = [];
+
+let uDomoPromise = (path) => {
+    return new Promise((resolve, reject) => {
+        let promiseModules = [];
+        fs.readdir(__dirname + path, (e, files) => {
+            files.forEach((file, index) => {
+                promiseModules[index] = require('.' + path + file);
+            });
+            e ? reject(e) : resolve(promiseModules);
+        });
+    });
+};
 
 /**
  * Loads all the scripts in 'app/websockets'
  */
-fs.readdirSync(__dirname + '/app/websockets').forEach((file, index) => {
-    wsModules[index] = require('./app/websockets/' + file.substring(0, file.indexOf('.js')));
-});
+let wsResults = uDomoPromise('/app/websockets/');
 
 /**
  * App configuration
@@ -62,17 +72,7 @@ crypto.randomBytes(64, function(err, buffer) {
 /**
  * RESTful API
  */
-fs.readdirSync(__dirname + '/app/REST').forEach((file) => {
-    require('./app/REST/' + file.substring(0, file.indexOf('.js')))(app);
-});
-
-/**
- * Frontend Routes
- * Cuando tenga NGINX funcionando, ésto se tiene que sacar.
- */
-app.use('/',(request, response) => {
-    response.sendFile(__dirname + '/udomo/views/index.html');
-});
+let RESTResults = uDomoPromise('/app/REST/');
 
 module.exports = (args) => {
     /**
@@ -88,10 +88,6 @@ module.exports = (args) => {
      * Socket.IO attached to Express instance 
      */
     io.attach(server);
-
-    /**
-     * Websockets
-     */
     
     /**
      * Store sessions in db 
@@ -104,9 +100,38 @@ module.exports = (args) => {
     /**
      * Init ws modules in 'app/websockets'
      */
-    wsModules.forEach((wsMod) => {
-        wsMod(io);
-    });
+    wsResults.then(
+        (modules) => {
+            modules.forEach((mod) => {
+                mod(io);
+            });
+        },
+        (e) => {
+            log.error('Error ocurred loading websockets modules: ' + JSON.stringify(e));
+        }
+    );
+    /**
+     * Init REST modules in 'app/REST'
+     */
+    RESTResults.then(
+        (modules) => {
+            modules.forEach((mod) => {
+                mod(app);
+            });
+            app.use(/^\/.*/, (request, response) => {
+                response.sendFile(__dirname + '/udomo/views/index.html');
+            });
+            /**
+             * Test what modules have been loaded
+             */
+            // Object.keys(require.cache).forEach((m) => {
+            //     m.indexOf('node_modules') < 0 && log.warning(m);
+            // });
+        },
+        (error) => {
+            log.error('Error ocurred loading REST modules: ' + JSON.stringify(e));
+        }
+    );
 
     /**
      *  Emulate a connection event on the server by emitting the event with 
