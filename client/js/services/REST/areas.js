@@ -69,7 +69,7 @@ Areas.factory("Area", ["Socket", "$http", "Message",
         GetAreas: (callback) => {
             $http.get('/api/Areas').then(
                 (r) => {
-                    var e = r.data.Error;
+                    var e = JSON.stringify(r.data.Error);
                     e ? 
                         (
                             Message.error("Ocurrió un error" + e, 10),
@@ -80,13 +80,13 @@ Areas.factory("Area", ["Socket", "$http", "Message",
                 },
                 (error) => {
                     Message.error("Ocurrió un error -> [Descrito en consola]", 10);
-                    log.error(error);
+                    log.error(JSON.stringify(error));
             });
         },
         CreateArea: (area, callback) => {
             $http.post('/Area', area).then(
                 (res) => {
-                    var err = res.data.Error;
+                    var err = JSON.stringify(res.data.Error);
                     var Area = res.data.Area;
                     if(err){
                         Message.warning(err, 10);
@@ -98,8 +98,8 @@ Areas.factory("Area", ["Socket", "$http", "Message",
                     }
                 },
                 (error) => {
-                    Message.error(error, 10);
-                    log.error(error);
+                    Message.error(JSON.stringify(error), 10);
+                    log.error(JSON.stringify(error));
                     callback("Ocurrió un error creando el área. " + 
                              "puede verlo revisando la consola.", null);
                 });
@@ -108,7 +108,7 @@ Areas.factory("Area", ["Socket", "$http", "Message",
         ModifyArea: (area) => {
             $http.put('/Area', area).then(
                 (r) => {
-                    var e = r.data.Error;
+                    var e = JSON.stringify(r.data.Error);
                     e?
                         (
                             Message.error('Ocurrió un error modificando el área. ' + e, 10),
@@ -120,8 +120,8 @@ Areas.factory("Area", ["Socket", "$http", "Message",
                         )
                 },
                 (e) => {
-                    Message.error(e, 10);
-                    log.error('Ocurrió un error-> ' + e);
+                    Message.error(JSON.stringify(e), 10);
+                    log.error('Ocurrió un error-> ' + JSON.stringify(e));
                 });
         },
         DeleteArea: (id) => {
