@@ -1,193 +1,199 @@
-'use strict';
-const started           = Date.now();
-const cluster           = require('cluster');
-const bashCommand       = require('shelljs').exec;
-const machineCPUs       = +require('os').cpus().length;
-const operatingSystem   = 'linux';
-const numProcesses      = +process.argv[3] || machineCPUs;
-const log               = process.log = require('./tools/logger')('server');
-const db                = require('./config/db')(operatingSystem);
-const mongoose          = require('mongoose');
-const net               = require('net');
-process.env.clusterPort = +process.argv[2] || 8080;
-process.env.clusterIP   = require('./tools/getIP')(operatingSystem);
-process.env.MongoURL    = db.url;
-process.devices         = [];
+const started = Date.now();
+const cluster = require('cluster');
+const Bash = require('shelljs').exec;
+const machineCPUs = Number(require('os').cpus().length);
+const ARG_CPU_NUMBER = 3;
+const numProcesses = Number(process.argv[ARG_CPU_NUMBER]) || machineCPUs;
+const log = require('./tools/logger')('server');
+process.log = log;
+const mongoose = require('mongoose');
+const net = require('net');
+const Promise = require('es6-promise').Promise;
+mongoose.Promise = Promise;
+process.operatingSystem = 'linux';
+const database = require('./config/db')(process.operatingSystem);
+const DEFAULT_CLUSTER_PORT = 8080;
+process.clusterPort = Number(process.argv[2]) || DEFAULT_CLUSTER_PORT;
+process.clusterIP = require('./tools/getIP')(process.operatingSystem);
+process.MongoURL = database.url;
+process.ROOTDIR = Bash((() => {
+  const path = process.operatingSystem === 'linux' ?
+    'realpath ./' :
+    'cd';
+  return path;
+})(), { silent: true }).stdout.trim();
+const serverFork = require('./server').init;
+process.devices = [];
 
-let killServer = () => {
-    process.kill(process.pid);
+function killServer() {
+  return process.kill(process.pid);
 }
 
-/**
- *  Check if numProcess has a valid number to spawn workers and if has only one core,
- *  launch a standalone server
- */
-if(numProcesses < 1 || numProcesses > machineCPUs){
-    log.error(Array(65).join('*') +
-                 '\nYou can\'t run cluster with' + numProcesses + ' spawn processes.\
-                 \nPlease give a valid number (1 - ' +
-                 machineCPUs +
-                 ')' +
-                 Array(31).join(' ') +
-                 '\n'.toUpperCase() +
-                 Array(65).join('*')
-                );
+function spawnMaster() {
+  /**
+   *  Check if numProcess has a valid number to spawn workers and if has only one core,
+   *  launch a standalone server
+   */
+  if (numProcesses < 1 || numProcesses > machineCPUs) {
+    /**
+     * Hate when ESLint throws 'no magin number'
+     */
+    const firstSpace = 52;
+    const secondSpace = 10;
+    log.error(`${ Array(firstSpace).join('*') }
+    You can't run cluster with ${ numProcesses } spawn processes. 
+    Please give a valid number (1 - ${ machineCPUs })${ Array(secondSpace).join(' ') }\
+    \n${ Array(secondSpace).join('*') }`);
     killServer();
-}
+  }
 
-function spawnMaster(){
-    /**
-     * Initialize the database engine inside the master, easy to install in the future
-     */
-    let countError = 0;
-
-    /**
-     * Kill mongod process (with it's PID) -> (SIGTERM) if found. Since it's a fast and
-     * simple command, it can be synchonous
-     */
-    let initMongo = () => {};
-
-    function killMongoInstance(){
-        if(bashCommand(
-                        'kill $(($(ps -C mongod | grep mongod | cut -c 1-5)))',
-                        {silent: true}).code == 0){
-            /**
-             * Instance of MongoDB successfully closed.
-             */
-            log.warning('> Se terminó una instancia de \"mongod\" abierta.');
-        }
+  /**
+   * Kill mongod process (with it's PID) -> (SIGTERM) if found. Since it's a fast and
+   * simple command, it can be synchonous
+   */
+  function killMongoDB(previousError) {
+    if (previousError) {
+      log.error(`Something happened previously: ${ previousError }`);
     }
 
-    function initMongoInstance(){
-        let e = false;
-        log.info('> Iniciando el motor de base de datos...');
-        bashCommand("mongod --repair " + db.storage, {silent: true});
+    return new Promise((fullfill, reject) => {
+      const code = Bash('killall mongod').code;
+      return code === 0 || code === 1 ?
+        fullfill() :
+        reject(new Error(`Killing mongod instance failed with error code ${ code }`));
+    });
+  }
+
+  function repairMongoDB() {
+    return new Promise((fullfill, reject) => {
+      const code = Bash(`$(which mongod) --repair ${ database.storage }`, { silent: true }).code;
+      return code === 0 ?
+        fullfill() :
+        reject(new Error(`Reparing mongod instance failed with error code ${ code }`));
+    });
+  }
+
+  function initMongoDB() {
+    return new Promise((fullfill, reject) => {
+      log.info('> Init database engine...');
+      return Bash(
+        [
+          Bash('which mongod', { silent: true }).trim(),
+          database.storage,
+          database.defaultLog,
+          database.dbPort,
+          database.extras,
+        ].join(' '),
+      { silent: true },
+      (code, stdout, stderr) => {
+        const result = code === 0 ?
+          fullfill(database.url) :
+          reject(
+            new Error(
+              `Init mongod instance failed with
+               error code ${ code } and 
+               stderr: ${ stderr }`
+            )
+          );
+        return result;
+      });
+    });
+  }
+
+  mongoose.connect(database.url);
+  /**
+   * Try to init mongod service.
+   * HELP WANTED!
+   * Cannot start the database engine here,
+   * IDK why the Bash method initMongoDB promise
+   * does not start the database.
+   */
+  // initMongoDB()
+  //   .then(mongoose.connect)
+  //   .catch((mongoError) => {
+  //     log.error(mongoError);
+  //     repairMongoDB()
+  //       .then(() => {
+  //         log.warning(`Successfully repaired the database engine.
+  //         You should start the server again`);
+  //       })
+  //       .catch(killMongoDB);
+  //   });
+
+  /**
+   * If numProcesses is 1, then it will only run in one core,
+   * so trigger once the server and leave cluster
+   */
+  if (numProcesses === 1) {
+    return serverFork({ 'serverPort': process.clusterPort });
+  }
+
+  /**
+   * This stores the workers. Need to keep them to be able to reference them based on
+   * source IP address
+   */
+  const workers = [];
+  function spawn(i) {
+    workers[i] = cluster.fork()
         /**
-         * From: "https://www.npmjs.com/package/shelljs" (80% page) 10/07/2016:
-         * "For long-lived processes, it's best to run exec() asynchronously as the current
-         * synchronous implementation uses a lot of CPU. This should be getting fixed soon."
-
-         *  Necesitaría que ésto sea síncrono pero que se ejecute LUEGO de killMongoInstance
-         *   Creo que al ser asíncrono (o muy rápido) no le da tiempo a mongod para iniciar
-         *   de nuevo.. un timeout a initMongo no me sirvió...
+         * Inform that the worker died on exit and then respawn it.
          */
-        bashCommand(
-            db.binaryPath + ' ' +
-            db.storage + ' ' +
-            db.defaultLog + ' ' +
-            db.dbPort + ' ' +
-            db.extras,
-            {silent: true},
-            (code, stdout, stderr) => {
-                if(code != 0){
-                    killMongoInstance();
-                    log.warning( '> Error en el inicio de la base de datos.' +
-                                    '\nSe intenta terminar con alguna instancia de ' +
-                                    '\"mongod\" abierta'
-                               );
-                       
-                    if(++countError < 3){
-                        /**
-                         * Recursive call the inner function
-                         */
-                        initMongoInstance();
-                        mongoose.connect(process.env.MongoURL);
-                    } else {
-                        /**
-                         * If fails, do not start the cluster/server
-                         */
-                        killServer();
-                        e = true;
-                    }
-                        
-                }
-            }
-        );
-        log.success('> El motor de base de datos se inició correctamente!');
-        return !e;
+        .on('exit', (worker, code) => {
+          log.warning(`\n>Worker ${ i } died with code ${ code } \
+          and signal $ { signal }.\
+          Respawning worker ${ i }`);
+          spawn(i);
+        });
+  }
+
+  /**
+   * Spawn (init) workers.
+   */
+  for (let i = numProcesses; --i;) {
+    spawn(i);
+  }
+
+  /**
+   * Get a number from 1 to (numProcesses - 1) accordingly to the given IP
+   */
+  function getWorkerIndex(ipAddress, cantHilos) {
+    let ipString = '';
+    for (let i = 0, ipSize = ipAddress.length; i < ipSize; ++i) {
+      if (ipAddress[i] !== '.' && ipAddress[i] !== ':' && !isNaN(ipAddress[i])) {
+        ipString += ipAddress[i];
+      }
     }
-
     /**
-     * Connect to the MongoDB engine
+     * parseInt because IPv6 is formatted in hexadecimal
      */
-    initMongoInstance();
-    
-    // mongoose.connect(process.env.MongoURL);
+    return 1 + (parseInt(ipString, 16) % (cantHilos - 1));
+  }
 
+  /**
+   * Create the outside facing server listening on PORT
+   */
+  net.createServer({ pauseOnConnect: true }, (connection) => {
     /**
-     * If numProcesses is 1, then it will only run in one core,
-     * so trigger once the server and leave cluster
+     * Received a connection and need to pass it to the appropriate worker.
+     * Get the worker for this connection's source IP and pass it the connection.
      */
-    if(numProcesses == 1){
-        require('./server')({"serverPort": process.env.clusterPort});
-        return;
-    }
+    const ipAddress = connection.remoteAddress;
+    const worker = workers[getWorkerIndex(ipAddress, numProcesses)];
 
-    /** 
-     * This stores the workers. Need to keep them to be able to reference them based on
-     * source IP address
-     */
-    let workers = [];
-    let spawn   = (i) => {
-        'use strict';
-        workers[i] = cluster.fork()
-            /**
-             * Inform that the worker died on exit and then respawn it.
-             */
-            .on('exit', (worker, code, signal) => {
-                'use strict';
-                log.warning('\n> Worker '+ i + ' died with code ' + code +
-                                ' and signal ' + signal + ' .Respawning worker ' + i);
-                spawn(i);
-            });
-    };
+    worker.send('sticky-session:connection', connection);
+    log.info(`\n> 
+    New Connection! Remote Address: ${ ipAddress }\ 
+    assigned to worker N° ${ getWorkerIndex(ipAddress, numProcesses) }`);
+  }).listen(process.clusterPort);
 
-    /**
-     * Spawn (init) workers.
-     */
-    for (let i = numProcesses; --i;) { spawn(i); }
-
-    /**
-     * Get a number from 1 to (numProcesses - 1) accordingly to the given IP
-     */
-    let getWorkerIndex = (ip, cantHilos) => {
-        'use strict';
-        let s = '';
-        for (let i = 0, ipSize = ip.length; i < ipSize; ++i) {
-            if (ip[i] !== '.' && ip[i] !== ':' && !isNaN(ip[i])) {
-                s += ip[i];
-            }
-        }
-        /*
-         * parseInt because IPv6 is formatted in hexadecimal
-         */
-        return 1 + (parseInt(s, 16) % (cantHilos - 1));
-    }
-
-    /**
-     * Create the outside facing server listening on PORT
-     */
-    net.createServer({ pauseOnConnect: true }, (connection) => {
-        'use strict';
-        /**
-         * Received a connection and need to pass it to the appropriate worker.
-         * Get the worker for this connection's source IP and pass it the connection.
-         */
-        let ip = connection.remoteAddress;
-        let worker = workers[getWorkerIndex(ip, numProcesses)];
-
-        worker.send('sticky-session:connection', connection);
-        log.info('\n> New Connection! Remote Address: ' + ip +
-                    ' assigned to worker N° ' + getWorkerIndex(ip, numProcesses)
-                    );
-    }).listen(process.env.clusterPort);
-
-    log.info('\n> New instance of Master with PID ' + process.pid +
-                    ' started in ' + (Date.now() - started) + 'ms.');
+  return log.info(`\n> New instance of Master with PID ${ process.pid }\
+  started in ${ (Date.now() - started) } ms.`);
 }
 
-function spawnServerWorker(){
-    require('./server')({"serverPort": 0});
+if (cluster.isMaster) {
+  spawnMaster();
+} else {
+  serverFork({ 'serverPort': 0 });
 }
 
-cluster.isMaster ? spawnMaster() : spawnServerWorker();
+module.exports = { Promise, Bash, MongoPort: database.dbPort };
