@@ -76,7 +76,16 @@
                             <li role='presentation'><a role='menuitem' target='_self'   >Last Warnings</a></li>
                         </ul>
                     </li>
-
+                    <!-- Backups -->
+                    <li>
+                        <a id='Backups' data-toggle='dropdown'>Backups</a>
+                        <ul class='dropdown-menu' role='menu' aria-labelledby='Backups'>
+                            <li role='presentation'><a target='_self' role='menuitem' >Create new database backup</a></li>
+                            <li role='presentation' class='divider'></li>
+                            <!-- Aca tiene que venir el ng-repeat para listar los backups disponibles-->
+                            <li role='presentation'><a role='menuitem' target='_self'>B1</a></li> <!--ng-bind='b.Name' -->
+                        </ul>
+                    </li>
         <!--            <li><a href='/scenes'>Scenes</a></li>-->
                 </ul>
                 <ul class='nav navbar-nav navbar-right'>
