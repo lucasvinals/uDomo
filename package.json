@@ -10,9 +10,8 @@
   "main": "cluster.js",
   "version": "1.0.0",
   "scripts": {
-    "build": "gulp build",
-    "start": "./binaries/nodejs/bin/npm run build && ./binaries/nodejs/bin/node cluster.js 12078 1",
-    "cluster": "./binaries/nodejs/bin/npm run build && ./binaries/nodejs/bin/node cluster.js 12078",
+    "start": "gulp build && ./binaries/nodejs/bin/node cluster.js 12078 1",
+    "cluster": "gulp build && ./binaries/nodejs/bin/node cluster.js 12078",
     "prepare": "bash ./tools/prepareSystem.sh"
   },
   "repository": {
@@ -26,18 +25,23 @@
     "body-parser": "^1.15.2",
     "bootstrap": "^3.3.7",
     "compression": "^1.6.2",
+    "es6-promise": "^4.0.5",
     "express": "^4.14.0",
+    "fs-extra": "^2.0.0",
     "jquery": "^3.1.1",
     "jsonwebtoken": "^7.1.9",
+    "know-your-http-well": "^0.5.0",
     "lodash": "^4.16.6",
     "method-override": "^2.3.7",
     "mongoose": "^4.7.6",
-    "promise": "^7.1.1",
     "shelljs": "^0.7.5",
     "socket.io": "^1.5.1",
-    "socket.io-adapter-mongo": "^0.1.6"
+    "socket.io-adapter-mongo": "^0.1.6",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
+    "eslint": "^3.14.0",
+    "eslint-config-strict": "^10.0.3",
     "glob": "^7.1.1",
     "google-closure-compiler-js": "^20161024.0.0",
     "gulp": "^3.9.1",
