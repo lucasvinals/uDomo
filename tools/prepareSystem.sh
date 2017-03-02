@@ -19,7 +19,7 @@ LIBRARIESDIR=$HOMEDIR'/Arduino/libraries'
 # Instalar aplicaciones necesarias
 echo -e "\e[103m\e[91m> Actualizando el sistema e instalando aplicaciones necesarias \e[0m"
 # MongoDB installs (04/10/2016) the outdated v2.4 in Raspbian (Debian), but we're good for now.
-sudo apt-get update && sudo apt-get --yes --force-yes install bash git tar mongodb
+sudo apt-get update && sudo apt-get --yes --force-yes install bash git tar mongodb realpath
 
 MAINDIR=$HOMEDIR'/uDomo'
 BINARIESDIR=$MAINDIR'/binaries'
