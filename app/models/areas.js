@@ -1,8 +1,12 @@
-let db = require("mongoose");
+const database = require('mongoose');
 
-module.exports = db.model("Zone", new db.Schema({
-																									_id         : String,
-																									Name        : String,
-																									Created		: Date
-											    											})
-													);
+module.exports = database.model(
+  'Zone',
+  new database.Schema(
+    {
+      _id: String,
+      Name: String,
+      Created: Date,
+    }
+  )
+);

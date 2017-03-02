@@ -1,8 +1,13 @@
-var db = require("mongoose");
+const database = require('mongoose');
 
-module.exports = db.model("Route", new db.Schema({
-											        _id         : String,
-											        relPath     : String,
-											        filePath	: String,
-											        controller 	: String
-											    }));
+module.exports = database.model(
+  'Route',
+  new database.Schema(
+    {
+      _id: String,
+      relPath: String,
+      filePath: String,
+      controller: String,
+    }
+  )
+);
