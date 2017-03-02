@@ -2,9 +2,11 @@ var mocha   = require('mocha')({
     ui: 'tdd',
     reporter: 'list'
 });
-var testDir = './client'
+var testDir = './client';
 
-require('fs').readdirSync(testDir).filter(function(file){
+const fs = require('fs'); 
+
+fs.readdirSync(testDir).filter(function(file){
     return file.substr(-3) === '.js'; // Only keep the .js files
 }).forEach(function(file){
     mocha.addFile(require('path').join(testDir, file));

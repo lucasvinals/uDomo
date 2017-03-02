@@ -5,22 +5,23 @@
 # Autor: Lucas Viñals
 # Creado: 04/2016
 
-# Directorio principal
-MAINDIR='/root/uDomo'
+# Directorio principal [directorio dentro del cual esta uDomo, Arduino, etc]
+HOMEDIR='/root'
 # Arquitectura de procesador (cambiar dependiendo de el sistema donde corra)
-# RaspberryPi: armv7l
+# RaspberryPi: armv7l, armv6l, arm64
 # x64: linux-x64
 # x86: linux-x86
 ARCHITECTURE_uDomo='linux-x64'
-# Incluir path absoluto para evitar errores
-LIBRARIESDIR='/root/Arduino/libraries'
+# Bibliotecas de ESP8266
+LIBRARIESDIR=$HOMEDIR'/Arduino/libraries'
 
 
-# Actualizar/Obtener GIT
+# Instalar aplicaciones necesarias
 echo -e "\e[103m\e[91m> Actualizando el sistema e instalando aplicaciones necesarias \e[0m"
-# MongoDB installs 2.4 (04/10/2016) in Raspbian (Debian) but we're good for now.
-sudo apt-get update && sudo apt-get --yes --force-yes install git tar mongodb
+# MongoDB installs (04/10/2016) the outdated v2.4 in Raspbian (Debian), but we're good for now.
+sudo apt-get update && sudo apt-get --yes --force-yes install bash git tar mongodb realpath
 
+MAINDIR=$HOMEDIR'/uDomo'
 BINARIESDIR=$MAINDIR'/binaries'
 if [ -d "$BINARIESDIR" ]; then
   echo -e '\e[103m\e[91m> Vaciando el árbol de directorios '$BINARIESDIR'...\e[0m'
@@ -44,9 +45,10 @@ rm -r $BINARIESDIR/node-* $BINARIESDIR/nodejs.org
 $BINARIESDIR/nodejs/bin/node -e "console.log('\n\x1b[42m\x1b[37m\x1b[1m','NodeJS se instalo correctamente\!','\x1b[0m\n');"
  
 # Si no existe el directorio, lo creo.
-[ ! -d "$LIBRARIESDIR" ] &&
-mkdir $LIBRARIESDIR &&
-echo -e '\e[103m\e[91m> El árbol de directorios '$LIBRARIESDIR' no existe. Creando...\e[0m'
+if [ ! -d "$LIBRARIESDIR" ]; then
+  echo -e '\e[103m\e[91m> El árbol de directorios '$LIBRARIESDIR' no existe. Creando...\e[0m'
+  mkdir -p $LIBRARIESDIR
+fi
 
 # Descargo SocketIO para ESP8266
 if [ ! -d $LIBRARIESDIR'/Socket.io-v1.x-Library' ]; then
@@ -88,9 +90,17 @@ $BINARIESDIR/nodejs/bin/npm install --prefix $MAINDIR
 # No existe un archivo de configuracion de la base de datos, así que copio el ejemplo e informo que se edite...
 if [ ! -f $MAINDIR'/config/db.js' ]; then
   cp $MAINDIR'/config/dbExample.js' $MAINDIR'/config/db.js'
-  echo -e "\n\e[91m\e[103m> No existe un archivo de configuración de la base de datos.\n> Por favor, edite el archivo en " $MAINDIR "/config/db.js de acuerdo a su sistema.\e[0m\n"
+  echo -e "\n\e[91m\e[103m> No existe un archivo de configuración de la base de datos.\n> Por favor, edite el archivo en "$MAINDIR"/config/db.js de acuerdo a su sistema.\e[0m\n"
 fi
 
-#TODO: Añadir el servicio, cron o algo para que se inicie con un sólo hilo por lo menos (start) 
+# Añado un cron para que se inicie con un sólo hilo por lo menos (npm start), cuando levante la red (if-up)
+sudo bash -c 'cat << EOF > /etc/network/if-up.d/uDomo
+#!/bin/bash
+( cd /home/pi/uDomo && ./binaries/nodejs/bin/npm start )
+EOF'
+# Le doy permisos de lectura y ejecución
+sudo chmod 0600 /etc/network/if-up.d/uDomo
+
+# Hacer lo mismo con if-down, que termine el proceso de uDomo.
 
 echo -e "\n\e[42m\e[97mTodo instalado. Iniciar servicio de uDomo con \""$BINARIESDIR"/nodejs/bin/npm start\" o \""$BINARIESDIR"/nodejs/bin/npm run cluster\" una vez que todo esté configurado.\e[0m"

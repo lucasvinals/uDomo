@@ -1,0 +1,33 @@
+<div>
+    <h1>Permissions</h1>
+    <button type='button'
+            class='btn btn-sm btn-primary'
+            data-toggle='modal'
+            data-target='#newPerm'>New permission
+    </button>
+    <div id='newPerm' class='modal fade' role='dialog'>
+        <div class='modal-dialog modal-sm'>
+            <div class='modal-content'>
+                <form class='form text-left' style='padding:1em;' role='form'>
+                    <h4>New Permission</h4>
+                    <div class='form-group'>
+                        <input type='text' ng-model='perm.Name' placeholder='Name'>
+                        <select data-ng-model='perm.Configuration'>
+                            <option>Select a Configuration</option>
+                            <option data-ng-repeat='configuration in Configurations'></option>
+                        </select>
+                    </div>
+                    <button type='button'
+                            class='btn btn-sm btn-primary'
+                            data-dismiss='modal'
+                            ng-click='CreatePermission(perm)'>Create
+                    </button>
+                    <button type='button'
+                            class='btn btn-sm btn-default'
+                            data-dismiss='modal'>Exit
+                    </button>
+                </form><br>
+            </div>
+        </div>
+    </div>
+</div>

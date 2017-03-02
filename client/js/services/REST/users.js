@@ -1,11 +1,10 @@
 let Users = angular.module('Users', []);
 
-Users.factory('User', ['Socket', '$http', 'Message', 'Storage', 
-(Socket, $http, Message, Storage) => {
-    'use strict';    
-    let changeUser = (user) => {
-        angular.extend(currentUser, user);
-    }
+Users.factory('User', ['Socket', '$http', 'Message', 'Observer', 'Storage', 
+(Socket, $http, Message, Observer, Storage) => {
+    'use strict';
+
+    let changeUser = (user) => { angular.extend(currentUser, user); };
 
     let urlBase64Decode = (str) => {
         var output = str.replace('-', '+').replace('_', '/');
@@ -35,63 +34,7 @@ Users.factory('User', ['Socket', '$http', 'Message', 'Storage',
 
     var currentUser = getUserFromToken();
 
-    /*var requestUsers = function(){
-        //Emit the event so other users see the current users
-        Socket.emit('Users/User/Read/Request', {}); 
-    };
-    requestUsers();*/
-
-    /*
-           Socket.on('Users/User/Read/Response', function(data){
-                var error = data.Error;
-                var users = data.Users;
-
-                if(error){
-                    callback(error, null);
-                    Message.error('Ocurrió un error' + error, 7);
-                    log(error, 'error');
-                }else{
-                    callback(null, users);
-                }
-            });
-           */
-
-    /******************************* Design Pattern: Observer.  *************************/
-    class ObserverPattern{
-
-        /* Init the pattern */
-        constructor(){
-            this.Observers = [];
-        }
-
-        /* Register an observer (callback function) */
-        subscribe(observer){
-            this.Observers.push(observer);
-        }
-
-        /* Quit an observer (callback function) */
-        unsubscribe(observer){
-            this.Observers = this.Observers.filter((o) => o != observer);
-        }
-
-        /* Reset the observers to make a clean exit */
-        unsubscribeAll(){
-            this.Observers = [];
-        }
-
-        /* Listener. Call when something changes.. Ex: CRUD operations */
-        notify(){
-            angular.forEach(this.Observers, (observer) => {
-              observer();
-            });
-        }
-    }
-
-    /* New instance of the pattern */
-    let Observer = new ObserverPattern();
-    /***********************************************************************************/
-  
-    return{
+    let Facade = {
         Subscribe: (observer) => {
             Observer.subscribe(observer);
         },
@@ -105,7 +48,7 @@ Users.factory('User', ['Socket', '$http', 'Message', 'Storage',
                     e ? 
                         (
                             Message.error("Ocurrió un error" + e, 10),
-                            log.error(e),
+                            log.error(JSON.stringify(e)),
                             callback(e, null)
                         ) :
                         callback(null, res.data.Users);
@@ -177,11 +120,66 @@ Users.factory('User', ['Socket', '$http', 'Message', 'Storage',
                 }
             });
         },
+        GetPermissions: function(callback){
+            $http.get('/api/Permissions').then(
+                (res) => {
+                    var e = res.data.Error;
+                    e ? 
+                        (
+                            Message.error("Ocurrió un error" + e, 10),
+                            log.error(JSON.stringify(e)),
+                            callback(e, null)
+                        ) :
+                        callback(null, res.data.Permissions);
+                },
+                (error) => {
+                    Message.error("Ocurrió un error -> [Descrito en consola]", 10);
+                    log.error(JSON.stringify(error));
+            });
+        },
+        GetConfigurations: function(callback){
+            $http.get('/api/Configurations').then(
+                (res) => {
+                    var e = res.data.Error;
+                    e ? 
+                        (
+                            Message.error("Ocurrió un error" + e, 10),
+                            log.error(JSON.stringify(e)),
+                            callback(e, null)
+                        ) :
+                        callback(null, res.data.Configurations);
+                },
+                (error) => {
+                    Message.error("Ocurrió un error -> [Descrito en consola]", 10);
+                    log.error(JSON.stringify(error));
+            });
+        },
+        CreateConfiguration: (config, callback) => {
+            $http.post('/Configuration', config).then(
+				(r) => {
+					var e = r.data.Error
+                    var c = r.data.Configuration;
+					if(e){
+                        Message.warning(e, 10);
+                        callback(e, null);
+					}else{
+                        Message.success('Configuración ' + c.Name + ' creada con éxito.', 10);
+                        Observer.notify();
+                        callback(null, c);
+					}
+				},
+				(error) => {
+                    Message.error(JSON.stringify(error), 10);
+                    callback('Ocurrió un error creando la configuración, ' +
+                             'puede verlo revisando la consola.', null);
+					log.error(JSON.stringify(error));
+				});
+        },
         Login : (user, callback) => {
             $http.post('/Authenticate', user).then(
                 (r) => {
                     var e = r.data.Error;
-                    e ? 
+                    e ? false
                         (
                             Message.error('Error:' + e, 10),
                             callback(e, null)
@@ -190,7 +188,7 @@ Users.factory('User', ['Socket', '$http', 'Message', 'Storage',
                 }, 
                 (e) => {
                     Message.error('Error:' + e, 10);
-                    log.error('Ocurrió un error-> ' + e);
+                    log.error('Ocurrió un error-> ' + JSON.stringify(e));
                 });
         },
         Logout: () => {
@@ -201,4 +199,6 @@ Users.factory('User', ['Socket', '$http', 'Message', 'Storage',
             Socket.cleanExit();
         }
     };
+
+    return Facade;
 }]);

@@ -1,67 +1,30 @@
-let Areas = angular.module("Areas", []);
+let Areas = angular.module('Areas', []);
 
-Areas.factory("Area", ["Socket", "$http", "Message",
-(Socket, $http, Message) => {
+Areas.factory('Area', ['Socket', '$http', 'Message', 'Observer',
+(Socket, $http, Message, Observer) => {
     'use strict';
     /*var self = this;
     var requestAreas = (function iifeReqAreas(){
         /* Emit the event so other users see the current areas */
-       /* Socket.emit("Areas/Area/Read/Request", {});
+       /* Socket.emit('Areas/Area/Read/Request', {});
         return iifeReqAreas;
     })();
 
-    Socket.on("Areas/Area/Read/Response", function(data){
+    Socket.on('Areas/Area/Read/Response', function(data){
         var error = data.Error;
         var areas = data.Areas;
         if(!error){
             return self.GetAreas(null, areas);
         }else{
-            Message.error("Ocurrió un error: " + error, 7);
+            Message.error(`Ocurrió un error: ${error}`, 7);
             log(error, 'error');
             self.GetAreas(error, null);
         }
     });*/
 
-    /**
-     * Design Pattern: Observer
-     */
-    class ObserverPattern{
-        constructor(){
-            this.Observers = [];
-        };
-        /** 
-         * Register an observer (callback function) 
-         */
-        subscribe(observer){
-            this.Observers.push(observer);
-        };
-        /**
-         * Quit an observer (callback function)
-         */
-        unsubscribe(observer){
-            this.Observers = this.Observers.filter((o) => o != observer);
-        };
-        /**
-         * Reset the observers to make a clean exit
-         */
-        unsubscribeAll(){
-            this.Observers = [];
-        };
-        /**
-         * Listener. Call when something changes.. Ex: CRUD operations
-         */
-        notify(){
-            angular.forEach(this.Observers, (observer) => {
-              observer();
-            });
-        };
-    };
-
-    let Observer = new ObserverPattern();
-
     return {
         Subscribe: (fn) => {
-            Observer.subscribe(fn);       
+            Observer.subscribe(fn);
         },
         Unsubscribe: (fn) => {
            Observer.unsubscribe(fn);
@@ -70,17 +33,16 @@ Areas.factory("Area", ["Socket", "$http", "Message",
             $http.get('/api/Areas').then(
                 (r) => {
                     var e = r.data.Error;
-                    e ? 
-                        (
-                            Message.error("Ocurrió un error" + e, 10),
-                            log.error(e),
-                            callback(e, null)
-                        ) :
-                        callback(null, r.data.Areas);
+                    if(e){
+                        Message.error('Ocurrió un error -> [Descrito en consola]', 10);
+                        window.log.error(JSON.stringify(e));
+                        return callback(e, null);
+                    } 
+                    callback(null, r.data.Areas);
                 },
                 (error) => {
-                    Message.error("Ocurrió un error -> [Descrito en consola]", 10);
-                    log.error(error);
+                    Message.error('Ocurrió un error -> [Descrito en consola]', 10);
+                    window.log.error(JSON.stringify(error));
             });
         },
         CreateArea: (area, callback) => {
@@ -89,54 +51,53 @@ Areas.factory("Area", ["Socket", "$http", "Message",
                     var err = res.data.Error;
                     var Area = res.data.Area;
                     if(err){
-                        Message.warning(err, 10);
+                        Message.warning('Ocurrió un error -> [Descrito en consola]', 10);
+                        window.log.error(JSON.stringify(err));
                         callback(err, null);
                     }else{
-                        Message.success("El área " + Area.Name + " fue creada.", 10);
+                        Message.success(`El área ${Area.Name} fue creada.`, 10);
                         Observer.notify();
                         callback(null, Area);
                     }
                 },
                 (error) => {
-                    Message.error(error, 10);
-                    log.error(error);
-                    callback("Ocurrió un error creando el área. " + 
-                             "puede verlo revisando la consola.", null);
+                    Message.error('Ocurrió un error -> [Descrito en consola]', 10);
+                    window.log.error(JSON.stringify(error));
+                    callback(JSON.stringify(error), null);
                 });
             
         },
-        ModifyArea: (area) => {
+        ModifyArea: (area, callback) => {
             $http.put('/Area', area).then(
                 (r) => {
                     var e = r.data.Error;
-                    e?
-                        (
-                            Message.error('Ocurrió un error modificando el área. ' + e, 10),
-                            callback(e, null)
-                        ) :
-                        (
-                            Observer.notify(),
-                            callback(null, r.data.Area)
-                        )
+                    if(e){
+                        Message.error('Ocurrió un error modificando el área. Revise la consola', 10);
+                        window.log.error(JSON.stringify(e));
+                        callback(JSON.stringify(e), null);
+                    }else{
+                        Observer.notify();
+                        callback(null, r.data.Area);
+                    }
                 },
                 (e) => {
-                    Message.error(e, 10);
-                    log.error('Ocurrió un error-> ' + e);
+                    Message.error(JSON.stringify(e), 10);
+                    window.log.error(`Ocurrió un error-> ${JSON.stringify(e)}`);
                 });
         },
         DeleteArea: (id) => {
-           Message.confirm("Desea eliminar el área?", 6, (response) => {
+           Message.confirm('Desea eliminar el área?', 6, (response) => {
                 if(response){
-                    $http.delete("/Area/" + id).then(
+                    $http.delete(`/Area/${id}`).then(
                         (data) => {
                             if(data.data.Removed.ok && data.data.Removed.n){
-                                Message.success("El área fue eliminada.", 10);
+                                Message.success('El área fue eliminada.', 10);
                                 Observer.notify();
                             }
                         },
                         (error) => {
                             Message.error(error, 10);
-                            log.error("Ocurrió un error-> " + error);
+                            window.log.error(`Ocurrió un error-> ${error}`);
                         });
                 }
             }); 

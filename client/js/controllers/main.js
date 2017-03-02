@@ -5,8 +5,8 @@ Main.controller('mainController',
 function($scope, $rootScope, $location, Storage, User, Common, Main){
     'use strict';
     
-    $scope.Login = function(user) {
-        User.Login(user, function(error, resUser){
+    $scope.Login = (user) => {
+        User.Login(user, (error, resUser) => {
             if(typeof resUser !== 'null'){
                 $scope.user = '';
                 Storage.setToken(resUser.Token);
@@ -15,11 +15,11 @@ function($scope, $rootScope, $location, Storage, User, Common, Main){
         });
     };
  
-    $scope.CreateUser = function(user) {
+    $scope.CreateUser = (user) => {
         user._id = Common.newID();
         user.Permissions = {"Administrador": true}; // TEST ONLY
         
-        User.CreateUser(user, function(error, resUser){
+        User.CreateUser(user, (error, resUser) => {
             if(typeof resUser !== 'null' && typeof error === 'null'){
                 Storage.setToken(resUser.Token);
                 $location.path('/');
@@ -27,16 +27,23 @@ function($scope, $rootScope, $location, Storage, User, Common, Main){
        });
     };
 
-    $scope.Logout = function() {
+    $scope.Logout = () => {
         User.Logout();
         Storage.deleteToken(); //Deberia ir en users
         $location.path('/');
     };
 
     $rootScope.Token = Storage.getToken();
-        
+    
+
+    $scope.getBackups = () => {
+        Backups.getAll((e, backups) => {
+            $scope.currentBackups = backups;
+        });
+    };
+
     /* Clean exit */
-    $scope.$on('$destroy', function (event) {
+    $scope.$on('$destroy', (event) => {
         Main.clearListeners();
     });
 }]);

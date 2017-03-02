@@ -1,8 +1,13 @@
-let db = require('mongoose');
-let configurations = require('./configurations').schema;
+const database = require('mongoose');
+const Configuration = require('./configurations').schema;
 
-module.exports = db.model("Permission", new db.Schema({
-                                                        _id             : String,
-                                                        Name            : String,
-                                                        Configuration   : configurations
-											          }));
+module.exports = database.model(
+  'Permission',
+  new database.Schema(
+    {
+      _id: String,
+      Name: String,
+      Configuration,
+    }
+  )
+);

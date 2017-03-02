@@ -1,12 +1,13 @@
 const database = require('mongoose');
 
 module.exports = database.model(
-  'Zone',
+  'Backups',
   new database.Schema(
     {
       _id: String,
-      Name: String,
-      Created: Date,
+      DisplayName: String,
+      Pathname: String,
+      Datetime: Date,
     }
   )
 );

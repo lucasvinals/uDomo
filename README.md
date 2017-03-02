@@ -8,12 +8,15 @@
 * client/js/app.js (development -> production):
  * Uncomment config services
 * gulpfile.js (development -> production): 
- * Uncomment google-closure-compiler
- * Comment concat
+ * Uncomment *google-closure-compiler* function
+ * Comment *concat* function
+* index.html (development -> production)
+ * Uncomment the *build:template* code, so the libraries only load once.
+ * Comment
 * Change in tools/prepareSystem.sh acordingly to your setup:
- * MAINDIR
- * LIBRARIESDIR
+ * HOMEDIR
  * ARCHITECTURE_uDomo
+ * LIBRARIESDIR
 * Execute in a console: bash tools/prepareSystem.sh
 * Change database configuration in ./config/db.js (Secret key, paths, etc)
 * Change OS in ./cluster.js (in case it's not GNU/Linux)

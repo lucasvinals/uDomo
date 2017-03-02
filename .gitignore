@@ -10,6 +10,9 @@ node*
 binaries/
 etc/
 
+#Backups
+backups/
+
 #Database
 db/
 

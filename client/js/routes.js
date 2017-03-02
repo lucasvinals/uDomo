@@ -120,6 +120,16 @@ Routes.config(['$stateProvider', '$httpProvider', '$urlRouterProvider','$locatio
 			templateUrl: '/views/security/video.html',
 			controller: 'Video'
 		})
+		.state('permissions', {
+			url: '/users/permissions',
+			templateUrl: '/views/users/permissions.html',
+			controller: 'userController'
+		})
+		.state('configurations', {
+			url: '/users/configurations',
+			templateUrl: '/views/users/configurations.html',
+			controller: 'userController'
+		})
 		/**
 		 * 404 - Not Found page
 		 */
