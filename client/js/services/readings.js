@@ -3,7 +3,7 @@ let Readings = angular.module("Readings", []);
 
 Readings.factory("Readings", ["$http", ($http) => {
     'use strict';
-        return {
+        let Facade = {
             temperatureColor: (temperature) => {
                 switch(true){
                     case (temperature < 14):
@@ -31,5 +31,6 @@ Readings.factory("Readings", ["$http", ($http) => {
             clearListener: (name) => {
                 
             }
-        }
+        };
+        return Facade;
 }]);

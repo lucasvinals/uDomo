@@ -34,7 +34,7 @@ Users.factory('User', ['Socket', '$http', 'Message', 'Observer', 'Storage',
 
     var currentUser = getUserFromToken();
 
-    return{
+    let Facade = {
         Subscribe: (observer) => {
             Observer.subscribe(observer);
         },
@@ -199,4 +199,6 @@ Users.factory('User', ['Socket', '$http', 'Message', 'Observer', 'Storage',
             Socket.cleanExit();
         }
     };
+
+    return Facade;
 }]);
