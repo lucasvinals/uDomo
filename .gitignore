@@ -17,7 +17,6 @@ backups/
 db/
 
 #Specific system configuration
-config/db.js
 
 #IDEs
 .vscode/
