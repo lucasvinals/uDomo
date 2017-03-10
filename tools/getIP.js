@@ -1,4 +1,4 @@
-const Bash = require('shelljs').exec;
+const { exec: Bash } = require('shelljs');
 
 function linuxServer() {
   return Bash(
@@ -23,23 +23,24 @@ function linuxServer() {
 }
 
 function windowsServer() {
-  /**
-   * Find out the command in Windows to obtain current IP address.
-   */
-  return 'localhost';
+  return Bash(`
+    for /f "delims=[] tokens=2" %%a in ('ping -4 %computername% -n 1 ^| findstr "["') do (set thisip=%%a)\
+    \necho %thisip%
+    `.trim()
+  );
 }
 
 module.exports = (operatingSystem) => {
-  let ipAddress = 'localhost';
+  let host = 'localhost';
   switch (operatingSystem) {
     case 'linux':
-      ipAddress = linuxServer();
+      host = linuxServer();
       break;
     case 'windows':
-      ipAddress = windowsServer();
+      host = windowsServer();
       break;
     default:
       break;
   }
-  return ipAddress.trim();
+  return host.trim();
 };
