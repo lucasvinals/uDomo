@@ -88,10 +88,10 @@ $BINARIESDIR/nodejs/bin/npm install --prefix $MAINDIR
 [ -d $MAINDIR'/etc' ] && rm -r $MAINDIR'/etc'
 
 # No existe un archivo de configuracion de la base de datos, así que copio el ejemplo e informo que se edite...
-if [ ! -f $MAINDIR'/config/db.js' ]; then
-  cp $MAINDIR'/config/dbExample.js' $MAINDIR'/config/db.js'
-  echo -e "\n\e[91m\e[103m> No existe un archivo de configuración de la base de datos.\n> Por favor, edite el archivo en "$MAINDIR"/config/db.js de acuerdo a su sistema.\e[0m\n"
-fi
+# if [ ! -f $MAINDIR'/config/db.js' ]; then
+  # cp $MAINDIR'/config/dbExample.js' $MAINDIR'/config/db.js'
+  # echo -e "\n\e[91m\e[103m> No existe un archivo de configuración de la base de datos.\n> Por favor, edite el archivo en "$MAINDIR"/config/db.js de acuerdo a su sistema.\e[0m\n"
+# fi
 
 # Añado un cron para que se inicie con un sólo hilo por lo menos (npm start), cuando levante la red (if-up)
 sudo bash -c 'cat << EOF > /etc/network/if-up.d/uDomo
@@ -103,4 +103,5 @@ sudo chmod 0600 /etc/network/if-up.d/uDomo
 
 # Hacer lo mismo con if-down, que termine el proceso de uDomo.
 
+echo -e "\n\e[91m\e[103m> Por favor, edite el archivo en "$MAINDIR"/config/db.js de acuerdo a su sistema.\e[0m\n"
 echo -e "\n\e[42m\e[97mTodo instalado. Iniciar servicio de uDomo con \""$BINARIESDIR"/nodejs/bin/npm start\" o \""$BINARIESDIR"/nodejs/bin/npm run cluster\" una vez que todo esté configurado.\e[0m"
