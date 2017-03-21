@@ -1,42 +1,105 @@
 const started = Date.now();
+process.environment = 'development';
+const { ARG_CPU_NUMBER, DEFAULT_CLUSTER_PORT } = require('./server/config/environment');
 const cluster = require('cluster');
-const Bash = require('shelljs').exec;
-const machineCPUs = Number(require('os').cpus().length);
-const ARG_CPU_NUMBER = 3;
-const numProcesses = Number(process.argv[ARG_CPU_NUMBER]) || machineCPUs;
-const log = require('./tools/logger')('server');
-process.log = log;
-const mongoose = require('mongoose');
 const net = require('net');
-const Promise = require('es6-promise').Promise;
+const mongoose = require('mongoose');
+const { spawn: Bash, spawnSync: BashSync } = require('child_process');
+const { Promise } = require('es6-promise');
 mongoose.Promise = Promise;
-process.operatingSystem = 'linux';
-const database = require('./config/db')(process.operatingSystem);
-const DEFAULT_CLUSTER_PORT = 8080;
+const machineCPUs = Number(require('os').cpus().length);
+const numProcesses = Number(process.argv[ARG_CPU_NUMBER]) || machineCPUs;
+const log = require('./server/tools/logger')('server');
+process.log = log;
+process.clusterHost = 'localhost';
 process.clusterPort = Number(process.argv[2]) || DEFAULT_CLUSTER_PORT;
-process.clusterIP = require('./tools/getIP')(process.operatingSystem);
+const database = require('./server/config/db')();
+
+/**
+ * If current network IP address is needed,
+ * replace 'localhost' with:
+ * require('./tools/getIP')(process.platform);
+ */
 process.MongoURL = database.url;
-process.ROOTDIR = Bash((() => {
-  const path = process.operatingSystem === 'linux' ?
-    'realpath ./' :
-    'cd';
-  return path;
-})(), { silent: true }).stdout.trim();
-const serverFork = require('./server').init;
+process.ROOTDIR = BashSync(process.platform === 'linux' ? 'realpath' : 'cd', [ './' ]).stdout.toString().trim();
+const { init: serverFork } = require('./server');
+const seedDatabase = require('./server/seed');
 process.devices = [];
 
 function killServer() {
   return process.kill(process.pid);
 }
 
+/**
+ * Shutdown mongod process
+ */
+function killMongoDB(previousError) {
+  if (previousError) {
+    log.error(`Something happened previously: ${ previousError }`);
+  }
+
+  return new Promise((fullfill, reject) => {
+    const { stderr } = BashSync(`${ database.binary }`, [ `${ database.storage }`, '--shutdown' ]);
+    if (!stderr.toString()) {
+      return fullfill();
+    }
+    return reject(new Error(`Killing mongod instance failed with error code ${ stderr.toString() }`));
+  });
+}
+
+function repairMongoDB() {
+  return new Promise((fullfill, reject) => {
+    const { stderr } = Bash(`${ database.binary }`, [ '--repair', `${ database.storage }` ]);
+    return stderr.toString() ?
+      fullfill() :
+      reject(new Error(`Reparing mongod instance failed with error: ${ stderr.toString() }`));
+  })
+  .then(() => log.warning('Successfully repaired the database engine. You should start the server again.'))
+  .catch((repairError) => new Error(`Repair database engine failed due to: ${ repairError }`));
+}
+
+function initMongoDB() {
+  return new Promise((fullfill, reject) => {
+    log.info('> Initializing database engine...');
+    return Bash(
+      database.binary,
+      [
+        database.storage,
+        database.defaultLog,
+        database.port,
+        database.smallfiles,
+        database.logappend,
+      ],
+      { detached: false },
+      (bashError, dbError) => {
+        if (bashError) {
+          return reject(new Error(`Could not init database due to: ${ bashError }`));
+        }
+        return dbError.toString() === '' ?
+          fullfill(database.url) :
+          reject(new Error(`Init mongod instance failed due to: ${ dbError }`));
+      }
+    );
+  });
+}
+
+function connectToMongoDB(url = process.MongoURL) {
+  return mongoose.connect(
+    url,
+    {
+      promiseLibrary: Promise,
+      server: { reconnectTries: Number.MAX_VALUE },
+    }
+  );
+}
+
 function spawnMaster() {
   /**
-   *  Check if numProcess has a valid number to spawn workers and if has only one core,
-   *  launch a standalone server
+   *  Check if numProcess has a valid number to spawn workers
    */
   if (numProcesses < 1 || numProcesses > machineCPUs) {
     /**
-     * Hate when ESLint throws 'no magin number'
+     * ESLint throws 'no magin number'
      */
     const firstSpace = 52;
     const secondSpace = 10;
@@ -48,81 +111,7 @@ function spawnMaster() {
   }
 
   /**
-   * Kill mongod process (with it's PID) -> (SIGTERM) if found. Since it's a fast and
-   * simple command, it can be synchonous
-   */
-  function killMongoDB(previousError) {
-    if (previousError) {
-      log.error(`Something happened previously: ${ previousError }`);
-    }
-
-    return new Promise((fullfill, reject) => {
-      const code = Bash('killall mongod').code;
-      return code === 0 || code === 1 ?
-        fullfill() :
-        reject(new Error(`Killing mongod instance failed with error code ${ code }`));
-    });
-  }
-
-  function repairMongoDB() {
-    return new Promise((fullfill, reject) => {
-      const code = Bash(`$(which mongod) --repair ${ database.storage }`, { silent: true }).code;
-      return code === 0 ?
-        fullfill() :
-        reject(new Error(`Reparing mongod instance failed with error code ${ code }`));
-    });
-  }
-
-  function initMongoDB() {
-    return new Promise((fullfill, reject) => {
-      log.info('> Init database engine...');
-      return Bash(
-        [
-          Bash('which mongod', { silent: true }).trim(),
-          database.storage,
-          database.defaultLog,
-          database.dbPort,
-          database.extras,
-        ].join(' '),
-      { silent: true },
-      (code, stdout, stderr) => {
-        const result = code === 0 ?
-          fullfill(database.url) :
-          reject(
-            new Error(
-              `Init mongod instance failed with
-               error code ${ code } and 
-               stderr: ${ stderr }`
-            )
-          );
-        return result;
-      });
-    });
-  }
-
-  mongoose.connect(database.url);
-  /**
-   * Try to init mongod service.
-   * HELP WANTED!
-   * Cannot start the database engine here,
-   * IDK why the Bash method initMongoDB promise
-   * does not start the database.
-   */
-  // initMongoDB()
-  //   .then(mongoose.connect)
-  //   .catch((mongoError) => {
-  //     log.error(mongoError);
-  //     repairMongoDB()
-  //       .then(() => {
-  //         log.warning(`Successfully repaired the database engine.
-  //         You should start the server again`);
-  //       })
-  //       .catch(killMongoDB);
-  //   });
-
-  /**
-   * If numProcesses is 1, then it will only run in one core,
-   * so trigger once the server and leave cluster
+   * if has only one core, launch a standalone server.
    */
   if (numProcesses === 1) {
     return serverFork({ 'serverPort': process.clusterPort });
@@ -133,24 +122,24 @@ function spawnMaster() {
    * source IP address
    */
   const workers = [];
-  function spawn(i) {
-    workers[i] = cluster.fork()
+  function spawn(index) {
+    workers[index] = cluster.fork()
         /**
          * Inform that the worker died on exit and then respawn it.
          */
         .on('exit', (worker, code) => {
-          log.warning(`\n>Worker ${ i } died with code ${ code } \
+          log.warning(`\n>Worker ${ index } died with code ${ code } \
           and signal $ { signal }.\
-          Respawning worker ${ i }`);
-          spawn(i);
+          Respawning worker ${ index }`);
+          spawn(index);
         });
   }
 
   /**
    * Spawn (init) workers.
    */
-  for (let i = numProcesses; --i;) {
-    spawn(i);
+  for (let index = numProcesses; --index;) {
+    spawn(index);
   }
 
   /**
@@ -158,9 +147,9 @@ function spawnMaster() {
    */
   function getWorkerIndex(ipAddress, cantHilos) {
     let ipString = '';
-    for (let i = 0, ipSize = ipAddress.length; i < ipSize; ++i) {
-      if (ipAddress[i] !== '.' && ipAddress[i] !== ':' && !isNaN(ipAddress[i])) {
-        ipString += ipAddress[i];
+    for (let index = 0, ipSize = ipAddress.length; index < ipSize; ++index) {
+      if (ipAddress[index] !== '.' && ipAddress[index] !== ':' && !isNaN(ipAddress[index])) {
+        ipString += ipAddress[index];
       }
     }
     /**
@@ -181,19 +170,29 @@ function spawnMaster() {
     const worker = workers[getWorkerIndex(ipAddress, numProcesses)];
 
     worker.send('sticky-session:connection', connection);
-    log.info(`\n> 
-    New Connection! Remote Address: ${ ipAddress }\ 
-    assigned to worker N° ${ getWorkerIndex(ipAddress, numProcesses) }`);
+    log.info(
+      [
+        '\n',
+        '> New Connection! Remote Address:',
+        ipAddress,
+        'assigned to worker N°',
+        getWorkerIndex(ipAddress, numProcesses),
+      ].join(' ')
+    );
   }).listen(process.clusterPort);
 
-  return log.info(`\n> New instance of Master with PID ${ process.pid }\
-  started in ${ (Date.now() - started) } ms.`);
+  return log.info(`\n> New instance of Master with PID ${ process.pid } started in ${ (Date.now() - started) } ms.`);
 }
 
 if (cluster.isMaster) {
-  spawnMaster();
+  initMongoDB() // Can't init mongodb engine directly
+    .then(connectToMongoDB)
+  // connectToMongoDB()
+    .then(seedDatabase) // TODO: cannot set map of undefined
+    .then(spawnMaster)
+    .catch(killMongoDB)
+    .catch(repairMongoDB)
+    .catch(killServer);
 } else {
   serverFork({ 'serverPort': 0 });
 }
-
-module.exports = { Promise, Bash, MongoPort: database.dbPort };

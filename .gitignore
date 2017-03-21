@@ -7,17 +7,16 @@ node_modules/
 udomo/
 devices/main/thirdParty
 node*
-binaries/
+server/binaries/
 etc/
 
 #Backups
-backups/
+server/backups/
 
 #Database
-db/
+server/db/
 
 #Specific system configuration
 
 #IDEs
 .vscode/
-

@@ -1,9 +1,8 @@
-let Areas = angular.module('Areas', []);
+const Areas = angular.module('Areas', []);
 
-Areas.factory('Area', ['Socket', '$http', 'Message', 'Observer',
-(Socket, $http, Message, Observer) => {
-    'use strict';
-    /*var self = this;
+Areas.factory('Area', [ 'Socket', '$http', 'Message', 'Observer',
+  (Socket, $http, Message, Observer) => {
+    /* var self = this;
     var requestAreas = (function iifeReqAreas(){
         /* Emit the event so other users see the current areas */
        /* Socket.emit('Areas/Area/Read/Request', {});
@@ -48,17 +47,17 @@ Areas.factory('Area', ['Socket', '$http', 'Message', 'Observer',
         CreateArea: (area, callback) => {
             $http.post('/Area', area).then(
                 (res) => {
-                    var err = res.data.Error;
-                    var Area = res.data.Area;
-                    if(err){
-                        Message.warning('Ocurrió un error -> [Descrito en consola]', 10);
-                        window.log.error(JSON.stringify(err));
-                        callback(err, null);
-                    }else{
-                        Message.success(`El área ${Area.Name} fue creada.`, 10);
-                        Observer.notify();
-                        callback(null, Area);
-                    }
+                  const err = res.data.Error;
+                  const Area = res.data.Areas;
+                  if (err) {
+                    Message.warning('Ocurrió un error -> [Descrito en consola]', 10);
+                    window.log.error(JSON.stringify(err));
+                    callback(err, null);
+                  } else {
+                    Message.success(`El área ${Area.Name} fue creada.`, 10);
+                    Observer.notify();
+                    callback(null, Area);
+                  }
                 },
                 (error) => {
                     Message.error('Ocurrió un error -> [Descrito en consola]', 10);
@@ -77,7 +76,7 @@ Areas.factory('Area', ['Socket', '$http', 'Message', 'Observer',
                         callback(JSON.stringify(e), null);
                     }else{
                         Observer.notify();
-                        callback(null, r.data.Area);
+                        callback(null, r.data.Areas);
                     }
                 },
                 (e) => {
@@ -86,21 +85,24 @@ Areas.factory('Area', ['Socket', '$http', 'Message', 'Observer',
                 });
         },
         DeleteArea: (id) => {
-           Message.confirm('Desea eliminar el área?', 6, (response) => {
-                if(response){
-                    $http.delete(`/Area/${id}`).then(
-                        (data) => {
-                            if(data.data.Removed.ok && data.data.Removed.n){
-                                Message.success('El área fue eliminada.', 10);
-                                Observer.notify();
-                            }
-                        },
-                        (error) => {
-                            Message.error(error, 10);
-                            window.log.error(`Ocurrió un error-> ${error}`);
-                        });
-                }
-            }); 
+          Message.confirm('Desea eliminar el área?', 6, (response) => {
+            if (response) {
+              $http
+                .delete(`/Area/${ id }`)
+                .then(
+                  (result) => {
+                    if (_.get(result, 'data.Areas', false)) {
+                      Message.success('El área fue eliminada.', 10);
+                      Observer.notify();
+                    }
+                  },
+                  (deleteError) => {
+                    Message.error(deleteError, 10);
+                    window.log.error(`Ocurrió un error-> ${ deleteError }`);
+                  }
+                );
+            }
+          });
         },
         clearListeners: () => {
             Observer.unsubscribeAll();
