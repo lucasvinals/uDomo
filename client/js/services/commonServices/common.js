@@ -60,13 +60,20 @@ Common.factory('Common', [ () => {
                   .toString(HEX)
                   .substring(1);
     }
-    return `${ fourChars() }${ fourChars() }-\
-    ${ fourChars() }-\
-    ${ fourChars() }-\
-    ${ fourChars() }-\
-    ${ fourChars() }\
-    ${ fourChars() }\
-    ${ fourChars() }`;
+    return [
+      fourChars(),
+      fourChars(),
+      '-',
+      fourChars(),
+      '-',
+      fourChars(),
+      '-',
+      fourChars(),
+      '-',
+      fourChars(),
+      fourChars(),
+      fourChars(),
+    ].join('');
   }
 
   return {
