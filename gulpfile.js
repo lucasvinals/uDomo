@@ -2,16 +2,16 @@
  * Set this to "development" or "production"
  * to build or bundle libraries
  */
-const ENV = 'development';
-const removeFiles = require('./tools/remove-files');
+process.environment = process.environment || 'development';
+const removeFiles = require('./server/tools/remove-files');
+const checkSyntax = require('./server/tests/check-syntax');
+const { log } = process;
+const psi = require('psi');
 const gulp = require('gulp');
 const concat = require('gulp-concat');
 const cleanCSS = require('gulp-clean-css');
 const processHTML = require('gulp-processhtml');
-const checkSyntax = require('./tests/check-syntax');
-const psi = require('psi');
-const googleCC = require('google-closure-compiler-js').gulp;
-const log = process.log;
+const { gulp: googleCC } = require('google-closure-compiler-js');
 
 function psilog(speed, usability, type) {
   const SPEED_MIN = 40;
@@ -78,9 +78,9 @@ gulp.task('buildLibs', () => {
  *  TASK - Compress Javascript Libraries and Modules in 'udomo.min.js' script
  */
 .task('jsScripts', [ 'buildLibs' ], () => {
-  if (ENV === 'development') {
+  if (process.environment === 'development') {
     gulp.src([ './client/js/**/*' ]).pipe(gulp.dest('./udomo/js'));
-  } else if (ENV === 'production') {
+  } else if (process.environment === 'production') {
     gulp
       .src([
         './udomo/js/lib.min.js',
@@ -134,7 +134,7 @@ gulp.task('buildLibs', () => {
       .pipe(processHTML(
         {
           'data': { versionApp: Math.floor(Math.random() * mil) },
-          environment: (ENV === 'development' ? 'development' : 'production'),
+          environment: (process.environment === 'development' ? 'development' : 'production'),
         }))
       .pipe(gulp.dest('./udomo/views'));
   gulp.src('./client/img/**/*')
@@ -153,7 +153,16 @@ gulp.task('buildLibs', () => {
 /**
  * TASK - Search errors in server/client files
  */
-.task('checkSyntax', [ 'clean' ], () => checkSyntax())
+.task('checkSyntax', [ 'clean' ], () => checkSyntax(
+  [
+    './client/js/**/*.js',
+    './server/api/**/*.js',
+    './server/config/**/*.js',
+    './*.js',
+    './server/tests/**/*.js',
+    './server/tools/**/*.js',
+  ]
+))
 
 /**
  * PageSpeed tests
@@ -164,11 +173,13 @@ gulp.task('buildLibs', () => {
     nokey: 'true',
     strategy: 'mobile',
   }).then((mobileData) =>
-    psilog(mobileData.ruleGroups.SPEED.score, mobileData.ruleGroups.USABILITY.score, 'Mobile')))
+    psilog(mobileData.ruleGroups.SPEED.score, mobileData.ruleGroups.USABILITY.score, 'Mobile'))
+)
 
 .task('desktopTest', () =>
   psi('localhost', { nokey: 'true', strategy: 'desktop' })
-    .then((desktopData) => psilog(desktopData.ruleGroups.SPEED.score, 0, 'Desktop')))
+    .then((desktopData) => psilog(desktopData.ruleGroups.SPEED.score, 0, 'Desktop'))
+)
 
 /**
  * TASK - Build actions
