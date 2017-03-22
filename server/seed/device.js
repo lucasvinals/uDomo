@@ -1,6 +1,6 @@
 const Device = require('../../server/api/device/device.model');
-const { Promise } = require('es6-promise');
-const { times, random } = require('lodash');
+const Promise = require('bluebird');
+const { times, random, get } = require('lodash');
 const uuid = require('uuid/v4');
 
 function CreateDevice(zone) {
@@ -28,7 +28,7 @@ function CreateDevice(zone) {
         Number: random(config.minRandom++, config.maxRandom),
         Saved: random(config.minRandom, config.maxRandom) > config.compareRandom,
         Online: random(config.minRandom, config.maxRandom) > config.compareRandom,
-        Zone: zone,
+        Zone: get(zone, '_id', ''),
         lastMessage: new Date(),
         Temperature: random(config.minTemperatureRandom, config.maxTemperatureRandom),
         Pressure: random(config.minPressureRandom, config.maxPressureRandom),
