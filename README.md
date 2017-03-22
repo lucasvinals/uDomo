@@ -7,26 +7,19 @@
 * Clone this repository
 * client/js/app.js (development -> production):
  * Uncomment config services
-* gulpfile.js (development -> production): 
- * Uncomment *google-closure-compiler* function
- * Comment *concat* function
-* index.html (development -> production)
- * Uncomment the *build:template* code, so the libraries only load once.
- * Comment
 * Change in tools/prepareSystem.sh acordingly to your setup:
  * HOMEDIR
  * ARCHITECTURE_uDomo
- * LIBRARIESDIR
-* Execute in a console: bash tools/prepareSystem.sh
-* Change database configuration in ./config/db.js (Secret key, paths, etc)
-* Change OS in ./cluster.js (in case it's not GNU/Linux)
+* **cd** to this directory and execute in a console: **bash ./server/tools/prepareSystem.sh**
+* Change database configuration in ./server/config/db.js (Secret key, paths, etc)
 * Then, execute: **npm run cluster** (cluster mode - all cores) or **npm start** (only one core)
+* If you are a developer, run only **gulp** in the console and nodemon will start the process.
 
 ##TODO
 + [Client] Angular-Translate
 + [Client] [Server] Scenes ABM
 + [Client] Scenes Activation
-+ [Server] HTTPS server instead of NET module. Verify if ESP8266 ws support security!
++ [Server] HTTPS server instead of NET module. Verify if ESP8266 support wss!
 + [Device] Auto-discover server IP based on it's MAC.
 
 ##Common problems
