@@ -1,7 +1,7 @@
 const Promise = require('bluebird');
-const { spawn: Bash } = require('child_process');
+const { spawnSync: Bash } = require('child_process');
 const uuid = require('uuid/v4');
-const { port: dbPort } = require('../../config/db')();
+const { port: dbPort } = require('../../config/db');
 const { log } = process;
 const { get } = require('lodash');
 const backupsDir = `${ process.ROOTDIR }/server/backups/`;

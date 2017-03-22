@@ -1,6 +1,6 @@
 const started = Date.now();
 process.environment = 'development';
-const { spawn, spawnSync, execSync } = require('child_process');
+const { spawnSync, execSync } = require('child_process');
 process.ROOTDIR = spawnSync(process.platform === 'linux' ? 'realpath' : 'cd', [ './' ]).stdout.toString().trim();
 const { ARG_CPU_NUMBER, DEFAULT_CLUSTER_PORT } = require('./server/config/environment');
 const cluster = require('cluster');
@@ -19,7 +19,7 @@ process.log = log;
  */
 process.clusterHost = 'localhost';
 process.clusterPort = Number(process.argv[2]) || DEFAULT_CLUSTER_PORT;
-const database = require('./server/config/db')();
+const database = require('./server/config/db');
 process.MongoURL = database.url;
 const { init: serverFork } = require('./server');
 const seedDatabase = require('./server/seed');
