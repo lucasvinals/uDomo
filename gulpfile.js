@@ -2,10 +2,11 @@
  * Set this to "development" or "production"
  * to build or bundle libraries
  */
-process.environment = process.environment || 'development';
+process.environment = 'development';
 const removeFiles = require('./server/tools/remove-files');
 const checkSyntax = require('./server/tests/check-syntax');
 const { log } = process;
+const nodemon = require('gulp-nodemon');
 const psi = require('psi');
 const gulp = require('gulp');
 const concat = require('gulp-concat');
@@ -77,9 +78,12 @@ gulp.task('buildLibs', () => {
 /**
  *  TASK - Compress Javascript Libraries and Modules in 'udomo.min.js' script
  */
-.task('jsScripts', [ 'buildLibs' ], () => {
+.task('jsBuild', [ 'buildLibs' ], (done) => {
   if (process.environment === 'development') {
-    gulp.src([ './client/js/**/*' ]).pipe(gulp.dest('./udomo/js'));
+    gulp
+      .src([ './client/js/**/*' ])
+      .pipe(gulp.dest('./udomo/js'))
+      .on('end', done);
   } else if (process.environment === 'production') {
     gulp
       .src([
@@ -102,7 +106,11 @@ gulp.task('buildLibs', () => {
           jsOutputFile: 'udomo.min.js',
           angularPass: true,
         }))
-      .pipe(gulp.dest('./udomo/js'));
+      .pipe(gulp.dest('./udomo/js'))
+      .on('end', () => {
+        removeFiles('/root/uDomo/udomo/js/lib.min.js');
+        done();
+      });
   }
 })
 
@@ -127,26 +135,32 @@ gulp.task('buildLibs', () => {
  * TASK - fonts/ -> .woff y .woff2  para renderizar bien los íconos
  */
 .task('copyStatic', () => {
-  gulp.src('./node_modules/bootstrap/fonts/*.wof*')
-      .pipe(gulp.dest('./udomo/fonts'));
   const mil = 1000;
-  gulp.src('./client/views/**/*')
-      .pipe(processHTML(
-        {
-          'data': { versionApp: Math.floor(Math.random() * mil) },
-          environment: (process.environment === 'development' ? 'development' : 'production'),
-        }))
-      .pipe(gulp.dest('./udomo/views'));
-  gulp.src('./client/img/**/*')
-      .pipe(gulp.dest('./udomo/img'));
+  gulp
+    .src('./client/views/**/*')
+    .pipe(processHTML(
+      {
+        'data': { versionApp: Math.floor(Math.random() * mil) },
+        environment: (process.environment === 'development' ? 'development' : 'production'),
+      }))
+    .pipe(gulp.dest('./udomo/views'))
+    .on('end', () => {
+      gulp
+        .src('./client/img/**/*')
+        .pipe(gulp.dest('./udomo/img'))
+        .on('end', () => {
+          gulp
+            .src('./node_modules/bootstrap/fonts/*.*')
+            .pipe(gulp.dest('./udomo/fonts'));
+        });
+    });
 })
 
 /**
  * TASK - Clean all files in 'udomo' directory
  */
 .task('clean', () => {
-  removeFiles('udomo/*');
-  removeFiles('shelljs_*');
+  removeFiles('udomo');
   removeFiles('*.log');
 })
 
@@ -181,14 +195,24 @@ gulp.task('buildLibs', () => {
     .then((desktopData) => psilog(desktopData.ruleGroups.SPEED.score, 0, 'Desktop'))
 )
 
-/**
- * TASK - Build actions
- */
 .task('build',
   [
     'checkSyntax',
     'copyStatic',
     'minStyles',
-    'jsScripts',
+    'jsBuild',
   ]
+)
+
+.task('default', [ 'build' ], () =>
+  nodemon(
+    {
+      script: 'cluster.js',
+      args: [ '12078', process.environment === 'development' ? '1' : '' ],
+      watch: [ './server', './client' ],
+      ext: 'js html css',
+      env: { 'NODE_ENV': process.environment },
+      tasks: [ 'build' ],
+    }
+  )
 );
