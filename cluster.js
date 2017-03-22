@@ -1,27 +1,26 @@
 const started = Date.now();
 process.environment = 'development';
+const { spawn, spawnSync, execSync } = require('child_process');
+process.ROOTDIR = spawnSync(process.platform === 'linux' ? 'realpath' : 'cd', [ './' ]).stdout.toString().trim();
 const { ARG_CPU_NUMBER, DEFAULT_CLUSTER_PORT } = require('./server/config/environment');
 const cluster = require('cluster');
 const net = require('net');
 const mongoose = require('mongoose');
-const { spawn: Bash, spawnSync: BashSync } = require('child_process');
-const { Promise } = require('es6-promise');
+const Promise = require('bluebird');
 mongoose.Promise = Promise;
 const machineCPUs = Number(require('os').cpus().length);
 const numProcesses = Number(process.argv[ARG_CPU_NUMBER]) || machineCPUs;
 const log = require('./server/tools/logger')('server');
 process.log = log;
-process.clusterHost = 'localhost';
-process.clusterPort = Number(process.argv[2]) || DEFAULT_CLUSTER_PORT;
-const database = require('./server/config/db')();
-
 /**
  * If current network IP address is needed,
  * replace 'localhost' with:
  * require('./tools/getIP')(process.platform);
  */
+process.clusterHost = 'localhost';
+process.clusterPort = Number(process.argv[2]) || DEFAULT_CLUSTER_PORT;
+const database = require('./server/config/db')();
 process.MongoURL = database.url;
-process.ROOTDIR = BashSync(process.platform === 'linux' ? 'realpath' : 'cd', [ './' ]).stdout.toString().trim();
 const { init: serverFork } = require('./server');
 const seedDatabase = require('./server/seed');
 process.devices = [];
@@ -39,7 +38,7 @@ function killMongoDB(previousError) {
   }
 
   return new Promise((fullfill, reject) => {
-    const { stderr } = BashSync(`${ database.binary }`, [ `${ database.storage }`, '--shutdown' ]);
+    const { stderr } = spawnSync(`${ database.binary }`, [ `${ database.storage }`, '--shutdown' ]);
     if (!stderr.toString()) {
       return fullfill();
     }
@@ -49,7 +48,7 @@ function killMongoDB(previousError) {
 
 function repairMongoDB() {
   return new Promise((fullfill, reject) => {
-    const { stderr } = Bash(`${ database.binary }`, [ '--repair', `${ database.storage }` ]);
+    const { stderr } = spawnSync(`${ database.binary }`, [ '--repair', `${ database.storage }` ]);
     return stderr.toString() ?
       fullfill() :
       reject(new Error(`Reparing mongod instance failed with error: ${ stderr.toString() }`));
@@ -59,31 +58,28 @@ function repairMongoDB() {
 }
 
 function initMongoDB() {
+  log.info('> Initializing database engine...');
   return new Promise((fullfill, reject) => {
-    log.info('> Initializing database engine...');
-    return Bash(
-      database.binary,
-      [
-        database.storage,
-        database.defaultLog,
-        database.port,
-        database.smallfiles,
-        database.logappend,
-      ],
-      { detached: false },
-      (bashError, dbError) => {
-        if (bashError) {
-          return reject(new Error(`Could not init database due to: ${ bashError }`));
-        }
-        return dbError.toString() === '' ?
-          fullfill(database.url) :
-          reject(new Error(`Init mongod instance failed due to: ${ dbError }`));
+    execSync(`
+      ${ database.binary }
+      --dbpath ${ database.storage }
+      --logpath ${ database.defaultLog }
+      --port ${ database.port }
+      --smallfiles --logappend &`.trim(),
+      {
+        detached: true,
+        stdio: 'ignore',
       }
     );
+    /**
+     * I know this is not good, but can't think another way
+     * to spawn a mongod process and make it run.
+     */
+    return fullfill(database.url);
   });
 }
 
-function connectToMongoDB(url = process.MongoURL) {
+function connectToMongoDB(url) {
   return mongoose.connect(
     url,
     {
@@ -122,7 +118,7 @@ function spawnMaster() {
    * source IP address
    */
   const workers = [];
-  function spawn(index) {
+  function forkCluster(index) {
     workers[index] = cluster.fork()
         /**
          * Inform that the worker died on exit and then respawn it.
@@ -131,7 +127,7 @@ function spawnMaster() {
           log.warning(`\n>Worker ${ index } died with code ${ code } \
           and signal $ { signal }.\
           Respawning worker ${ index }`);
-          spawn(index);
+          forkCluster(index);
         });
   }
 
@@ -139,7 +135,7 @@ function spawnMaster() {
    * Spawn (init) workers.
    */
   for (let index = numProcesses; --index;) {
-    spawn(index);
+    forkCluster(index);
   }
 
   /**
@@ -185,10 +181,13 @@ function spawnMaster() {
 }
 
 if (cluster.isMaster) {
-  initMongoDB() // Can't init mongodb engine directly
+  /**
+   * Can't init mongodb engine directly
+   * This should run smoothly
+   */
+  initMongoDB()
     .then(connectToMongoDB)
-  // connectToMongoDB()
-    .then(seedDatabase) // TODO: cannot set map of undefined
+    .then(seedDatabase)
     .then(spawnMaster)
     .catch(killMongoDB)
     .catch(repairMongoDB)

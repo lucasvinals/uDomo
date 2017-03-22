@@ -22,7 +22,14 @@ function uDomoModules(path) {
         return resolve(
           modules
             .filter((mod) => !mod.includes('handlers'))
-            .map((module) => req(`.${ path }/${ module }`))
+            .map(
+              (module) => {
+                return {
+                  initWith: req(`.${ path }/${ module }`),
+                  filename: module,
+                };
+              }
+            )
         );
       }
     )
@@ -105,11 +112,14 @@ function init(args) {
       /**
        * Init all modules with Express and SocketIO
        */
-      modules.map((module) => module(app, socketio));
+      modules.map((module) => module.initWith(app, socketio));
       /**
-       * VERY BAD, CHANGE THIS SHIT
+       * Later, when I have time, define API routes and require each index (module.filename)
        * Frontend routes, send index.html on every request
        */
+      // modules.map((module) => {
+      //   app.use(module.filename, require(`./server/api/${ module.filename }`));
+      // });
       app.use((request, response) => {
         response.sendFile(`${ process.ROOTDIR }/udomo/views/index.html`);
       });
