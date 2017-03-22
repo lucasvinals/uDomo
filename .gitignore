@@ -1,6 +1,5 @@
 #Logs
 *.log
-shelljs_*
 
 #Libraries and builds
 node_modules/

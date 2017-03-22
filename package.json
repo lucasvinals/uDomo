@@ -16,16 +16,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://lucasvinals@bitbucket.org/udomo/udomo.webapplication.git"
+    "url": "https://github.com/lucasvinals/uDomo"
   },
   "dependencies": {
     "alertifyjs": "^1.9.0",
     "angular": "^1.6.3",
     "angular-ui-router": "^0.4.2",
+    "bluebird": "^3.5.0",
     "body-parser": "^1.17.1",
     "bootstrap": "^3.3.7",
     "compression": "^1.6.2",
-    "es6-promise": "^4.1.0",
     "express": "^4.15.2",
     "fs-extra": "^2.0.0",
     "jquery": "^3.1.1",
@@ -35,7 +35,6 @@
     "method-override": "^2.3.7",
     "mongoose": "^4.8.6",
     "mongoose-delete": "^0.3.4",
-    "shelljs": "^0.7.7",
     "socket.io": "^1.7.3",
     "socket.io-adapter-mongo": "^0.1.6",
     "uuid": "^3.0.1"
@@ -44,10 +43,11 @@
     "eslint": "^3.17.1",
     "eslint-config-strict": "^13.0.0",
     "glob": "^7.1.1",
-    "google-closure-compiler-js": "^20170124.0.0",
+    "google-closure-compiler-js": "^20170218.0.0",
     "gulp": "^3.9.1",
     "gulp-clean-css": "^3.0.3",
     "gulp-concat": "^2.6.1",
+    "gulp-nodemon": "^2.2.1",
     "gulp-processhtml": "^1.1.0",
     "mocha": "^3.2.0",
     "morgan": "^1.8.1",
