@@ -12,12 +12,12 @@
 //                                        {mode: 'json'}
 //);
 
-const { Promise } = require('es6-promise');
+const Promise = require('bluebird');
 /**
  * Handlers with entity's name
  */
-const errorHandler = require('../handlers').errorHandler('Permission');
-const respondWithResult = require('../handlers').respondWithResult('Permission');
+const errorHandler = require('../handlers').errorHandler('Sensors');
+const respondWithResult = require('../handlers').respondWithResult('Sensors');
 
 module.exports = {
   GetValue: (request, response) =>

@@ -7,8 +7,8 @@ const { statusPhrasesToCodes: httpCodes } = require('know-your-http-well');
 /**
  * Handlers with entity's name
  */
-const errorHandler = require('../handlers').errorHandler('Zone');
-const respondWithResult = require('../handlers').respondWithResult('Zone');
+const errorHandler = require('../handlers').errorHandler('Zones');
+const respondWithResult = require('../handlers').respondWithResult('Zones');
 
 const Zones = {
   /**

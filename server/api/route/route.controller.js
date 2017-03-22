@@ -2,8 +2,8 @@ const Route = require('./route.model');
 /**
  * Handlers with entity's name
  */
-const errorHandler = require('../handlers').errorHandler('Route');
-const respondWithResult = require('../handlers').respondWithResult('Route');
+const errorHandler = require('../handlers').errorHandler('Routes');
+const respondWithResult = require('../handlers').respondWithResult('Routes');
 
 const Routes = {
   Find: (request, response) =>

@@ -4,8 +4,8 @@ const { get, merge, set, find } = require('lodash');
 /**
  * Handlers with entity's name
  */
-const errorHandler = require('../handlers').errorHandler('Device');
-const respondWithResult = require('../handlers').respondWithResult('Device');
+const errorHandler = require('../handlers').errorHandler('Devices');
+const respondWithResult = require('../handlers').respondWithResult('Devices');
 
 const Devices = {
   Find: (request, response) =>

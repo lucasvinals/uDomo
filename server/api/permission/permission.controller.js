@@ -2,8 +2,8 @@ const Permission = require('./permission.model');
 /**
  * Handlers with entity's name
  */
-const errorHandler = require('../handlers').errorHandler('Permission');
-const respondWithResult = require('../handlers').respondWithResult('Permission');
+const errorHandler = require('../handlers').errorHandler('Permissions');
+const respondWithResult = require('../handlers').respondWithResult('Permissions');
 
 const Permissions = {
   Find: (request, response) =>

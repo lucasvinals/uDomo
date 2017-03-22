@@ -2,13 +2,13 @@ const User = require('./user.model');
 const { sign: CreateToken } = require('jsonwebtoken');
 const { entrophy } = require('../../config/environment');
 const { get } = require('lodash');
-const { Promise } = require('es6-promise');
+const Promise = require('bluebird');
 const { statusPhrasesToCodes: httpCodes } = require('know-your-http-well');
 /**
  * Handlers with entity's name
  */
-const errorHandler = require('../handlers').errorHandler('User');
-const respondWithResult = require('../handlers').respondWithResult('User');
+const errorHandler = require('../handlers').errorHandler('Users');
+const respondWithResult = require('../handlers').respondWithResult('Users');
 
 const Users = {
   /**

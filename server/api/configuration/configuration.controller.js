@@ -4,8 +4,8 @@ const { get } = require('lodash');
 /**
  * Handlers with entity's name
  */
-const errorHandler = require('../handlers').errorHandler('Configuration');
-const respondWithResult = require('../handlers').respondWithResult('Configuration');
+const errorHandler = require('../handlers').errorHandler('Configurations');
+const respondWithResult = require('../handlers').respondWithResult('Configurations');
 
 const Configurations = {
   Find: (request, response) =>

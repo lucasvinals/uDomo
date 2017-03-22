@@ -1,4 +1,4 @@
-const { Promise } = require('es6-promise');
+const Promise = require('bluebird');
 const { spawn: Bash } = require('child_process');
 const uuid = require('uuid/v4');
 const { port: dbPort } = require('../../config/db')();
@@ -11,8 +11,8 @@ const removePhysicalBackup = require('../../tools/remove-files');
 /**
  * Handlers with entity's name
  */
-const errorHandler = require('../handlers').errorHandler('Backup');
-const respondWithResult = require('../handlers').respondWithResult('Backup');
+const errorHandler = require('../handlers').errorHandler('Backups');
+const respondWithResult = require('../handlers').respondWithResult('Backups');
 
 const Backups = {
   Find: (request, response) =>
