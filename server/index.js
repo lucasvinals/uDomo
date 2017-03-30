@@ -9,6 +9,9 @@ const methodOverride = require('method-override')('X-HTTP-Method-Override');
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const { cloneDeep } = require('lodash');
+const httpStatus = require('http-status');
 const req = require;
 
 function uDomoModules(path) {
@@ -23,12 +26,12 @@ function uDomoModules(path) {
           modules
             .filter((mod) => !mod.includes('handlers'))
             .map(
-              (module) => {
-                return {
-                  initWith: req(`.${ path }/${ module }`),
-                  filename: module,
-                };
-              }
+              (module) => cloneDeep(
+                {
+                  file: req(`.${ path }/${ module }`),
+                  name: module,
+                }
+              )
             )
         );
       }
@@ -37,9 +40,13 @@ function uDomoModules(path) {
 }
 
 /**
- * App configuration
+ * Express configuration
  */
 app
+  /**
+   * Protect agains well-known web vulnerabilities
+   */
+  .use(helmet())
   /**
    * Compress using gzip
    */
@@ -110,19 +117,23 @@ function init(args) {
   uDomoModules('/api')
     .then((modules) => {
       /**
-       * Init all modules with Express and SocketIO
+       * Define the /api/[method], require corresponding module and init.
        */
-      modules.map((module) => module.initWith(app, socketio));
+      modules.map((module) =>
+        app.use(`/api/${ module.name }`, module.file(express.Router({ mergeParams: true }), socketio))
+      );
       /**
-       * Later, when I have time, define API routes and require each index (module.filename)
-       * Frontend routes, send index.html on every request
+       * Don't allow these methods
        */
-      // modules.map((module) => {
-      //   app.use(module.filename, require(`./server/api/${ module.filename }`));
-      // });
-      app.use((request, response) => {
-        response.sendFile(`${ process.ROOTDIR }/udomo/views/index.html`);
+      app.route('/:url(api|auth|components|app|bower_components|assets)/*', (request, response) => {
+        response.sendStatus(httpStatus.METHOD_NOT_ALLOWED);
       });
+      /**
+       * On other requests, send index.html.
+       */
+      app.get('*', (request, response) =>
+        response.sendFile('index.html', { root: `${ process.ROOTDIR }/udomo/views` })
+      );
     })
     .catch((ModuleError) => process.log.error(`Error ocurred loading modules: ${ ModuleError }`));
 
