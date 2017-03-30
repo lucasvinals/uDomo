@@ -1,4 +1,0 @@
-"cylon": "latest",
-    "cylon-gpio": "latest",
-    "cylon-i2c": "latest",
-    "cylon-raspi": "latest",
