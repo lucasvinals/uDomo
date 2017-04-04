@@ -6,9 +6,9 @@ const errorHandler = require('../handlers').errorHandler('Routes');
 const respondWithResult = require('../handlers').respondWithResult('Routes');
 
 const Routes = {
-  Find: (request, response) =>
+  FindAll: (request, response) =>
     Route
-      .find({})
+      .find()
       .exec()
       .then(respondWithResult(response))
       .catch(errorHandler(response)),
