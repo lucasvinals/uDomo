@@ -8,9 +8,15 @@ const errorHandler = require('../handlers').errorHandler('Configurations');
 const respondWithResult = require('../handlers').respondWithResult('Configurations');
 
 const Configurations = {
-  Find: (request, response) =>
+  FindOne: (request, response) =>
     Configuration
-      .find({})
+      .findOne({ _id: get(request, 'params.id', null) })
+      .exec()
+      .then(respondWithResult(response))
+      .catch(errorHandler(response)),
+  FindAll: (request, response) =>
+    Configuration
+      .find()
       .exec()
       .then(respondWithResult(response))
       .catch(errorHandler(response)),

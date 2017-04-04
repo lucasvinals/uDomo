@@ -1,6 +1,6 @@
 const Device = require('./device.model');
 const { log } = process;
-const { get, merge, set, find } = require('lodash');
+const { get, merge } = require('lodash');
 /**
  * Handlers with entity's name
  */
@@ -8,9 +8,16 @@ const errorHandler = require('../handlers').errorHandler('Devices');
 const respondWithResult = require('../handlers').respondWithResult('Devices');
 
 const Devices = {
-  Find: (request, response) =>
+  FindOne: (request, response) =>
     Device
-      .find({})
+      .findOne({ _id: get(request, 'params.id', null) })
+      .exec()
+      .then((devices) => merge(process.devices, devices))
+      .then(respondWithResult(response))
+      .catch(errorHandler(response)),
+  FindAll: (request, response) =>
+    Device
+      .find()
       .exec()
       .then((devices) => merge(process.devices, devices))
       .then(respondWithResult(response))
@@ -36,25 +43,9 @@ const Devices = {
       .catch(errorHandler(response)),
   Delete: (request, response) =>
     Device
-      .findByIdAndRemove(get(request, 'params.id', null))
+      .delete({ '_id': get(request, 'params.id', null) })
       .exec()
-      // .then(log.warning)
-      /**
-       * Once the device is deleted,
-       * set the property 'Saved' to false
-       *
-       * Emit an event instead and remove via ws???
-       */
-      .then((devDeleted) =>
-        set(
-          find(
-            process.devices,
-            { _id: get(devDeleted, '_id', null) }
-          ),
-          'Saved',
-          false
-        )
-      )
+      .then(Device.updateSavedTo(false))
       .then(respondWithResult(response))
       .catch(errorHandler(response)),
 };
