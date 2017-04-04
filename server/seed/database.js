@@ -10,6 +10,9 @@ const Promise = require('bluebird');
 function DropDatabase() {
   return Promise.all(
     [
+      /**
+       * Has to be physical remove. Do not change to 'delete'
+       */
       User.remove({}),
       Permission.remove({}),
       Configuration.remove({}),
