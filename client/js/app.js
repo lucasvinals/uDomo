@@ -1,7 +1,21 @@
-angular.module('uDomoApp', [
-	'ui.router', 'routes', 'Patterns', 'Filters', 'Main', 'Home', 'Users', 'Readings',
-	'Security', 'Areas', 'Scenes', 'Common', 'Devices',
-	'NotFound'
-	]);
+angular.module(
+  'uDomoApp',
+  [
+    'ui.router',
+    'Patterns',
+    'Filters',
+    'Main',
+    'Home',
+    'User',
+    'Routes',
+    'Reading',
+    'Security',
+    'Zone',
+    'Scene',
+    'Common',
+    'Device',
+    'NotFound',
+  ]
+);
 
 

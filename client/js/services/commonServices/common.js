@@ -35,7 +35,7 @@ Common.factory('Common', [ () => {
    */
   function getTimeSince(last) {
     /**
-     * Sooo dummy, I know, but eslint complains with 'magic-numbers' error.
+     * Sooo dumb, I know, but eslint complains with 'magic-numbers' error.
      */
     const msInS = 1000;
     const secInMin = 60;
