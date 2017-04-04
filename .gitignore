@@ -16,6 +16,7 @@ server/backups/
 server/db/
 
 #Specific system configuration
+environment
 
 #IDEs
 .vscode/
