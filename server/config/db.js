@@ -1,12 +1,14 @@
-const { spawnSync: Bash } = require('child_process');
 const { merge } = require('lodash');
+const { execFileSync } = require('child_process');
 const port = process.clusterPort + 1;
+const binary = execFileSync('which', [ 'mongod' ]).toString().replace('\n', '').trim();
 
 const linux = {
   /**
    * Location of mongod.
+   * In case it's not in the PATH environment variable.
    */
-  binary: Bash('which', [ 'mongod' ]).stdout.toString().trim(),
+  binary,
   /**
    * Database directory.
    */
