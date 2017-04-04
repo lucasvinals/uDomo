@@ -1,4 +1,5 @@
 const started = Date.now();
+const Promise = require('bluebird');
 const morgan = require('morgan')('dev');
 const compression = require('compression')();
 const crypto = require('crypto');
@@ -52,10 +53,6 @@ app
    */
   .use(compression)
   /**
-   * Log HTTP Requests
-   */
-  .use(morgan)
-  /**
    * Override with the X-HTTP-Method-Override header in the request. simulate DELETE/PUT
    */
   .use(methodOverride)
@@ -76,6 +73,12 @@ app
    */
   .use(express.static(`${ process.ROOTDIR }/udomo`));
 
+if (process.env.NODE_ENV === 'development') {
+  /**
+   * Log HTTP Requests in console
+   */
+  app.use(morgan);
+}
 /**
  * Se setea la clave 'JWT_SECRET' para usar en las autenticaciones
  */
@@ -87,7 +90,7 @@ crypto.randomBytes(cryptoMagicNumber, (cryptoError, buffer) => {
   process.JWT_SECRET = buffer.toString('base64');
 });
 
-function init(args) {
+function init({ serverPort }) {
   /**
    * Cluster (2 or more cores activated):
    *      Express instanece listening on local port,do not expose to outside.
@@ -96,10 +99,10 @@ function init(args) {
    *
    * The server on the main process manage the connections with the clients.
    */
-  const server = app.listen(args.serverPort, process.clusterHost);
-  /*
-    * Socket.IO attached to Express instance
-    */
+  const server = app.listen(serverPort, process.clusterHost);
+  /**
+   * Socket.IO attached to Express instance
+   */
   socketio.attach(server);
 
   /**
@@ -118,6 +121,7 @@ function init(args) {
     .then((modules) => {
       /**
        * Define the /api/[method], require corresponding module and init.
+       * Once Express 5.0 is stable, change Express Router intance for app.router
        */
       modules.map((module) =>
         app.use(`/api/${ module.name }`, module.file(express.Router({ mergeParams: true }), socketio))
@@ -138,16 +142,19 @@ function init(args) {
     .catch((ModuleError) => process.log.error(`Error ocurred loading modules: ${ ModuleError }`));
 
   /**
+   * LISTENERS
+   */
+  /**
    *  Emulate a connection event on the server by emitting the event with
    *  the connection the master sent us.
    */
-  process.on('message', (message, connection) => {
-    if (message === 'sticky-session:connection') {
+  process.on('message', (event, connection) => {
+    if (event === 'uDomoNewConnection') {
+      process.log.info(`\n> New connection from IP: ${ connection.remoteAddress }`);
       server.emit('connection', connection);
       connection.resume();
     }
   });
-
   /**
    * If an error occurs, log it
    */
@@ -160,4 +167,4 @@ function init(args) {
   process.log.info(`\n> New instance of Server with PID ${ process.pid } started in ${ (Date.now() - started) } ms.`);
 }
 
-module.exports = { init };
+module.exports = init;
