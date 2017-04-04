@@ -1,12 +1,11 @@
-const Promise = require('bluebird');
-const { spawnSync: Bash } = require('child_process');
-const uuid = require('uuid/v4');
-const { port: dbPort } = require('../../config/db');
-const { log } = process;
-const { get } = require('lodash');
-const backupsDir = `${ process.ROOTDIR }/server/backups/`;
 const Backup = require('./backup.model');
-const removePhysicalBackup = require('../../tools/remove-files');
+const { promisify: Promisify } = require('bluebird');
+const { execFile } = require('child_process');
+const uuid = require('uuid/v4');
+const { get } = require('lodash');
+const { port } = require(`${ process.ROOTDIR }/server/config/environment`);
+const backupsDir = `${ process.ROOTDIR }/server/backups/`;
+const removePhysicalBackup = require(`${ process.ROOTDIR }/server/tools/remove-files`);
 
 /**
  * Handlers with entity's name
@@ -14,17 +13,81 @@ const removePhysicalBackup = require('../../tools/remove-files');
 const errorHandler = require('../handlers').errorHandler('Backups');
 const respondWithResult = require('../handlers').respondWithResult('Backups');
 
+/**
+ * Create a directory in the specified directory.
+ * @param {String} directory
+ */
+function createDirectory(directory) {
+  return Promisify(execFile)(
+    'mkdir',
+    [
+      '-p',
+      `${ directory }`,
+    ],
+    { timeout: 3000 }
+  )
+    .then(() => directory)
+    .catch((mkdirError) => new Error(`Could not create the directory ${ directory } due to: ${ mkdirError }`));
+}
+
+/**
+ * Create a database dump of the current state.
+ * @param {number} dbPort
+ * @returns {Function}
+ */
+function mongoDump(dbPort) {
+  return (directory) => Promisify(execFile)(
+    '$(which mongorestore)',
+    [
+      `${ dbPort }`,
+      `${ directory }`,
+      '/',
+      '--objcheck',
+    ]
+  ).catch((mongoDumpError) => new Error(`mongodump command failed due to: ${ mongoDumpError.toString() }`));
+}
+
+/**
+ * Restore a database dump of a previous state.
+ * @param {number} dbPort
+ * @returns {Function}
+ */
+function mongoRestore(dbPort) {
+  return (directory) => Promisify(execFile)(
+    '$(which mongorestore)',
+    [
+      `${ dbPort }`,
+      `${ directory }`,
+      '/',
+      '--objcheck',
+    ]
+  ).catch(new Error(`Something happened restoring the database backup from "${ directory }"`));
+}
+
 const Backups = {
-  Find: (request, response) =>
+  /**
+   * Find a backup
+   */
+  FindOne: (request, response) =>
     Backup
-      .find({})
+      .findOne({ _id: get(request, 'params.id', null) })
       .exec()
       .then(respondWithResult(response))
       .catch(errorHandler(response)),
+  /**
+   * Retrieve all backups
+   */
+  FindAll: (request, response) => {
+    Backup
+      .find()
+      .exec()
+      .then(respondWithResult(response))
+      .catch(errorHandler(response));
+  },
 
   Create: (request, response) => {
     const fecha = new Date();
-    const now = fecha.toLocaleString(
+    const Name = fecha.toLocaleString(
       /**
        * Default timezone to Argentina
        */
@@ -41,62 +104,34 @@ const Backups = {
     /**
      * A more convinient name for the directory
      */
-    const relPath = now.replace(' ', '_').replace(/[:/]/g, '-').replace(',', '');
-    const directory = `${ backupsDir }${ relPath }`;
-
-    return new Promise((fullfill, reject) => {
-      /**
-      * First, create a directory for the backup.
-      * '-p' option creates a directory if no exists (recursivelly) and doesn't if already exists.
-      */
-      const { stderr: mkdirError } = Bash('mkdir', [ '-p', `${ directory }` ]);
-      if (mkdirError.toString() !== '') {
-        return reject(new Error(`Could not create the directory ${ directory } due to: ${ mkdirError }`));
-      }
-      /**
-       * Then, execute 'mongodump' to create the backup in that directory.
-       */
-      const { stderr: mongodumpError } = Bash('$(which mongodump)', [ `${ dbPort }`, '--out', `${ directory }`, '/' ]);
-      return mongodumpError.toString() === '' ?
-        fullfill(() => {
-          log.success(`The backup has been created in "${ directory }".`);
-          return true;
-        }) :
-        reject(new Error(`mongodump failed due to: ${ mongodumpError.toString() }`));
-    })
-    .then(() =>
-      Backup.create(
-        {
-          _id: uuid(),
-          Name: now,
-          Date: fecha,
-          Pathname: relPath,
-        }
-      )
-    )
-    .then(respondWithResult(response))
-    .catch(errorHandler(response));
+    const Pathname = Name.replace(' ', '_').replace(/[:/]/g, '-').replace(',', '');
+    /**
+     * (1) Create a directory for the backup.
+     * '-p' option creates a directory if no exists (recursivelly) and doesn't if already exists.
+     * (2) Create a database dump.
+     * (3) Save register of the backup to the database.
+     * (4) Handle result.
+     */
+    createDirectory(`${ backupsDir }${ Pathname }`)
+      .then(mongoDump(port))
+      .then(Backup.create({ _id: uuid(), Date: fecha, Name, Pathname }))
+      .then(respondWithResult(response))
+      .catch(errorHandler(response));
   },
-  Restore: (request, response) => {
-    new Promise((fullfill, reject) => {
-      const pathName = get(request, 'body.pathName', null);
-      if (pathName === null) {
-        return reject(new Error('There must be a relative directory path.'));
-      }
-      const directory = `${ backupsDir }${ pathName }`;
-      const { stderr } = Bash('$(which mongorestore)', [ `${ dbPort }`, `${ directory }`, '/', '--objcheck' ]);
-      return stderr.toString() === '' ?
-        fullfill(/* Should return the name?*/) :
-        reject(new Error(`Something happened restoring the database backup from "${ directory }`));
-    })
-    .then(respondWithResult(response))
-    .catch(errorHandler(response));
-  },
+  /**
+   * Restore previously saved backup
+   */
+  Restore: (request, response) =>
+    mongoRestore(port)(`${ backupsDir }${ get(request, 'body.pathName') }`)
+      .then(respondWithResult(response))
+      .catch(errorHandler(response)),
+  /**
+   * Delete a backup
+   */
   Delete: (request, response) =>
     Backup
-      .findByIdAndRemove(get(request, 'params.id', null))
+      .delete({ '_id': get(request, 'params.id', null) })
       .exec()
-      .then(log.success)
       .then(respondWithResult(response))
       .then((backup) => backup.Pathname)
       .then(removePhysicalBackup)
