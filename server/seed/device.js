@@ -40,7 +40,8 @@ function CreateDevice(zone) {
     );
   });
 
-  return Promise.all(saveDevices.map((dummyDevice) => Device.create(dummyDevice)));
+  return Promise.all(saveDevices.map((dummyDevice) => Device.create(dummyDevice)))
+    .then((devices) => (process.devices = devices.map((device) => get(device, '_doc'))));
 }
 
 module.exports = CreateDevice;
