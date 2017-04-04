@@ -27,17 +27,22 @@ module.exports = (loggerType) => {
   * BgWhite = "\x1b[47m"
 */
   switch (loggerType) {
-    case 'server':
+    case 'development':
       return {
         /* eslint-disable */
         error: (msg) => !console.log('\n\x1b[41m\x1b[1m' + msg + '\x1b[0m\n'),
         success: (msg) => !console.log('\n\x1b[42m\x1b[1m' + msg + '\x1b[0m\n'),
         warning: (msg) => !console.log('\n\x1b[43m\x1b[1m' + msg + '\x1b[0m\n'),
         info: (msg) => !console.log('\n\x1b[44m\x1b[1m' + msg + '\x1b[0m\n'),
-        /* eslint-enable */
+        
       };
     default:
-      break;
+      return {
+        error: () => {},
+        success: () => {},
+        warning: () => {},
+        info: () => {},
+      };
+      /* eslint-enable */
   }
-  return true;
 };
