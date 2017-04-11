@@ -70,20 +70,19 @@ const Backups = {
    */
   FindOne: (request, response) =>
     Backup
-      .findOne({ _id: get(request, 'params.id', null) })
+      .findById(get(request, 'params.id', null))
       .exec()
       .then(respondWithResult(response))
       .catch(errorHandler(response)),
   /**
    * Retrieve all backups
    */
-  FindAll: (request, response) => {
+  FindAll: (request, response) =>
     Backup
       .find()
       .exec()
       .then(respondWithResult(response))
-      .catch(errorHandler(response));
-  },
+      .catch(errorHandler(response)),
 
   Create: (request, response) => {
     const fecha = new Date();

@@ -10,7 +10,7 @@ const respondWithResult = require('../handlers').respondWithResult('Devices');
 const Devices = {
   FindOne: (request, response) =>
     Device
-      .findOne({ _id: get(request, 'params.id', null) })
+      .findById(get(request, 'params.id', null))
       .exec()
       .then((devices) => merge(process.devices, devices))
       .then(respondWithResult(response))
