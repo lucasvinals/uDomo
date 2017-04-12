@@ -37,12 +37,12 @@ function createDirectory(directory) {
  */
 function mongoDump(dbPort) {
   return (directory) => Promisify(execFile)(
-    '$(which mongorestore)',
+    '$(which mongodump)',
     [
+      '--port',
       `${ dbPort }`,
+      '--out',
       `${ directory }`,
-      '/',
-      '--objcheck',
     ]
   ).catch((mongoDumpError) => new Error(`mongodump command failed due to: ${ mongoDumpError.toString() }`));
 }
@@ -56,6 +56,7 @@ function mongoRestore(dbPort) {
   return (directory) => Promisify(execFile)(
     '$(which mongorestore)',
     [
+      '--port',
       `${ dbPort }`,
       `${ directory }`,
       '/',
