@@ -6,6 +6,8 @@
         <link rel='icon' href='img/favicon.ico' type='image/x-icon' />
         <title>uDomo - Simple Automation</title>
         <link rel='stylesheet' type='text/css' href='css/styles.min.css' >
+        <script src="jspm_packages/system.js"></script>
+        <script src="jspmConfig.js"></script>
     </head>
     <body ng-app='uDomoApp' ng-style='ChangeImage'>
         <div>
@@ -226,37 +228,8 @@
         requireScript('udomoLibraries', '0.0.<%= versionApp %>', 'js/udomo.min.js');
     </script>
     <% } else if (environment === 'development') { %>
-            <script src='js/lib.min.js'></script>
-            <script src='js/services/commonServices/common.js'></script>
-            <script src='js/services/commonServices/messages.js'></script>
-            <script src='js/services/commonServices/socket.js'></script>
-            <script src='js/services/commonServices/storage.js'></script>
-            <script src='js/services/patterns/observer.js'></script>
-            <script src='js/services/REST/areas.js'></script>
-            <script src='js/services/REST/devices.js'></script>
-            <script src='js/services/REST/users.js'></script>
-            <script src='js/services/main.js'></script>
-            <script src='js/services/readings.js'></script>
-            <script src='js/filters/filters.js'></script>
-            <script src='js/controllers/areas/areas.js'></script>
-            <script src='js/controllers/devices/devices.js'></script>
-            <script src='js/controllers/others/notFound.js'></script>
-            <script src='js/controllers/Readings/others.js'></script>
-            <script src='js/controllers/Readings/server.js'></script>
-            <script src='js/controllers/scenes/scenes.js'></script>
-            <script src='js/controllers/Security/perimeter.js'></script>
-            <script src='js/controllers/Security/warnings.js'></script>
-            <script src='js/controllers/Security/video.js'></script>
-            <script src='js/controllers/security/security.js'></script>
-            <script src='js/controllers/users/users.js'></script>
-            <script src='js/controllers/home.js'></script>
-            <script src='js/controllers/main.js'></script>
-            <script src='js/directives/directives.js'></script>
-
-            <script src='js/app.js'></script>
-            <script src='js/config.js'></script>
-            <script src='js/routes.js'></script>
-
+      <script src='js/lib.min.js'></script>
+     
     <% } %>
     /build -->
 </html>

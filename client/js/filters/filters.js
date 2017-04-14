@@ -1,1 +1,0 @@
-let Filters = angular.module('Filters', []);
