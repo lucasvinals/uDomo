@@ -75,7 +75,8 @@
       "node": true
     },
     "globals": {
-      "angular": true
+      "angular": true,
+      "_": true
     },
     "parserOptions": {
       "ecmaVersion": 2017
@@ -84,6 +85,7 @@
       "no-process-env": [
         0
       ],
+      "filenames/match-regex": 0,
       "id-length": [
         2,
         {
@@ -97,7 +99,7 @@
       ],
       "id-match": [
         2,
-        "^([A-Za-z-_]*|[A-Z][A-Z_]*[A-Z])$",
+        "^([A-Za-z-_$]*|[A-Z][A-Z_]*[A-Z])$",
         {
           "properties": false
         }
