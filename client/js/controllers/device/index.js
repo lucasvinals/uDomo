@@ -1,5 +1,7 @@
+/* eslint id-length:0 */
 import Device from '../../services/device';
 import Zone from '../../services/zone';
+import $ from 'jquery';
 
 function DeviceController($scope, $window) {
   let lastID = '';
@@ -84,12 +86,9 @@ function DeviceController($scope, $window) {
 
   /* Clean exit */
   $scope.$on('$destroy', (event) => {
-      $('#saveDeviceModal').modal('hide');
-      Device.clearListeners('updateDevices');
+    $('#saveDeviceModal').modal('hide');
+    Device.clearListeners('updateDevices');
   });
 }
 
-module.exports = angular
-  .module('uDomo.Device')
-  .controller('deviceController', [ '$scope', '$window', DeviceController ]
-);
+export default angular.module('uDomo.Device').controller('deviceController', [ '$scope', '$window', DeviceController ]);

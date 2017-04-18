@@ -6,10 +6,8 @@
         <link rel='icon' href='img/favicon.ico' type='image/x-icon' />
         <title>uDomo - Simple Automation</title>
         <link rel='stylesheet' type='text/css' href='css/styles.min.css' >
-        <script src="jspm_packages/system.js"></script>
-        <script src="jspmConfig.js"></script>
     </head>
-    <body ng-app='uDomoApp' ng-style='ChangeImage'>
+    <body ng-app='uDomo' ng-style='ChangeImage'>
         <div>
             <!-- HEADER -->
             <nav class='navbar navbar-inverse navbar-collapse'>
@@ -228,8 +226,8 @@
         requireScript('udomoLibraries', '0.0.<%= versionApp %>', 'js/udomo.min.js');
     </script>
     <% } else if (environment === 'development') { %>
-      <script src='js/lib.min.js'></script>
-     
+      
     <% } %>
     /build -->
+    <script src='js/bundle.js'></script>
 </html>

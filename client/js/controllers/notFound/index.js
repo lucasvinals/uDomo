@@ -8,6 +8,6 @@ function notFoundController($rootScope, $scope) {
   });
 }
 
-module.exports = angular
+export default angular
   .module('uDomo.NotFound')
   .controller('notFoundController', [ '$rootScope', '$scope', notFoundController ]);

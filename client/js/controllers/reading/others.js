@@ -1,23 +1,28 @@
-Readings.controller('Others', ['$scope', 'Readings', 'Socket', 
-function($scope, Readings, Socket){
-    
-    /***** Style - Set the correct color to temperature intervals ******/
-    $scope.temperatureColor = (temperature) => {
-        return Readings.temperatureColor(temperature);
-    };
-    /*******************************************************************/
-    
-    /* Socket - Listen for incomming messages in 'changedValues' event */
-    Socket.on('serverSensor', (data) => {
-        /*************** Server Values ******************/
-        $scope.publicIP = data.Server.PublicIP;
-        $scope.coreTemperature = data.Server.Temperature;
-        /************************************************/
-    });
-    /*******************************************************************/
-    $scope.coreTemperature = $scope.coreTemperature || 22; //TEST ONLY
-    /* Remove Listeners when leave the page */
-    $scope.$on('$destroy', (event) => {
-        Socket.clear();
-    });                                              
-}]);
+import Reading from '../../services/reading';
+import Socket from '../../services/socket';
+
+function OthersSensorsController($scope) {
+  /**
+   * Style - Set the correct color to temperature intervals
+   */
+  $scope.temperatureColor = (temperature) => Reading.temperatureColor(temperature);
+
+  /**
+   * Socket - Listen for incomming messages in 'changedValues' event
+   */
+  Socket.on('serverSensor', (serverData) => {
+    /**
+     * Server Values
+     */
+    $scope.publicIP = serverData.Server.PublicIP;
+    $scope.coreTemperature = serverData.Server.Temperature;
+  });
+
+  $scope.coreTemperature = $scope.coreTemperature || 22; // eslint-disable-line
+  /* Remove Listeners when leave the page */
+  $scope.$on('$destroy', () => {
+    Socket.clear();
+  });
+}
+
+export default angular.module('Reading').controller('OthersSensorsController', [ '$scope', OthersSensorsController ]);

@@ -1,6 +1,5 @@
-let Security = angular.module('Security', []);
+function PerimeterController($scope) {
+  $scope.tagline = 'Perimeter';
+}
 
-Security.controller('Perimeter', ['$scope', function($scope){
-	'use strict';
-    $scope.tagline = 'Perimeter';
-}]);
+export default angular.module('Security').controller('PerimeterController', [ '$scope', PerimeterController ]);

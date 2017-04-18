@@ -1,5 +1,8 @@
-// angular.module('uDomoApp').config(['$httpProvider, $compileProvider', 
-// 	function ($httpProvider, $compileProvider) {
-// 		$compileProvider.debugInfoEnabled(false);
-// 		$httpProvider.useApplyAsync(true);
-// }]);
+function uDomoConfig($httpProvider, $compileProvider) {
+  if (PRODUCTION) {
+    $compileProvider.debugInfoEnabled(false);
+    $httpProvider.useApplyAsync(true);
+  }
+}
+
+export default angular.module('uDomoApp').config([ '$httpProvider', '$compileProvider', uDomoConfig ]);

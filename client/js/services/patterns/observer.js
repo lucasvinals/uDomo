@@ -26,9 +26,10 @@ function ObserverFactory() {
      * Ex: CRUD operations
      */
     notify() {
-      angular.forEach(this.Observers, (observer) => {
-        const exec = observer();
-      });
+      angular.forEach(this.Observers, (observer) =>
+        // const exec = observer();
+        observer
+      );
     }
   }
   /**
@@ -37,6 +38,6 @@ function ObserverFactory() {
   return new ObserverPattern();
 }
 
-module.exports = angular
+export default angular
   .module('uDomo.Patterns')
   .factory('ObserverFactory', ObserverFactory);

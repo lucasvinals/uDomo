@@ -1,2 +1,1 @@
-module.exports = angular
-  .module('uDomo.Filters');
+export default angular.module('uDomo.Filter');

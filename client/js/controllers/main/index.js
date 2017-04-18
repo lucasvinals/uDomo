@@ -48,6 +48,6 @@ function mainController($scope, $rootScope, $location) {
   });
 }
 
-module.exports = angular
+export default angular
   .module('uDomo.Main')
   .controller('mainController', [ '$scope', '$rootScope', '$location', mainController ]);

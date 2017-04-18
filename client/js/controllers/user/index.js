@@ -85,6 +85,4 @@ function userController($scope) {
   // };
 }
 
-module.exports = angular
-  .module('uDomo.User')
-  .controller('userController', [ '$scope', userController ]);
+export default angular.module('uDomo.User').controller('userController', [ '$scope', userController ]);

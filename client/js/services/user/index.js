@@ -3,10 +3,8 @@ import Observer from '../patterns/observer';
 import Socket from '../socket';
 import Storage from '../storage';
 
-module.exports = angular.module('uDomo.User').factory('UserFactory', [ '$http', ($http) => {
-    // 'use strict';
-
-    // let changeUser = (user) => { angular.extend(currentUser, user); };
+function UserFactory() {
+  // let changeUser = (user) => { angular.extend(currentUser, user); };
 
     // let urlBase64Decode = (str) => {
     //     var output = str.replace('-', '+').replace('_', '/');
@@ -203,4 +201,6 @@ module.exports = angular.module('uDomo.User').factory('UserFactory', [ '$http', 
     // };
 
     // return Facade;
-}]);
+}
+
+export default angular.module('uDomo.User').factory('UserFactory', [ '$http', UserFactory ]);

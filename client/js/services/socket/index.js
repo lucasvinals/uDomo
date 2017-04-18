@@ -1,39 +1,25 @@
-module.exports = angular.module('uDomo.Common').factory('SocketFactory', [ '$rootScope', ($rootScope) => {
-  //   'use strict';
-  //   let socketURL = location.protocol.slice(0, location.protocol.length - 1) == 'https' ? 'wss://': 'ws://';
-  //   socketURL += location.host;
-  //   const socketOptions = {
-  //       "force new connection": true,
-  //       "reconnect" : true,
-  //       "reconnection delay" : 500,
-  //       "max reconnection attempts" : 20
-  //   };
-  //   let socket = io.connect(socketURL, socketOptions);
-    
-	// return {
-	// 	on: (eventName, callback) => {
-  //           socket.on(eventName, function(){  
-  //               let args = arguments;
-  //               $rootScope.$apply(() => {
-  //                 callback.apply(socket, args);
-  //               });
-  //           });
-	// 	},
-	// 	emit: (eventName, data, callback) => {
-  //           socket.emit(eventName, data, function(){
-  //               let args = arguments;
-  //               $rootScope.$apply(() => {
-  //                 if (callback) {
-  //                   callback.apply(socket, args);
-  //                 }
-  //               });
-  //           });
-	// 	},
-  //       clear: (eventName) => {
-  //           socket.off(eventName);
-  //       },
-  //       cleanExit: () => {
-  //           socket.close();
-  //       }
-	// };
-}]);
+import io from 'socket.io-client';
+
+function SocketFactory($rootScope) {
+  const socketURL = (location.protocol.slice(0, Number('-1')) === 'https' ? 'wss://' : 'ws://') + location.host;
+  const socketOptions = {
+    forceNew: true,
+    reconnect: true,
+    reconnectionDelay: 400,
+  };
+  const socket = io.connect(socketURL, socketOptions);
+
+  return {
+    on: (eventName, response) => {
+      socket.on(eventName, (...args) => $rootScope.$apply(() => response.apply(socket, args)));
+    },
+    emit: (eventName, dataToSend, response) =>
+      socket.emit(eventName, dataToSend, (...args) =>
+        $rootScope.$apply(() => response && response.apply(socket, args))
+      ),
+    clear: (eventName) => socket.off(eventName),
+    cleanExit: () => socket.close(),
+  };
+}
+
+export default angular.module('uDomo.Common').factory('SocketFactory', [ '$rootScope', SocketFactory ]);

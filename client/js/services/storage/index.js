@@ -1,12 +1,11 @@
-module.exports = angular.module('uDomo.Common').factory(
-  'StorageFactory',
-  () => {
-    // 'use strict';
-    // let store = window.localStorage;
+function StorageFactory() {
+  const store = window.localStorage;
 
-    // return {
-    //     setToken:       (token) => store.setItem('uDomoToken', token.toString()),
-    //     getToken:       ()      => store.getItem('uDomoToken'),
-    //     deleteToken:    ()      => store.removeItem('uDomoToken')
-    // };
-});
+  return {
+    setToken: (token) => store.setItem('uDomoToken', token.toString()),
+    getToken: () => store.getItem('uDomoToken'),
+    deleteToken: () => store.removeItem('uDomoToken'),
+  };
+}
+
+export default angular.module('uDomo.Common').factory('StorageFactory', StorageFactory);

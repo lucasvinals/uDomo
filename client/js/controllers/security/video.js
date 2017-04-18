@@ -1,4 +1,5 @@
-Security.controller('Video', ['$scope', function($scope){
-	'use strict';
-    $scope.tagline = 'Video';
-}]);
+function VideoController($scope) {
+  $scope.tagline = 'Video';
+}
+
+export default angular.module('Security').controller('VideoController', [ '$scope', VideoController ]);

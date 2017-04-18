@@ -6,20 +6,22 @@ import 'angular-ui-router';
 /**
  * uDomo modules initialization
  */
-angular.module('uDomo.Patterns', []);
-angular.module('uDomo.Main', []);
-angular.module('uDomo.Home', []);
-angular.module('uDomo.User', []);
-angular.module('uDomo.Route', []);
-angular.module('uDomo.Reading', []);
-angular.module('uDomo.Security', []);
-angular.module('uDomo.Zone', []);
-angular.module('uDomo.Scene', []);
-angular.module('uDomo.Common', []);
-angular.module('uDomo.Device', []);
-angular.module('uDomo.NotFound', []);
-angular.module('uDomo.Filter', []);
-angular.module('uDomo.Directive', []);
+(() => {
+  angular.module('uDomo.Patterns', []);
+  angular.module('uDomo.Main', []);
+  angular.module('uDomo.Home', []);
+  angular.module('uDomo.User', []);
+  angular.module('uDomo.Route', []);
+  angular.module('uDomo.Reading', []);
+  angular.module('uDomo.Security', []);
+  angular.module('uDomo.Zone', []);
+  angular.module('uDomo.Scene', []);
+  angular.module('uDomo.Common', []);
+  angular.module('uDomo.Device', []);
+  angular.module('uDomo.NotFound', []);
+  angular.module('uDomo.Filter', []);
+  angular.module('uDomo.Directive', []);
+})();
 /**
  * uDomo Services
  */
@@ -60,7 +62,7 @@ import './directives';
 import config from './app.config';
 
 const uDomo = angular.module(
-  'uDomoApp',
+  'uDomo',
   [
     'ui.router',
     'uDomo.Patterns',
@@ -80,3 +82,9 @@ const uDomo = angular.module(
 );
 
 uDomo.config(config);
+
+if (module.hot) {
+  console.log('Reloaded');
+  console.log(`DEVELOPMENT: ${ DEVELOPMENT }`);
+  module.hot.accept();
+}

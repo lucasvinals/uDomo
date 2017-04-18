@@ -1,6 +1,6 @@
 const moduleDirective = angular.module('uDomo.Directive');
 
-function changeImage() {
+export function changeImage() {
   return moduleDirective
     .directive('ChangeImage', () => (scope, element, attrs) =>
       element.css(
@@ -12,7 +12,7 @@ function changeImage() {
   );
 }
 
-function targetBlank() {
+export function targetBlank() {
   return moduleDirective
     .directive('targetBlank', () => Object.assign(
       {
@@ -24,7 +24,7 @@ function targetBlank() {
     );
 }
 
-function showErrors() {
+export function showErrors() {
   return moduleDirective
     .directive('showErrors', () => Object.assign(
       {
@@ -39,9 +39,3 @@ function showErrors() {
       })
   );
 }
-
-module.exports = {
-  changeImage: changeImage(),
-  targetBlank: targetBlank(),
-  showErrors: showErrors(),
-};

@@ -1,4 +1,5 @@
-Security.controller('Warnings', ['$scope', function($scope){
-	'use strict';
-    $scope.tagline = 'Last warnings';
-}]);
+function WarningController($scope) {
+  $scope.tagline = 'Last warnings';
+}
+
+export default angular.module('Security').controller('WarningController', [ '$scope', WarningController ]);

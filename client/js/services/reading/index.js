@@ -1,36 +1,21 @@
-module.exports = angular.module('uDomo.Reading').factory(
-  "ReadingsFactory", 
-  [
-    "$http",
-    ($http) => {
-        // let Facade = {
-        //     temperatureColor: (temperature) => {
-        //         switch(true){
-        //             case (temperature < 14):
-        //                 return 'text-info';
-        //             case (temperature >= 14 && temperature < 25):
-        //                 return 'text-success';
-        //             case (temperature >= 25 && temperature < 35):
-        //                 return 'text-warning';
-        //             case (temperature > 35):
-        //                 return 'text-danger';
-        //             default:
-        //                 return 'bold';	
-        //         };
-        //     },
-        //     lightType: ($scope, maxIndoor, maxOutdoor) => {
-        //         $scope.maxLight === maxOutdoor ? 
-        //             $scope.maxLight = maxIndoor :
-        //             $scope.maxLight = maxOutdoor;
-        //     },
-        //     percentLight: (light, maxValue) => {
-        //         var percent = ((light * 100) / maxValue);
-        //         percent > 100 ? percent =  '100%' : percent += '%';
-        //         return percent;
-        //     },
-        //     clearListener: (name) => {
-                
-        //     }
-        // };
-        // return Facade;
-}]);
+/* eslint no-magic-numbers:0, no-nested-ternary:0, no-confusing-arrow:0 */
+function ReadingsFactory() {
+  return {
+    temperatureColor: (temperature) =>
+      temperature < 14 ? 'text-info' :
+        (temperature >= 14 && temperature < 25) ? 'text-warning' :
+        (temperature > 35) ? 'text-danger' :
+        'bold',
+    lightType: ($scope, maxIndoor, maxOutdoor) => {
+      $scope.maxLight = $scope.maxLight === maxOutdoor ? maxIndoor : maxOutdoor;
+    },
+    // percentLight: (light, maxValue) => {
+      // var percent = ((light * 100) / maxValue);
+      // percent > 100 ? percent =  '100%' : percent += '%';
+      // return percent;
+    // },
+    // clearListener: (name) => {}
+  };
+}
+
+export default angular.module('uDomo.Reading').factory('ReadingsFactory', ReadingsFactory);
