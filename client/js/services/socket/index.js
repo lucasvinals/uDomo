@@ -10,9 +10,13 @@ function SocketFactory($rootScope) {
   const socket = io.connect(socketURL, socketOptions);
 
   return {
-    on: (eventName, response) => {
-      socket.on(eventName, (...args) => $rootScope.$apply(() => response.apply(socket, args)));
-    },
+    on: (eventName, onCallback) =>
+      socket.on(eventName, (...args) =>
+        $rootScope.$apply(
+          () =>
+            onCallback.apply(socket, args)
+        )
+      ),
     emit: (eventName, dataToSend, response) =>
       socket.emit(eventName, dataToSend, (...args) =>
         $rootScope.$apply(() => response && response.apply(socket, args))
