@@ -59,11 +59,11 @@ module.exports = {
       /**
        * Transpile ES6 (ES2015) to ES5 with Babel
        */
-      // {
-      //   test: /\.js$/,
-      //   exclude: /node_modules/,
-      //   loader: 'babel-loader',
-      // },
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+      },
       /**
        * For images, use url-loader
        * If an image is below 10kB then include as data,
