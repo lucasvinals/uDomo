@@ -18,7 +18,7 @@ LIBRARIESDIR=$HOMEDIR'/Arduino/libraries'
 # Instalar aplicaciones necesarias
 echo -e "\e[103m\e[91m Updating the system and installing needed software \e[0m"
 # MongoDB installs (04/10/2016) the outdated v2.4 in Raspbian (Debian), but we're good for now.
-sudo apt -qq update && sudo apt --yes --force-yes install bash git tar mongodb realpath
+sudo apt -qq update && sudo apt --yes --force-yes install bash git tar mongodb realpath yarn
 
 SERVERDIR=$HOMEDIR'/uDomo/server'
 
@@ -95,9 +95,9 @@ if [ ! -d $SERVERDIR'/db' ]; then
   mkdir $SERVERDIR'/db/logs' && echo "" > $SERVERDIR'/db/logs/log.txt'
 fi
 
-echo -e "\e[44m Installing/updating NPM libraries \e[0m\n"
-( cd $HOMEDIR'/uDomo' && npm install )
-npm install -g gulp nsp snyk npm-check
+echo -e "\e[44m Installing/updating libraries \e[0m\n"
+( cd $HOMEDIR'/uDomo' && yarn )
+yarn global add gulp nsp snyk npm-check
 
 # Esto es un error conocido de NPM cuando se instala en un directorio especificado. Deja un directorio llamado "etc" vacío
 [ -d $SERVERDIR'/../etc' ] && rm -r $SERVERDIR'/../etc'
