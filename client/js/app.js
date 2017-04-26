@@ -3,6 +3,7 @@
  */
 import angular from 'angular';
 import 'angular-ui-router';
+import '../css/style.css';
 /**
  * uDomo modules initialization
  */
@@ -83,8 +84,8 @@ const uDomo = angular.module(
 
 uDomo.config(config);
 
-if (module.hot) {
-  console.log('Reloaded');
-  console.log(`DEVELOPMENT: ${ DEVELOPMENT }`);
+if (DEVELOPMENT && module.hot) {
   module.hot.accept();
 }
+
+export default uDomo;
