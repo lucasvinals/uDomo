@@ -38,6 +38,4 @@ function ObserverFactory() {
   return new ObserverPattern();
 }
 
-export default angular
-  .module('uDomo.Patterns')
-  .factory('ObserverFactory', ObserverFactory);
+export default angular.module('uDomo.Patterns').factory('ObserverFactory', ObserverFactory);
