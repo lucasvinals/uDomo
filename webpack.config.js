@@ -1,12 +1,14 @@
 const path = require('path');
 const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const HTMLWebpackPlugin = require('html-webpack-plugin');
 
 const PRODUCTION = process.env.NODE_ENV === 'production';
-// const DEVELOPMENT = process.env.NODE_ENV === 'development';
+const DEVELOPMENT = process.env.NODE_ENV === 'development';
 
 const entry = PRODUCTION ?
 [
-  path.join(__dirname, 'client', 'js', 'app.js'),
+  './client/js/app.js',
 ] :
 /**
  * HMR (Hot Module Replacement) for development!
@@ -27,6 +29,12 @@ const plugins = PRODUCTION ?
       },
     }
   ),
+  new ExtractTextPlugin('style-[contenthash:10].css'),
+  new HTMLWebpackPlugin(
+    {
+      template: './client/views/indexProduction.html',
+    }
+  ),
 ] :
 [
   new webpack.HotModuleReplacementPlugin(),
@@ -40,17 +48,13 @@ plugins.push(
   new webpack.DefinePlugin(
     {
       PRODUCTION: JSON.stringify(PRODUCTION),
+      DEVELOPMENT: JSON.stringify(DEVELOPMENT),
     }
   )
 );
 
-/**
- * If it's not production, include sourcemaps.
- */
-const devtool = 'source-map';
-
 module.exports = {
-  devtool,
+  devtool: 'source-map',
   entry,
   plugins,
   resolve: {},
@@ -61,8 +65,20 @@ module.exports = {
        */
       {
         test: /\.js$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              [
+                'es2015',
+                {
+                  modules: false,
+                },
+              ],
+            ],
+          },
+        },
         exclude: /node_modules/,
-        loader: 'babel-loader',
       },
       /**
        * For images, use url-loader
@@ -71,14 +87,31 @@ module.exports = {
        */
       {
         test: /\.(png|jpg|gif)$/,
-        exclude: [ /node_modules/ ],
-        loader: 'url-loader?limit=10000&name=images/[hash:12].[ext]',
+        use: 'url-loader?limit=10000&name=images/[hash:12].[ext]',
+        exclude: /node_modules/,
+      },
+      /**
+       * CSS styles
+       */
+      {
+        test: /\.css$/,
+        use: PRODUCTION ?
+          ExtractTextPlugin.extract(
+            {
+              use: 'css-loader?minimize&localIdentName=[hash:base64:10]',
+            }
+          ) :
+          /**
+           * For development use style-loader
+           */
+          [ 'style-loader', 'css-loader?localIdentName=[path][name]---[local]' ],
+        exclude: /node_modules/,
       },
     ],
   },
   output: {
-    path: path.resolve(__dirname, 'udomo', 'js'),
-    publicPath: './udomo/',
-    filename: 'bundle.js',
+    path: path.join(__dirname, 'udomo'),
+    publicPath: PRODUCTION ? '/' : '/udomo/',
+    filename: PRODUCTION ? 'bundle.[hash:12].min.js' : 'bundle.js',
   },
 };
