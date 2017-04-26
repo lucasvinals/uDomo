@@ -16,6 +16,12 @@
 * If you are a developer, run only **gulp** in the console and nodemon will start the process.
 
 ##TODO
++ [Server] Change old console logs for a more robust framework like Winston or Bunyan  
++ [Server] Implement Redis server + socketio adapter redis
++ [Client] Geolocation service
++ [Server] Cache (cachegoose) for caching common finds
++ [Server] Implement Nginx reverse proxy
++ [Server] Aggregation framework for MongoDB queries
 + [Client] Angular-Translate
 + [Client] [Server] Scenes ABM
 + [Client] Scenes Activation
