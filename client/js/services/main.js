@@ -1,4 +1,4 @@
-let Main = angular.module('Main', []);
+const Main = angular.module('Main', []);
 
 Main.factory('Main', ['Socket', (Socket) => {
 	'use strict';

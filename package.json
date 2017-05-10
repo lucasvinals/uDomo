@@ -10,32 +10,40 @@
   "main": "cluster.js",
   "version": "1.0.0",
   "scripts": {
-    "start": "gulp build && ./server/binaries/nodejs/bin/node ./cluster.js 12078 1",
-    "cluster": "gulp build && ./server/binaries/nodejs/bin/node ./cluster.js 12078",
+    "setProduction": "echo production > ./environment",
+    "setDevelopment": "echo development > ./environment",
+    "task:clean": "gulp clean",
+    "task:css": "gulp css",
+    "start": "npm run setDevelopment && gulp",
+    "task:js": "npm run setDevelopment && gulp js",
+    "task:html": "npm run setDevelopment && gulp html",
+    "cluster": "npm run setProduction && gulp",
+    "task:html:prod": "npm run setProduction && gulp html",
+    "task:prod:js": "npm run setProduction && gulp js",
     "prepare": "bash ./server/tools/prepareSystem.sh"
   },
   "repository": {
     "type": "git",
-    "url": "https://lucasvinals@bitbucket.org/udomo/udomo.webapplication.git"
+    "url": "https://github.com/lucasvinals/uDomo"
   },
   "dependencies": {
     "alertifyjs": "^1.9.0",
     "angular": "^1.6.3",
     "angular-ui-router": "^0.4.2",
+    "bluebird": "^3.5.0",
     "body-parser": "^1.17.1",
     "bootstrap": "^3.3.7",
     "compression": "^1.6.2",
-    "es6-promise": "^4.1.0",
     "express": "^4.15.2",
-    "fs-extra": "^2.0.0",
+    "helmet": "^3.5.0",
+    "http-status": "^1.0.1",
     "jquery": "^3.1.1",
     "jsonwebtoken": "^7.3.0",
-    "know-your-http-well": "^0.5.0",
     "lodash": "^4.17.4",
-    "method-override": "^2.3.7",
-    "mongoose": "^4.8.6",
+    "method-override": "^2.3.8",
+    "mongoose": "^4.9.2",
     "mongoose-delete": "^0.3.4",
-    "shelljs": "^0.7.7",
+    "optimist": "^0.6.1",
     "socket.io": "^1.7.3",
     "socket.io-adapter-mongo": "^0.1.6",
     "uuid": "^3.0.1"
@@ -44,14 +52,17 @@
     "eslint": "^3.17.1",
     "eslint-config-strict": "^13.0.0",
     "glob": "^7.1.1",
-    "google-closure-compiler-js": "^20170124.0.0",
+    "google-closure-compiler-js": "^20170218.0.0",
     "gulp": "^3.9.1",
-    "gulp-clean-css": "^3.0.3",
+    "gulp-clean-css": "^3.0.4",
     "gulp-concat": "^2.6.1",
+    "gulp-nodemon": "^2.2.1",
     "gulp-processhtml": "^1.1.0",
     "mocha": "^3.2.0",
     "morgan": "^1.8.1",
     "psi": "^3.0.0",
+    "require-dir": "^0.3.1",
+    "run-sequence": "^1.2.2",
     "syntax-error": "^1.3.0"
   },
   "eslintConfig": {
@@ -63,7 +74,16 @@
       "es6": true,
       "node": true
     },
+    "globals": {
+      "angular": true
+    },
+    "parserOptions": {
+      "ecmaVersion": 2017
+    },
     "rules": {
+      "no-process-env": [
+        0
+      ],
       "id-length": [
         2,
         {

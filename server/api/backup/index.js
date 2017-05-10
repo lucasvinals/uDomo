@@ -1,9 +1,9 @@
 const Backup = require('./backup.controller');
 
-module.exports = (app) => {
-  app
-    .get('/api/backups', Backup.Find)
-    .post('/backup', Backup.Create)
-    .put('/backup', Backup.Restore)
-    .delete('/backup/:id', Backup.Delete);
-};
+module.exports = (router) =>
+  router
+    .get('/:id', Backup.FindOne)
+    .get('/', Backup.FindAll)
+    .post('/', Backup.Create)
+    .put('/', Backup.Restore)
+    .delete('/:id', Backup.Delete);

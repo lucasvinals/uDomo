@@ -1,6 +1,6 @@
 const Permission = require('./permission.controller');
 
-module.exports = (app) => {
-  app
-    .get('/api/Permissions', Permission.Find);
-};
+module.exports = (router) =>
+  router
+    .get('/:id', Permission.FindOne)
+    .get('/', Permission.FindAll);

@@ -1,5 +1,5 @@
 const Sensor = require('./sensor.controller');
 
-module.exports = (app) => {
-  app.post('/api/Sensor', Sensor.GetValue);
-};
+module.exports = (router) =>
+  router
+    .post('/', Sensor.GetValue);

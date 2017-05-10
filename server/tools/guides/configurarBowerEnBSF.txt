@@ -1,4 +1,0 @@
-https://jjasonclark.com/how-to-setup-node-behind-web-proxy (en comentarios)
-
-
-Agregar: "proxy":"http://usuarioSinDominio:pass@PROXYURLOIP:PROXYPUERTO" a .bowerrc

@@ -29,7 +29,7 @@ Areas.factory('Area', [ 'Socket', '$http', 'Message', 'Observer',
            Observer.unsubscribe(fn);
         },
         GetAreas: (callback) => {
-            $http.get('/api/Areas').then(
+            $http.get('/api/zones').then(
                 (r) => {
                     var e = r.data.Error;
                     if(e){
