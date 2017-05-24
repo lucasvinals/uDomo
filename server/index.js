@@ -136,7 +136,7 @@ function init({ serverPort }) {
        * On other requests, send index.html.
        */
       app.get('*', (request, response) =>
-        response.sendFile('index.html', { root: `${ process.ROOTDIR }/udomo/views` })
+        response.sendFile('index.html', { root: `${ process.ROOTDIR }/udomo` })
       );
     })
     .catch((ModuleError) => process.log.error(`Error ocurred loading modules: ${ ModuleError }`));

@@ -68,6 +68,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
+            plugins: [ 'transform-decorators-legacy' ],
             presets: [
               [
                 'es2015',
