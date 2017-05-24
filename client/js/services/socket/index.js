@@ -1,29 +1,40 @@
 import io from 'socket.io-client';
+import { service, inject } from 'ng-annotations';
 
-function SocketFactory($rootScope) {
-  const socketURL = (location.protocol.slice(0, Number('-1')) === 'https' ? 'wss://' : 'ws://') + location.host;
-  const socketOptions = {
-    forceNew: true,
-    reconnect: true,
-    reconnectionDelay: 400,
-  };
-  const socket = io.connect(socketURL, socketOptions);
-
-  return {
-    on: (eventName, onCallback) =>
-      socket.on(eventName, (...args) =>
-        $rootScope.$apply(
-          () =>
-            onCallback.apply(socket, args)
-        )
-      ),
-    emit: (eventName, dataToSend, response) =>
-      socket.emit(eventName, dataToSend, (...args) =>
-        $rootScope.$apply(() => response && response.apply(socket, args))
-      ),
-    clear: (eventName) => socket.off(eventName),
-    cleanExit: () => socket.close(),
-  };
+@service('FactorySocket')
+@inject('$rootScope')
+export default class {
+  /*@ngInject*/
+  constructor(rootScope) {
+    this.rootScope = rootScope;
+    this.IO = io;
+    this.socketURL = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host;
+    this.socket = this.IO.connect(
+      this.socketURL,
+      {
+        forceNew: true,
+        reconnect: true,
+        reconnectionDelay: 400,
+      }
+    );
+  }
+  on(eventName, onCallback) {
+    return this.socket.on(eventName, (...args) =>
+      this.rootScope.$apply(
+        () =>
+          onCallback.apply(this.socket, args)
+      )
+    );
+  }
+  emit(eventName, dataToSend, response) {
+    return this.socket.emit(eventName, dataToSend, (...args) =>
+      this.rootScope.$apply(() => response && response.apply(this.socket, args))
+    );
+  }
+  clear(eventName) {
+    return this.socket.off(eventName);
+  }
+  cleanExit() {
+    return this.socket.close();
+  }
 }
-
-export default angular.module('uDomo.Common').factory('SocketFactory', [ '$rootScope', SocketFactory ]);

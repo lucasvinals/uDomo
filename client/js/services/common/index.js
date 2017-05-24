@@ -1,88 +1,78 @@
-function CommonFactory() {
-  class Log {
-    constructor() {
-      this.console = console;
-    }
-    'error'(message) {
-      this.console.log(`%c${ message }`, 'color:red;font-weight:bold;');
-    }
-    success(message) {
-      this.console.log(`%c${ message }`, 'color:green;font-weight:bold;');
-    }
-    warning(message) {
-      this.console.log(`%c${ message }`, 'color:orange;font-weight:bold;');
-    }
-    info(message) {
-      this.console.log(`%c${ message }`, 'color:blue;font-weight:bold;');
-    }
+import { service, inject } from 'ng-annotations';
+
+@service('Log')
+class Log {
+  constructor() {
+    this.console = window.console;
   }
+  'error'(message) {
+    this.console.log(`%c${ message }`, 'color:red;font-weight:bold;');
+  }
+  success(message) {
+    this.console.log(`%c${ message }`, 'color:green;font-weight:bold;');
+  }
+  warning(message) {
+    this.console.log(`%c${ message }`, 'color:orange;font-weight:bold;');
+  }
+  info(message) {
+    this.console.log(`%c${ message }`, 'color:blue;font-weight:bold;');
+  }
+}
 
-  window.log = new Log();
+@service('FactoryCommon')
+@inject('Log')
+export default class {
+  constructor(Log) {
+    window.log = Log;
+  }
+  /**
+   * Returns the time since the given date.
+   */
+  getTimeSince(last) {
+    this.msInS = 1000;
+    this.secInMin = 60;
+    this.minInH = 60;
+    this.hInDay = 24;
+    this.total = Date.now() - last;
+    this.seconds = Math.floor((this.total / this.msInS) % this.secInMin);
+    this.minutes = Math.floor((this.total / this.msInS / this.secInMin) % this.minInH);
+    this.hours = Math.floor((this.total / (this.msInS * this.secInMin * this.minInH)) % this.hInDay);
+    this.days = Math.floor(this.total / (this.msInS * this.secInMin * this.minInH * this.hInDay));
 
-// $rootScope.currentDevices = [];
-
-/**
- * Helper function to combine 2 arrays and then return one with no duplicates
- */
-// var objUnion = (array1, array2, matcher) => {
-//     return _.uniq(array1.concat(array2), false, matcher);
-// };
-
-/**
- * Returns the time since the given date.
- */
-  function getTimeSince(last) {
-    /**
-     * Sooo dumb, I know, but eslint complains with 'magic-numbers' error.
-     */
-    const msInS = 1000;
-    const secInMin = 60;
-    const minInH = 60;
-    const hInDay = 24;
-    const total = Date.now() - last;
-    const seconds = Math.floor((total / msInS) % secInMin);
-    const minutes = Math.floor((total / msInS / secInMin) % minInH);
-    const hours = Math.floor((total / (msInS * secInMin * minInH)) % hInDay);
-    const days = Math.floor(total / (msInS * secInMin * minInH * hInDay));
-
-    return { total, days, hours, minutes, seconds };
+    return {
+      total: this.total,
+      days: this.days,
+      hours: this.hours,
+      minutes: this.minutes,
+      seconds: this.seconds,
+    };
   }
   /**
    * Create a new string GUID-like
    */
-  function createGUID() {
-    function fourChars() {
+  newID() {
+    this.fourChars = () => {
       const HEX = 16;
       const MAXNUM = 0x10000;
-      return Math.floor((1 + Math.random()) * MAXNUM)
-                  .toString(HEX)
-                  .substring(1);
-    }
+      return Math
+        .floor((1 + Math.random()) * MAXNUM)
+        .toString(HEX)
+        .substring(1);
+    };
+
     return [
-      fourChars(),
-      fourChars(),
+      this.fourChars(),
+      this.fourChars(),
       '-',
-      fourChars(),
+      this.fourChars(),
       '-',
-      fourChars(),
+      this.fourChars(),
       '-',
-      fourChars(),
+      this.fourChars(),
       '-',
-      fourChars(),
-      fourChars(),
-      fourChars(),
+      this.fourChars(),
+      this.fourChars(),
+      this.fourChars(),
     ].join('');
   }
-
-  return {
-    newID: () => createGUID(),
-    // checkLogged: () => checkLoggedUser(),
-    since: (val) => getTimeSince(val),
-    // concatenate: (args) => objUnion(args[0], args[1], args[2]),
-    // activeDevices: (ind) => $rootScope.currentDevices[ind],
-  };
 }
-
-export default angular
-  .module('uDomo.Common')
-  .factory('CommonFactory', CommonFactory);

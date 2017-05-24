@@ -1,3 +1,4 @@
+import angular from 'angular';
 import Zone from '../../services/zone';
 import Common from '../../services/common';
 
@@ -41,4 +42,4 @@ function ZoneController($scope) {
   $scope.$on('$destroy', Zone.clearListeners);
 }
 
-export default angular.module('Zone').controller('ZoneController', [ '$scope', ZoneController ]);
+export default angular.module('uDomo.Zone').controller('ZoneController', [ '$scope', ZoneController ]);

@@ -46,4 +46,4 @@ function ServerController($scope) {
   });
 }
 
-export default angular.module('Route').controller('ServerController', [ '$scope', ServerController ]);
+export default angular.module('uDomo.Reading').controller('ServerController', [ '$scope', ServerController ]);

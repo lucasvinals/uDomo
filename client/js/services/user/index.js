@@ -1,9 +1,16 @@
-import Message from '../message';
-import Observer from '../patterns/observer';
-import Socket from '../socket';
-import Storage from '../storage';
 
-function UserFactory() {
+import { service, inject } from 'ng-annotations';
+
+@service('FactoryUser')
+@inject('$http', 'FactoryMessage', 'FactoryObserver', 'FactorySocket', 'FactoryStorage')
+export default class {
+  constructor(http, Message, Observer, Socket, Storage) {
+    this.http = $http;
+    this.Message = Message;
+    this.Observer = Observer;
+    this.Socket = Socket;
+    this.Storage = Storage;
+  }
   // let changeUser = (user) => { angular.extend(currentUser, user); };
 
     // let urlBase64Decode = (str) => {
@@ -202,5 +209,3 @@ function UserFactory() {
 
     // return Facade;
 }
-
-export default angular.module('uDomo.User').factory('UserFactory', [ '$http', UserFactory ]);

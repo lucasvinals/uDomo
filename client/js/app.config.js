@@ -1,8 +1,14 @@
-function uDomoConfig($httpProvider, $compileProvider) {
-  if (PRODUCTION) {
-    $compileProvider.debugInfoEnabled(false);
-    $httpProvider.useApplyAsync(true);
+import { config, inject } from 'ng-annotations';
+
+@config('uDomoConfig')
+@inject('$httpProvider', '$compileProvider')
+export default class {
+  constructor(httpProvider, compileProvider) {
+    this.httpProvider = httpProvider;
+    this.compileProvider = compileProvider;
+    if (PRODUCTION) {
+      this.compileProvider.debugInfoEnabled(false);
+      this.httpProvider.useApplyAsync(true);
+    }
   }
 }
-
-export default angular.module('uDomoApp').config([ '$httpProvider', '$compileProvider', uDomoConfig ]);

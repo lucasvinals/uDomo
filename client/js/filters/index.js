@@ -1,1 +1,4 @@
-export default angular.module('uDomo.Filter');
+import { filter } from 'ng-annotations';
+
+@filter('Filters')
+export default class {}

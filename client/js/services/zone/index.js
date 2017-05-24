@@ -1,43 +1,42 @@
-import Message from '../message';
-import Observer from '../patterns/observer';
-import Socket from '../socket';
+import { service, inject } from 'ng-annotations';
 
-function ZoneFactory($http) {
-/* var self = this;
-  var requestZones = (function iifeReqZones(){
-      /* Emit the event so other users see the current Zones */
-      /* Socket.emit('Zones/Zone/Read/Request', {});
-      return iifeReqZones;
-  })();
-
-  Socket.on('Zones/Zone/Read/Response', function(data){
-      var error = data.Error;
-      var Zones = data.Zones;
-      if(!error){
-          return self.GetZones(null, Zones);
-      }else{
-          Message.error(`Ocurrió un error: ${error}`, 7);
-          log(error, 'error');
-          self.GetZones(error, null);
+@service('FactoryZone')
+@inject('$http', 'FactoryMessage', 'FactorySocket', 'FactoryObserver')
+export default class {
+  constructor(http, Message, Socket, Observer) {
+    this.http = http;
+    this.Observer = Observer;
+    this.Socket = Socket;
+    this.Message = Message;
+  }
+  clearListeners() {
+    this.Observer.unsubscribeAll();
+    this.Socket.clear('Zones/Zone/Read/Response');
+    this.Socket.emit('disconnect', {});
+  }
+  Subscribe(fn) {
+    return this.Observer.subscribe(fn);
+  }
+  Unsubscribe(fn) {
+    return this.Observer.unsubscribe(fn);
+  }
+  GetZones() {
+    this.http
+    .get('/api/zone')
+    .then((zones) => {
+      const zoneError = zones.data.Error;
+      if (zoneError) {
+        this.Message.error('Ocurrió un error -> [Descrito en consola]', Number('10'));
+        window.log.error(JSON.stringify(zoneError));
+        return { Error: zoneError, Zones: [] };
       }
-  });*/
-  return {
-    Subscribe: (fn) => Observer.subscribe(fn),
-    Unsubscribe: (fn) => Observer.unsubscribe(fn),
-    GetZones: () => $http.get('/api/zone')
-      .then((zones) => {
-        const zoneError = zones.data.Error;
-        if (zoneError) {
-          Message.error('Ocurrió un error -> [Descrito en consola]', 10);
-          window.log.error(JSON.stringify(zoneError));
-          return { Error: zoneError, Zones: [] };
-        }
-        return { Error: null, Zones: zones.data.Zones };
-      })
-      .catch((httpZoneError) => {
-        Message.error('Ocurrió un error -> [Descrito en consola]', 10);
-        window.log.error(JSON.stringify(httpZoneError));
-      }),
+      return { Error: null, Zones: zones.data.Zones };
+    })
+    .catch((httpZoneError) => {
+      this.Message.error('Ocurrió un error -> [Descrito en consola]', Number('10'));
+      window.log.error(JSON.stringify(httpZoneError));
+    });
+  }
     // CreateZone: (Zone, callback) => {
     //     $http.post('/Zone', Zone).then(
     //         (res) => {
@@ -58,7 +57,7 @@ function ZoneFactory($http) {
     //             window.log.error(JSON.stringify(error));
     //             callback(JSON.stringify(error), null);
     //         });
-        
+
     // },
     // ModifyZone: (Zone, callback) => {
     //     $http.put('/Zone', Zone).then(
@@ -97,13 +96,23 @@ function ZoneFactory($http) {
     //         );
     //     }
     //   });
-    // },
-    clearListeners: () => {
-      Observer.unsubscribeAll();
-      Socket.clear('Zones/Zone/Read/Response');
-      Socket.emit('disconnect', {});
-    },
-  };
+    // }
 }
+/* var self = this;
+  var requestZones = (function iifeReqZones(){
+      /* Emit the event so other users see the current Zones */
+      /* Socket.emit('Zones/Zone/Read/Request', {});
+      return iifeReqZones;
+  })();
 
-export default angular.module('uDomo.Zone').factory('ZoneFactory', [ '$http', ZoneFactory ]);
+  Socket.on('Zones/Zone/Read/Response', function(data){
+      var error = data.Error;
+      var Zones = data.Zones;
+      if(!error){
+          return self.GetZones(null, Zones);
+      }else{
+          Message.error(`Ocurrió un error: ${error}`, 7);
+          log(error, 'error');
+          self.GetZones(error, null);
+      }
+  }); */

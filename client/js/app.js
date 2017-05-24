@@ -1,73 +1,122 @@
-/**
- * External
- */
 import angular from 'angular';
 import 'angular-ui-router';
+import 'bootstrap';
 import '../css/style.css';
 /**
- * uDomo modules initialization
+ * Patterns
  */
-(() => {
-  angular.module('uDomo.Patterns', []);
-  angular.module('uDomo.Main', []);
-  angular.module('uDomo.Home', []);
-  angular.module('uDomo.User', []);
-  angular.module('uDomo.Route', []);
-  angular.module('uDomo.Reading', []);
-  angular.module('uDomo.Security', []);
-  angular.module('uDomo.Zone', []);
-  angular.module('uDomo.Scene', []);
-  angular.module('uDomo.Common', []);
-  angular.module('uDomo.Device', []);
-  angular.module('uDomo.NotFound', []);
-  angular.module('uDomo.Filter', []);
-  angular.module('uDomo.Directive', []);
-})();
+import FactoryPatterns from './services/patterns/observer';
+const uDomoPatterns = angular.module('uDomo.Patterns', []);
+FactoryPatterns.autodeclare(uDomoPatterns);
 /**
- * uDomo Services
+ * Not Found
  */
-import './services/patterns/observer';
-import './services/common';
-import './services/storage';
-import './services/socket';
-import './services/message';
-import './services/reading';
-import './services/backup';
-import './services/device';
-import './services/user';
-import './services/zone';
-import './services/main';
+import ControllerNotFound from './controllers/notFound';
 /**
- * uDomo Controllers
+ * Common
  */
-import './controllers/home';
-import './controllers/device';
-import './controllers/notFound';
-import './controllers/reading';
-import './controllers/security';
-import './controllers/scene';
-import './controllers/user';
-import './controllers/zone';
-import './controllers/main';
+import FactoryCommon from './services/common';
+const uDomoCommon = angular.module('uDomo.Common', []);
+[ FactoryCommon, ControllerNotFound ].map((component) => component.autodeclare(uDomoCommon));
 /**
- * uDomo Filters
+ * Storage
  */
-import './filters';
+import FactoryStorage from './services/storage';
+const uDomoStorage = angular.module('uDomo.Storage', []);
+FactoryStorage.autodeclare(uDomoStorage);
 /**
- * uDomo Directives
+ * Socket
  */
-import './directives';
+import FactorySocket from './services/socket';
+const uDomoSocket = angular.module('uDomo.Socket', []);
+FactorySocket.autodeclare(uDomoSocket);
 /**
- * uDomo Configuration
+ * Message
  */
-import config from './app.config';
-
+import FactoryMessage from './services/message';
+const uDomoMessage = angular.module('uDomo.Message', []);
+FactoryMessage.autodeclare(uDomoMessage);
+/**
+ * Backup
+ */
+import FactoryBackup from './services/backup';
+const uDomoBackup = angular.module('uDomo.Backup', []);
+FactoryBackup.autodeclare(uDomoBackup);
+/**
+ * Reading
+ */
+import FactoryReading from './services/reading';
+import ControllerReading from './controllers/reading';
+const uDomoReading = angular.module('uDomo.Reading', []);
+[ FactoryReading, ControllerReading ].map((component) => component.autodeclare(uDomoReading));
+/**
+ * Device
+ */
+import FactoryDevice from './services/device';
+import ControllerDevice from './controllers/device';
+const uDomoDevice = angular.module('uDomo.Device', []);
+[ FactoryDevice, ControllerDevice ].map((component) => component.autodeclare(uDomoDevice));
+/**
+ * User
+ */
+import FactoryUser from './services/user';
+import ControllerUser from './controllers/user';
+const uDomoUser = angular.module('uDomo.User', []);
+[ FactoryUser, ControllerUser ].map((component) => component.autodeclare(uDomoUser));
+/**
+ * Zone
+ */
+import FactoryZone from './services/zone';
+import ControllerZone from './controllers/zone';
+const uDomoZone = angular.module('uDomo.Zone', []);
+[ FactoryZone, ControllerZone ].map((component) => component.autodeclare(uDomoZone));
+/**
+ * Main
+ */
+import FactoryMain from './services/main';
+import ControllerMain from './controllers/main';
+const uDomoMain = angular.module('uDomo.Main', []);
+[ FactoryMain, ControllerMain ].map((component) => component.autodeclare(uDomoMain));
+/**
+ * Scenes
+ */
+import FactoryScene from './services/scene';
+import ControllerScene from './controllers/scene';
+const uDomoScene = angular.module('uDomo.Scene', []);
+[ FactoryScene, ControllerScene ].map((component) => component.autodeclare(uDomoScene));
+/**
+ * Others
+ */
+import ControllerHome from './controllers/home';
+const uDomoHome = angular.module('uDomo.Home', []);
+ControllerHome.autodeclare(uDomoHome);
+/**
+ * Security
+ */
+import ControllerSecurity from './controllers/security';
+const uDomoSecurity = angular.module('uDomo.Security', []);
+ControllerSecurity.autodeclare(uDomoSecurity);
+/**
+ * Filters
+ */
+import Filters from './filters';
+const uDomoFilter = angular.module('uDomo.Filters', []);
+Filters.autodeclare(uDomoFilter);
+/**
+ * Directives
+ */
+import Directives from './directives';
+const uDomoDirectives = angular.module('uDomo.Directives', []);
+Directives.autodeclare(uDomoDirectives);
+/**
+ * uDomo modules dependency injection
+ */
 const uDomo = angular.module(
   'uDomo',
   [
     'ui.router',
     'uDomo.Patterns',
-    'uDomoFilters',
+    'uDomo.Filters',
     'uDomo.Main',
     'uDomo.Home',
     'uDomo.User',
@@ -79,13 +128,19 @@ const uDomo = angular.module(
     'uDomo.Common',
     'uDomo.Device',
     'uDomo.NotFound',
+    'uDomo.Directives',
   ]
 );
-
-uDomo.config(config);
-
-if (DEVELOPMENT && module.hot) {
+/**
+ * Configuration
+ */
+import config from './app.config';
+config.autodeclare(uDomo);
+/**
+ * HMR (Hot Module Replacement) for development.
+ */
+if (window.DEVELOPMENT && module.hot) {
   module.hot.accept();
 }
 
-export default uDomo;
+export default uDomo.name;

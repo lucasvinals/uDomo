@@ -3,5 +3,5 @@ function scenesController($scope) {
 }
 
 export default angular
-  .module('uDomo.Scenes')
+  .module('uDomo.Scene')
   .controller('sceneController', [ '$scope', scenesController ]);

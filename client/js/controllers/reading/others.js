@@ -25,4 +25,6 @@ function OthersSensorsController($scope) {
   });
 }
 
-export default angular.module('Reading').controller('OthersSensorsController', [ '$scope', OthersSensorsController ]);
+export default angular
+  .module('uDomo.Reading')
+  .controller('OthersSensorsController', [ '$scope', OthersSensorsController ]);

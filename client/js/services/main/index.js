@@ -1,13 +1,17 @@
-import Socket from '../socket';
+import { service, inject } from 'ng-annotations';
 
-function MainFactory() {
-  return {
-    clearListeners: () => {
-      Socket.clear('Main/User/SignIn/Response');
-      Socket.clear('Main/User/Create/Response');
-      Socket.emit('disconnect', {});
-    },
-  };
+@service('FactoryMain')
+@inject('FactorySocket')
+export default class {
+  constructor(Socker) {
+    this.Socket = Socket;
+  }
+  /**
+   * Clear listeners from main page.
+   */
+  clearListeners() {
+    this.Socket.clear('Main/User/SignIn/Response');
+    this.Socket.clear('Main/User/Create/Response');
+    this.Socket.emit('disconnect', {});
+  }
 }
-
-export default angular.module('uDomo.Main').factory('MainFactory', MainFactory);

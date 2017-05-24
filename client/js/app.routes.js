@@ -1,7 +1,10 @@
+import angular from 'angular';
+import { default as Storage } from './services/storage';
+
 function RouteConfig($stateProvider, $httpProvider, $urlRouterProvider, $locationProvider) {
   $httpProvider.interceptors.push([
-    '$q', '$location', 'Storage',
-    ($q, $location, Storage) => Object.assign(
+    '$q', '$location',
+    ($q, $location) => Object.assign(
       {
         'request': (config) => {
           config.headers = config.headers || {};
@@ -44,7 +47,7 @@ controller: ruta.controller
     abstract: true,
     url: '/',
     templateUrl: '/views/index.html',
-    controller: 'mainController',
+    controller: 'ControllerMain',
   })
   /**
    * Homepage - Welcome and all the information to the user

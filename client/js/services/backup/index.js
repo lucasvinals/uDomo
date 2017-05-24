@@ -1,31 +1,31 @@
-import Message from '../message';
+import { get } from 'lodash';
+import { service, inject } from 'ng-annotations';
 
-function BackupFactory($http) {
-  const { log } = window;
-
-  return {
-    getAll: (getCallback) => {
-      $http.get('/api/Backups').then(
-        (backups) => {
-          const getError = backups.data.Error;
-          if (getError) {
-            Message.error('Ocurrió un error obteniendo los backups. Revise la consola.');
-            log.error(JSON.stringify(getError));
-            getCallback(getError, []);
-          } else {
-            getCallback(null, backups.data.Backups);
-          }
-        },
-        (httpError) => {
-          Message.error('Ocurrió un error realizando la consulta. Revise la consola.');
-          log.error(JSON.stringify(httpError));
-          getCallback(httpError, []);
+@service('FactoryBackup')
+@inject('FactoryMessage', '$http')
+export default class {
+  constructor(Message, http) {
+    this.http = http;
+    this.log = window.log;
+    this.Message = Message;
+  }
+  getAll(getAllCallback) {
+    this.http
+      .get('/api/Backups')
+      .then((backups) => {
+        const getError = get(backups, 'data.Error', '');
+        if (getError) {
+          this.Message.error('Ocurrió un error obteniendo los backups. Revise la consola.');
+          this.log.error(JSON.stringify(getError));
+          getAllCallback(getError, []);
+        } else {
+          getAllCallback(null, get(backups, 'data.Backups', []));
         }
-      );
-    },
-  };
+      })
+      .catch((httpError) => {
+        this.Message.error('Ocurrió un error realizando la consulta. Revise la consola.');
+        this.log.error(JSON.stringify(httpError));
+        getAllCallback(httpError, []);
+      });
+  }
 }
-
-export default angular
-  .module('uDomo.Common')
-  .factory('BackupFactory', [ '$http', BackupFactory ]);
