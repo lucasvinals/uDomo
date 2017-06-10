@@ -5,7 +5,7 @@ const compression = require('compression')();
 const crypto = require('crypto');
 const fileSystem = require('fs');
 const socketio = require('socket.io')();
-const sioAdapter = require('socket.io-adapter-mongo');
+const sioRedis = require('socket.io-redis');
 const methodOverride = require('method-override')('X-HTTP-Method-Override');
 const express = require('express');
 const app = express();
@@ -108,7 +108,7 @@ function init({ serverPort }) {
   /**
    * Store sessions in db
    */
-  socketio.adapter(sioAdapter(process.MongoURL));
+  socketio.adapter(sioRedis());
   /**
    * Prevent EventEmmiter memory leak
    */
@@ -127,16 +127,16 @@ function init({ serverPort }) {
         app.use(`/api/${ module.name }`, module.file(express.Router({ mergeParams: true }), socketio))
       );
       /**
-       * Don't allow these methods
+       * Don't allow these routes
        */
-      app.route('/:url(api|auth|components|app|bower_components|assets)/*', (request, response) => {
+      app.route('/:url(auth|components|app|bower_components|assets)/*', (request, response) => {
         response.sendStatus(httpStatus.METHOD_NOT_ALLOWED);
       });
       /**
        * On other requests, send index.html.
        */
       app.get('*', (request, response) =>
-        response.sendFile('index.html', { root: `${ process.ROOTDIR }/udomo` })
+        response.sendFile('index.html', { root: `${ process.ROOTDIR }/udomo/views` })
       );
     })
     .catch((ModuleError) => process.log.error(`Error ocurred loading modules: ${ ModuleError }`));
