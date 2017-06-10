@@ -6,7 +6,7 @@ export default class {
   constructor(httpProvider, compileProvider) {
     this.httpProvider = httpProvider;
     this.compileProvider = compileProvider;
-    if (PRODUCTION) {
+    if (!DEVELOPMENT) {
       this.compileProvider.debugInfoEnabled(false);
       this.httpProvider.useApplyAsync(true);
     }

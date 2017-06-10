@@ -1,7 +1,6 @@
 import angular from 'angular';
-import 'angular-ui-router';
-import 'bootstrap';
-import '../css/style.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 /**
  * Patterns
  */
@@ -12,6 +11,12 @@ FactoryPatterns.autodeclare(uDomoPatterns);
  * Not Found
  */
 import ControllerNotFound from './controllers/notFound';
+/**
+ * Socket
+ */
+import FactorySocket from './services/socket';
+const uDomoSocket = angular.module('uDomo.Socket', []);
+FactorySocket.autodeclare(uDomoSocket);
 /**
  * Common
  */
@@ -24,12 +29,6 @@ const uDomoCommon = angular.module('uDomo.Common', []);
 import FactoryStorage from './services/storage';
 const uDomoStorage = angular.module('uDomo.Storage', []);
 FactoryStorage.autodeclare(uDomoStorage);
-/**
- * Socket
- */
-import FactorySocket from './services/socket';
-const uDomoSocket = angular.module('uDomo.Socket', []);
-FactorySocket.autodeclare(uDomoSocket);
 /**
  * Message
  */
@@ -46,9 +45,14 @@ FactoryBackup.autodeclare(uDomoBackup);
  * Reading
  */
 import FactoryReading from './services/reading';
-import ControllerReading from './controllers/reading';
+import ControllerOtherSensor from './controllers/reading/others';
+import ControllerServerSensor from './controllers/reading/server';
 const uDomoReading = angular.module('uDomo.Reading', []);
-[ FactoryReading, ControllerReading ].map((component) => component.autodeclare(uDomoReading));
+[
+  FactoryReading,
+  ControllerOtherSensor,
+  ControllerServerSensor,
+].map((component) => component.autodeclare(uDomoReading));
 /**
  * Device
  */
@@ -93,9 +97,15 @@ ControllerHome.autodeclare(uDomoHome);
 /**
  * Security
  */
-import ControllerSecurity from './controllers/security';
+import ControllerPerimeter from './controllers/security/perimeter';
+import ControllerWarning from './controllers/security/warnings';
+import ControllerVideo from './controllers/security/video';
 const uDomoSecurity = angular.module('uDomo.Security', []);
-ControllerSecurity.autodeclare(uDomoSecurity);
+[
+  ControllerPerimeter,
+  ControllerWarning,
+  ControllerVideo,
+].map((component) => component.autodeclare(uDomoSecurity));
 /**
  * Filters
  */
@@ -109,26 +119,36 @@ import Directives from './directives';
 const uDomoDirectives = angular.module('uDomo.Directives', []);
 Directives.autodeclare(uDomoDirectives);
 /**
+ * Routes
+ */
+import 'angular-ui-router';
+import Routes from './app.routes';
+const uDomoRoutes = angular.module('uDomo.Routes', []);
+Routes.autodeclare(uDomoRoutes);
+/**
  * uDomo modules dependency injection
  */
 const uDomo = angular.module(
   'uDomo',
   [
     'ui.router',
+    'uDomo.Routes',
     'uDomo.Patterns',
+    'uDomo.Backup',
+    'uDomo.Message',
+    'uDomo.Socket',
+    'uDomo.Storage',
     'uDomo.Filters',
+    'uDomo.Directives',
     'uDomo.Main',
     'uDomo.Home',
     'uDomo.User',
-    'uDomo.Route',
     'uDomo.Reading',
     'uDomo.Security',
     'uDomo.Zone',
     'uDomo.Scene',
     'uDomo.Common',
     'uDomo.Device',
-    'uDomo.NotFound',
-    'uDomo.Directives',
   ]
 );
 /**
@@ -139,7 +159,7 @@ config.autodeclare(uDomo);
 /**
  * HMR (Hot Module Replacement) for development.
  */
-if (window.DEVELOPMENT && module.hot) {
+if (DEVELOPMENT && module.hot) {
   module.hot.accept();
 }
 
