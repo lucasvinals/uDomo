@@ -3,7 +3,7 @@ import { service, inject } from 'ng-annotations';
 @service('FactoryMain')
 @inject('FactorySocket')
 export default class {
-  constructor(Socker) {
+  constructor(Socket) {
     this.Socket = Socket;
   }
   /**

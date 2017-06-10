@@ -1,19 +1,15 @@
-/* eslint no-magic-numbers:0, no-nested-ternary:0, no-confusing-arrow:0 */
 import { service } from 'ng-annotations';
 
-@service('FactoryReadings')
+@service('FactoryReading')
 export default class {
-  /*@ngInject*/
-  constructor() {
-  }
-  temperatureColor(temperature) {
-    this.Temp = temperature < 14 ? 'text-info' :
-        (temperature >= 14 && temperature < 25) ? 'text-warning' :
-        (temperature > 35) ? 'text-danger' :
+  TemperatureColor(temperature) {
+    this.result = (temperature < Number('14') && 'text-info') ||
+        (temperature >= Number('14') && temperature < Number('25') && 'text-warning') ||
+        ((temperature > Number('35')) && 'text-danger') ||
         'bold';
-    return this.Temp;
+    return this.result;
   }
-  lightType(this, maxIndoor, maxOutdoor) {
+  lightType(maxIndoor, maxOutdoor) {
     this.maxLight = this.maxLight === maxOutdoor ? maxIndoor : maxOutdoor;
   }
   // percentLight: (light, maxValue) => {

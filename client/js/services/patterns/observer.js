@@ -9,26 +9,26 @@ export default class {
   /**
    * Register an observer (callback function)
    */
-  subscribe(observer) {
+  Subscribe(observer) {
     this.Observers.push(observer);
   }
   /**
    * Quit an observer (callback function)
    */
-  unsubscribe(observer) {
+  Unsubscribe(observer) {
     this.Observers = this.Observers.filter((obs) => obs !== observer);
   }
   /**
    * Reset the observers to make a clean exit
    */
-  unsubscribeAll() {
+  UnsubscribeAll() {
     this.Observers = [];
   }
   /**
    * Listener. Call when something changes..
    * Ex: CRUD operations
    */
-  notify() {
+  Notify() {
     angular.forEach(this.Observers, (observer) =>
       // const exec = observer();
       observer

@@ -6,16 +6,16 @@ export default class {
   constructor() {
     this.Alertify = Alertify;
   }
-  'error'(message, duration) {
+  'error'(message, duration = Number('7')) {
     return this.Alertify.notify(message, 'custom_error', duration);
   }
-  success(message, duration) {
+  success(message, duration = Number('7')) {
     return this.Alertify.notify(message, 'custom_success', duration);
   }
-  warning(message, duration) {
+  warning(message, duration = Number('10')) {
     return this.Alertify.notify(message, 'custom_warning', duration);
   }
-  confirm(message, duration, response) {
+  confirm(message, duration = Number('10'), response) {
     return this.Alertify.confirm(message)
       .autoCancel(duration)
       .set('movable', true)

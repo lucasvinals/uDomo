@@ -1,5 +1,5 @@
 import { directive } from 'ng-annotations';
-@directive('Directives')
+@directive('uDomoDirectives')
 export default class {
   changeImage() {
     this.result = (scope, element, attrs) =>

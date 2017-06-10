@@ -1,6 +1,5 @@
-import { service, inject } from 'ng-annotations';
+import { service } from 'ng-annotations';
 
-@service('Log')
 class Log {
   constructor() {
     this.console = window.console;
@@ -20,10 +19,9 @@ class Log {
 }
 
 @service('FactoryCommon')
-@inject('Log')
 export default class {
-  constructor(Log) {
-    window.log = Log;
+  constructor() {
+    window.log = new Log();
   }
   /**
    * Returns the time since the given date.

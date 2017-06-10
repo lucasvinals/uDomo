@@ -1,7 +1,8 @@
-function scenesController($scope) {
-  $scope.tagline = 'Scenes';
-}
+import { controller } from 'ng-annotations';
 
-export default angular
-  .module('uDomo.Scene')
-  .controller('sceneController', [ '$scope', scenesController ]);
+@controller('ControllerScene')
+export default class {
+  constructor() {
+    this.tagline = 'Scenes';
+  }
+}

@@ -1,23 +1,18 @@
-import angular from 'angular';
 import { inject, controller } from 'ng-annotations';
-import Common from '../../services/common';
-import Main from '../../services/main';
-import Storage from '../../services/storage';
-import User from '../../services/user';
-import Backup from '../../services/backup';
+import { set } from 'lodash';
 
-@controller()
-@inject('$scope', '$rootScope', '$location', Storage, Main, User, Common, Backup)
-export default class MainController {
-  constructor($scope, $rootScope, $location, Storage, Main, User, Common, Backup) {
+@controller('ControllerMain')
+@inject('$rootScope', '$location', '$scope', 'FactoryStorage', 'FactoryMain', 'FactoryUser', 'FactoryCommon', 'FactoryBackup')
+export default class {
+  constructor($rootScope, $location, scope, Storage, Main, User, Common, Backup) {
+    this.rootScope = $rootScope;
+    this.location = $location;
+    this.scope = scope;
+    this.Storage = Storage;
     this.Main = Main;
     this.User = User;
     this.Common = Common;
     this.Backup = Backup;
-    this.scope = $scope;
-    this.Storage = Storage;
-    this.rootScope = $rootScope;
-    this.location = $location;
     /**
      * Set the token globaly
      */
@@ -25,40 +20,42 @@ export default class MainController {
     /**
      * Clean exit
      */
-    this.scope.$on('$destroy', (event) => this.Main.clearListeners());
+    this.scope.$on('$destroy', () => this.Main.clearListeners());
   }
 
   Login(user) {
-    this.User.Login(user, (error, resUser) => {
-      if (typeof resUser !== 'null') {
-        $scope.user = '';
+    this.User.Login(user, (errorCB, resUser) => {
+      if (resUser) {
+        this.user = '';
         Storage.setToken(resUser.Token);
-        $location.path('/');
+        this.location.path('/');
       }
     });
   }
 
-  CreateUser(user){
-    user._id = Common.newID();
-    user.Permissions = { "Administrador": true }; // TEST ONLY
-    
-    this.User.CreateUser(user, (error, resUser) => {
-      if (typeof resUser !== 'null' && typeof error === 'null') {
+  CreateUser(user) {
+    set(user, '_id', this.Common.newID());
+    user.Permissions = { 'Administrador': true };
+    this.User.CreateUser(user, (errorcb, resUser) => {
+      if (resUser && !errorcb) {
         Storage.setToken(resUser.Token);
-        $location.path('/');
+        this.location.path('/');
       }
     });
   }
 
   Logout() {
     this.User.Logout();
-    Storage.deleteToken(); //Deberia ir en users
-    $location.path('/');
+    /**
+     * Should be in users?
+     */
+    Storage.deleteToken();
+    this.location.path('/');
   }
 
-  getBackups() {
-    Backup.getAll((e, backups) => {
-      $scope.currentBackups = backups;
+  GetBackups() {
+    return this.Backup.getAll((errorCB, backups) => {
+      this.currentBackups = backups;
     });
   }
 }

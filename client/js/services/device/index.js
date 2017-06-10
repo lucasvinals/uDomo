@@ -1,139 +1,139 @@
 import { service, inject } from 'ng-annotations';
-import Message from '../message';
-import Socket from '../socket';
-import Observer from '../patterns/observer';
+
 @service('FactoryDevice')
 @inject('FactoryMessage', 'FactorySocket', 'FactoryObserver', '$http')
 export default class {
-   /*@ngInject*/
   constructor(Message, Socket, Observer, http) {
     this.http = http;
     this.Socket = Socket;
     this.Observer = Observer;
     this.Message = Message;
+    this.devices = [];
   }
   /**
    * Subscribe to a particular function with Observer Pattern
-   * @param {function} observer 
+   * @param {function} observer
    */
   Subscribe(observer) {
-    return Observer.subscribe(observer);
+    return this.Observer.Subscribe(observer);
   }
    /**
    * Unubscribe a particular function in the Observer array
-   * @param {function} observer 
+   * @param {function} observer
    */
   Unsubscribe(observer) {
-    return Observer.unsubscribe(observer);
+    return this.Observer.Unsubscribe(observer);
   }
   /**
-   * Get all devices.
-   * @param {function} callback 
+   * Get all devices from the server.
    */
-  getDevices(callback) {
-    // Socket.clear('devices');
-    // Socket.on('devices', (devices) => {
-    //   callback(null, devices);
-    // });
-    
-    // $http.get('/api/device')
-    //   .then((devices) => {
-    //       const deviceError = devices.data.Error;
-    //       deviceError?
-    //           (
-    //             Message.error('Ocurrió un error: ' + e, 10),
-    //             log.error(e),
-    //             callback(error, null)
-    //           ) :
-    //           callback(null, data.data.Devices);
-    //   },
-    //   (error) => {
-    //       Message.error('Ocurrió un error -> [Descripción en consola]', 10);
-    //       log.error(JSON.stringify(error));
-    //   });
+  GetDevices() {
+    this.http
+      .get('/api/device')
+      .then((devices) => {
+        const { Error: GetDevicesError, Devices } = devices.data;
+        if (GetDevicesError) {
+          this.Message.error(`Error: ${ JSON.stringify(GetDevicesError) }`);
+          throw new Error('GetDevicesError', JSON.stringify(GetDevicesError));
+        }
+        return Devices;
+      })
+      .catch((httpDeviceError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        window.log.error(JSON.stringify(httpDeviceError));
+      });
   }
-  saveDevice(device, callback) {
-    // $http.post('/Device', device).then(
-    //   (data) => {
-    //             var error = data.data.Error, device = data.data.Device;
-    //             if(error){
-    //               Message.warning(error, 10);
-    //                 callback(error, null);
-    //             }else{
-    //               Message.success('El dispositivo ' + device.Name + ' fue guardado.', 10);
-    //                 Observer.notify();
-    //                 callback(null, device);
-    //             }
-    //         }, 
-    //         (err) => {
-    //             Message.error('Ocurrió un error guardando el dispositivo' +
-    //                     'puede verlo revisando la consola.', 10);
-    //             log.error(err);
-    //             callback(JSON.stringify(err), null);
-    //       });
+
+  /**
+   * Subscribe to devices event to update devices.
+   */
+  GetDevicesFromSocket() {
+    return this.Socket.on('devices', (devices) => devices);
   }
-  deleteDevice(id) {
-    // Message.confirm('Desea eliminar el dispositivo?', 5, (response) => {
-    //           if(response){
-    //               $http.delete('/Device/' + id).then(
-    //                   (data) => {
-    //                     var res = data.data.Device;
-    //                     var e 	= data.data.Error;
-    //                     if(e){
-    //                       Message.error('Ocurrió un error eliminando el dispositivo. '+
-    //                               'Véase en la consola.', 10);
-    //                       log.error(JSON.parse(e));
-    //                     }else{
-    //                         Message.success('El dispositivo fue eliminado.', 10);
-    //                         Observer.notify();
-    //                     }
-    //                   },
-    //                   (error) => {
-    //                       Message.error(error, 10);
-    //                       log.error('Ocurrió un error-> ' + error);
-    //                   });
-    //           }
-    //       }); 
+
+  SaveDevice(device) {
+    return this.http.post('/api/device', device)
+      .then((response) => {
+        const { Error: CreateDeviceError, Device } = response.data;
+        if (CreateDeviceError) {
+          this.Message.error(`Error: ${ JSON.stringify(CreateDeviceError) }`);
+          window.log.error(JSON.stringify(CreateDeviceError));
+          throw new Error('CreateDeviceError', JSON.stringify(CreateDeviceError));
+        }
+        this.Message.success(`El dispositivo ${ Device.Name } fue guardado.`);
+        this.Observer.notify();
+        return Device;
+      })
+      .catch((httpError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error('HTTPRequestError', JSON.stringify(httpError));
+      });
   }
-  modifyDevice(callback) {
-    // $http.put('/Device', device).then(
-    //   (data) => {
-    //     var e = data.data.Error;
-    //     e?
-    //       (
-    //         Message.error('Ocurrió un error modificando el dispositivo. ' + e, 10),
-    //         callback(e, null)
-    //       ) :
-    //       (
-    //         Observer.notify(),
-    //         callback(null, data.data.Device)
-    //       )
-    //   },
-    //   (e) => {
-    //     Message.error(e, 10);
-    //               log.error('Ocurrió un error-> ' + e);
-    //   });
+
+  DeleteDevice(id) {
+    return this.Message
+      .confirm(
+        'Desea eliminar el dispositivo?',
+        Number('10'),
+        (response) => {
+          if (response) {
+            return this.http
+              .delete(`/api/device/${ id }`)
+              .then((deletedResult) => {
+                const { ok, 'n': NumberOfDeletes } = deletedResult.data.Zone;
+                if (ok && NumberOfDeletes) {
+                  this.Message.success('El dispositivo fue eliminado.');
+                  this.Observer.notify();
+                }
+                return id;
+              })
+              .catch((httpError) => {
+                this.Message.error('Ocurrió un error con la consulta http');
+                throw new Error('HTTPRequestError', JSON.stringify(httpError));
+              });
+          }
+          return false;
+        }
+      );
   }
-  clearListeners(clearInter) {
-    Observer.unsubscribeAll();
-    // Socket.clear('devices');
-    //     clearInterval(clearInter);
+  ModifyDevice(device) {
+    return this.http
+      .put('/api/device', device)
+      .then((modifyDeviceResponse) => {
+        const { Error: ModifyDeviceError, Device } = modifyDeviceResponse.data;
+        if (ModifyDeviceError) {
+          this.Message.error(`Error: ${ JSON.stringify(ModifyDeviceError) }`);
+          throw new Error('ModifyDeviceError', JSON.stringify(ModifyDeviceError));
+        }
+        return Device;
+      })
+      .catch((httpError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error('HTTPRequestError', JSON.stringify(httpError));
+      });
   }
-  sendMessage(listener, message) {
-    // Socket.emit(listener, message);
+
+  ClearListeners(clearInter) {
+    this.Observer.unsubscribeAll();
+    this.Socket.clear('devices');
+    window.clearInterval(clearInter);
   }
-/* 
+
+  SendMessage(listener, message) {
+    this.Socket.emit(listener, message);
+  }
+/*
   Hacer que:
   * Cuando no está online ni guardado, sacarlo de la lista directamente si previamente
-    estuvo en algun estado -> 
+    estuvo en algun estado ->
                   Guardado y luego eliminado: OK.
                   Online y luego Offline: Todavia no lo puedo sacar.
-  * Cuando un dispositivo esté guardado pero no en línea, se actualice la variable 
+  * Cuando un dispositivo esté guardado pero no en línea, se actualice la variable
     'Online' y se setee en falso para que la vista cambie.
 
 */
 
-/*var setOfflineDevices = setInterval(() => {
+/* var setOfflineDevices = setInterval(() => {
       currentDevices.length != 0 && currentDevices.forEach((device, index) => {
         log.success("Testeando: " + device.lastMessage);
           if((Date.now() - device.lastMessage) > 10000){
@@ -142,4 +142,4 @@ export default class {
           }
       });
   }, 3000);*/
-
+}

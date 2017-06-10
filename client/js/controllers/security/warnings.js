@@ -1,5 +1,8 @@
-function WarningController($scope) {
-  $scope.tagline = 'Last warnings';
-}
+import { controller } from 'ng-annotations';
 
-export default angular.module('uDomo.Security').controller('WarningController', [ '$scope', WarningController ]);
+@controller('ControllerWarning')
+export default class {
+  constructor() {
+    this.tagline = 'Last Warnings';
+  }
+}

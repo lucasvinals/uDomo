@@ -1,45 +1,33 @@
-import angular from 'angular';
-import Zone from '../../services/zone';
-import Common from '../../services/common';
+import { controller, inject } from 'ng-annotations';
+import { get, set } from 'lodash';
 
-function ZoneController($scope) {
-  function getZones() {
-    return Zone.GetZones()
+@controller('ControllerZone')
+@inject('FactoryZone', 'FactoryCommon', '$scope')
+export default class {
+  constructor(Zone, Common, scope) {
+    this.Zone = Zone;
+    this.Common = Common;
+    this.scope = scope;
+    this.Zone.Subscribe(this.GetZones);
+    this.scope.$on('$destroy', this.Zone.ClearListeners);
+  }
+
+  GetZones() {
+    return this.Zone.GetZones()
       .then((zones) => {
-        $scope.zones = zones;
+        this.zones = zones;
       })
       .catch((zoneError) => {
         throw new Error('ZoneError', zoneError);
       });
   }
 
-  // let getZones = (function iifeGetZones(){
-  //     Zone.GetZones((error, zones) => {
-  //         error? log.error('Error obteniendo áreas ->' + error) : $scope.zones = zones;
-  //     });
-  //     return iifeGetZones;
-  // })();
-  /***********************************************************************************************/
+  CreateZone(zone) {
+    set(zone, 'id', this.Common.newID());
+    this.Zone.CreateZone(zone);
+  }
 
-  /**
-   * With the Observer Pattern,
-   * register the function to trigger whenever Zones changes
-   */
-  Zone.Subscribe(getZones);
-
-  $scope.createZone = (zone) => {
-    _.set(zone, 'id', Common.newID());
-    Zone.CreateZone(zone);
-  };
-
-  $scope.removeZone = (index) => {
-    Zone.DeleteZone(_.get($scope.zones[index], '_id'));
-  };
-
-  /**
-   * Clean exit
-   */
-  $scope.$on('$destroy', Zone.clearListeners);
+  RemoveZone(index) {
+    this.Zone.DeleteZone(get(this.zones[index], '_id'));
+  }
 }
-
-export default angular.module('uDomo.Zone').controller('ZoneController', [ '$scope', ZoneController ]);

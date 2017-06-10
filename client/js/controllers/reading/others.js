@@ -1,30 +1,33 @@
-import Reading from '../../services/reading';
-import Socket from '../../services/socket';
+import { inject, controller } from 'ng-annotations';
 
-function OthersSensorsController($scope) {
+@controller('ControllerOtherSensors')
+@inject('FactoryReading', 'SocketFactory', '$scope')
+export default class {
+  constroller(Reading, Socket, scope) {
+    this.Reading = Reading;
+    this.Socket = Socket;
+    this.scope = scope;
+    this.coreTemperature = Number('22');
+    this.ListenForServerData();
+    this.RemoveListenersOnDestroy();
+  }
   /**
    * Style - Set the correct color to temperature intervals
+   *  This should be common in both modules
    */
-  $scope.temperatureColor = (temperature) => Reading.temperatureColor(temperature);
-
-  /**
-   * Socket - Listen for incomming messages in 'changedValues' event
-   */
-  Socket.on('serverSensor', (serverData) => {
-    /**
-     * Server Values
-     */
-    $scope.publicIP = serverData.Server.PublicIP;
-    $scope.coreTemperature = serverData.Server.Temperature;
-  });
-
-  $scope.coreTemperature = $scope.coreTemperature || 22; // eslint-disable-line
-  /* Remove Listeners when leave the page */
-  $scope.$on('$destroy', () => {
-    Socket.clear();
-  });
+  TemperatureColor(temperature) {
+    return this.Reading.temperatureColor(temperature);
+  }
+  ListenForServerData() {
+    this.Socket.on('serverSensor', (serverData) => {
+      /**
+       * Server Values
+       */
+      this.publicIP = serverData.Server.PublicIP;
+      this.coreTemperature = serverData.Server.Temperature;
+    });
+  }
+  RemoveListenersOnDestroy() {
+    this.scope.$on('$destroy', () => this.Socket.clear());
+  }
 }
-
-export default angular
-  .module('uDomo.Reading')
-  .controller('OthersSensorsController', [ '$scope', OthersSensorsController ]);

@@ -9,7 +9,8 @@ export default class {
     this.log = window.log;
     this.Message = Message;
   }
-  getAll(getAllCallback) {
+
+  GetAll(getAllCallback) {
     this.http
       .get('/api/Backups')
       .then((backups) => {

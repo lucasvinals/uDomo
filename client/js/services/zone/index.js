@@ -9,94 +9,100 @@ export default class {
     this.Socket = Socket;
     this.Message = Message;
   }
+
   clearListeners() {
-    this.Observer.unsubscribeAll();
+    this.Observer.UnsubscribeAll();
     this.Socket.clear('Zones/Zone/Read/Response');
     this.Socket.emit('disconnect', {});
   }
+
   Subscribe(fn) {
-    return this.Observer.subscribe(fn);
+    return this.Observer.Subscribe(fn);
   }
+
   Unsubscribe(fn) {
-    return this.Observer.unsubscribe(fn);
+    return this.Observer.Unsubscribe(fn);
   }
+
   GetZones() {
     this.http
     .get('/api/zone')
     .then((zones) => {
-      const zoneError = zones.data.Error;
-      if (zoneError) {
-        this.Message.error('Ocurrió un error -> [Descrito en consola]', Number('10'));
-        window.log.error(JSON.stringify(zoneError));
-        return { Error: zoneError, Zones: [] };
+      const { Error: GetZonesError, Zones } = zones.data;
+      if (GetZonesError) {
+        this.Message.error(`Error: ${ JSON.stringify(GetZonesError) }`);
+        throw new Error('GetZonesError', JSON.stringify(GetZonesError));
       }
-      return { Error: null, Zones: zones.data.Zones };
+      return Zones;
     })
     .catch((httpZoneError) => {
-      this.Message.error('Ocurrió un error -> [Descrito en consola]', Number('10'));
+      this.Message.error('Ocurrió un error con la consulta http');
       window.log.error(JSON.stringify(httpZoneError));
     });
   }
-    // CreateZone: (Zone, callback) => {
-    //     $http.post('/Zone', Zone).then(
-    //         (res) => {
-    //           const err = res.data.Error;
-    //           const Zone = res.data.Zones;
-    //           if (err) {
-    //             Message.warning('Ocurrió un error -> [Descrito en consola]', 10);
-    //             window.log.error(JSON.stringify(err));
-    //             callback(err, null);
-    //           } else {
-    //             Message.success(`El área ${Zone.Name} fue creada.`, 10);
-    //             Observer.notify();
-    //             callback(null, Zone);
-    //           }
-    //         },
-    //         (error) => {
-    //             Message.error('Ocurrió un error -> [Descrito en consola]', 10);
-    //             window.log.error(JSON.stringify(error));
-    //             callback(JSON.stringify(error), null);
-    //         });
 
-    // },
-    // ModifyZone: (Zone, callback) => {
-    //     $http.put('/Zone', Zone).then(
-    //         (r) => {
-    //             var e = r.data.Error;
-    //             if(e){
-    //                 Message.error('Ocurrió un error modificando el área. Revise la consola', 10);
-    //                 window.log.error(JSON.stringify(e));
-    //                 callback(JSON.stringify(e), null);
-    //             }else{
-    //                 Observer.notify();
-    //                 callback(null, r.data.Zones);
-    //             }
-    //         },
-    //         (e) => {
-    //             Message.error(JSON.stringify(e), 10);
-    //             window.log.error(`Ocurrió un error-> ${JSON.stringify(e)}`);
-    //         });
-    // },
-    // DeleteZone: (id) => {
-    //   Message.confirm('Desea eliminar el área?', 6, (response) => {
-    //     if (response) {
-    //       $http
-    //         .delete(`/Zone/${ id }`)
-    //         .then(
-    //           (result) => {
-    //             if (_.get(result, 'data.Zones', false)) {
-    //               Message.success('El área fue eliminada.', 10);
-    //               Observer.notify();
-    //             }
-    //           },
-    //           (deleteError) => {
-    //             Message.error(deleteError, 10);
-    //             window.log.error(`Ocurrió un error-> ${ deleteError }`);
-    //           }
-    //         );
-    //     }
-    //   });
-    // }
+  CreateZone(zoneToCreate) {
+    return this.http.post('/api/zone', zoneToCreate)
+      .then((response) => {
+        const { Error: CreateZoneError, Zone } = response.data;
+        if (CreateZoneError) {
+          this.Message.error(`Error: ${ JSON.stringify(CreateZoneError) }`);
+          window.log.error(JSON.stringify(CreateZoneError));
+          throw new Error('CreateZoneError', JSON.stringify(CreateZoneError));
+        }
+        this.Message.success(`El área ${ Zone.Name } fue creada.`);
+        this.Observer.notify();
+        return Zone;
+      })
+      .catch((httpError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error('HTTPRequestError', JSON.stringify(httpError));
+      });
+  }
+
+  ModifyZone(zone) {
+    return this.http
+      .put('/api/zone', zone)
+      .then((modifyZoneResponse) => {
+        const { Error: ModifyZoneError, Zone } = modifyZoneResponse.data;
+        if (ModifyZoneError) {
+          this.Message.error(`Error: ${ JSON.stringify(ModifyZoneError) }`);
+          throw new Error('ModifyZoneError', JSON.stringify(ModifyZoneError));
+        }
+        return Zone;
+      })
+      .catch((httpError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error('HTTPRequestError', JSON.stringify(httpError));
+      });
+  }
+
+  DeleteZone(zoneId) {
+    return this.Message
+      .confirm(
+        'Desea eliminar el área?',
+        Number('10'),
+        (response) => {
+          if (response) {
+            return this.http
+              .delete(`/api/zone/${ zoneId }`)
+              .then((deletedResult) => {
+                const { ok, 'n': NumberOfDeletes } = deletedResult.data.Zone;
+                if (ok && NumberOfDeletes) {
+                  this.Message.success('La zona fue eliminada.');
+                  this.Observer.notify();
+                }
+                return zoneId;
+              })
+              .catch((httpError) => {
+                this.Message.error('Ocurrió un error con la consulta http');
+                throw new Error('HTTPRequestError', JSON.stringify(httpError));
+              });
+          }
+          return false;
+        }
+      );
+  }
 }
 /* var self = this;
   var requestZones = (function iifeReqZones(){
@@ -116,3 +122,4 @@ export default class {
           self.GetZones(error, null);
       }
   }); */
+

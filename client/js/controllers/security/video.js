@@ -1,5 +1,8 @@
-function VideoController($scope) {
-  $scope.tagline = 'Video';
-}
+import { controller } from 'ng-annotations';
 
-export default angular.module('uDomo.Security').controller('VideoController', [ '$scope', VideoController ]);
+@controller('ControllerVideo')
+export default class {
+  constructor() {
+    this.tagline = 'Video';
+  }
+}

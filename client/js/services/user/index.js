@@ -1,211 +1,207 @@
 
+import angular from 'angular';
 import { service, inject } from 'ng-annotations';
 
 @service('FactoryUser')
 @inject('$http', 'FactoryMessage', 'FactoryObserver', 'FactorySocket', 'FactoryStorage')
 export default class {
   constructor(http, Message, Observer, Socket, Storage) {
-    this.http = $http;
+    this.http = http;
     this.Message = Message;
     this.Observer = Observer;
     this.Socket = Socket;
     this.Storage = Storage;
+    this.currentUser = this.GetUserFromToken();
   }
-  // let changeUser = (user) => { angular.extend(currentUser, user); };
 
-    // let urlBase64Decode = (str) => {
-    //     var output = str.replace('-', '+').replace('_', '/');
-    //     switch (output.length % 4) {
-    //         case 0:
-    //             break;
-    //         case 2:
-    //             output += '==';
-    //             break;
-    //         case 3:
-    //             output += '=';
-    //             break;
-    //         default:
-    //             throw 'Illegal base64url string!';
-    //     }
-    //     return window.atob(output);
-    // }
+  GetUsers() {
+    return this.http
+      .get('/api/user')
+      .then((users) => {
+        const { Error: GetUsersError, Users } = users.data;
+        if (GetUsersError) {
+          this.Message.error('Ocurrió un error obteniendo los usuarios');
+          window.log.error(JSON.stringify(GetUsersError));
+          throw new Error('GetUsersError', JSON.stringify(GetUsersError));
+        }
+        return Users;
+      })
+      .catch((getError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error('HTTPRequestError', JSON.stringify(getError));
+      });
+  }
 
-    // let getUserFromToken = () => {
-    //     let token = Storage.getToken();
-    //     let user = {};
-    //     if (JSON.stringify(token) != 'null') {
-    //         user = JSON.parse(urlBase64Decode(token.split('.')[1]));
-    //     }
-    //     return user;
-    // }
+  CreateUser(user) {
+    return this.http
+      .post('/api/user', user)
+      .then((createResult) => {
+        const { ErrorCreated, UserCreated } = createResult.data;
+        if (ErrorCreated) {
+          this.Message.warning(JSON.stringify(ErrorCreated));
+          throw new Error(ErrorCreated);
+        }
+        this.Message.success(`El usuario ${ UserCreated.Name } fue creado.`);
+        this.Observer.notify();
+      })
+      .catch((postError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error('HTTPRequestError', JSON.stringify(postError));
+      });
+  }
 
-    // var currentUser = getUserFromToken();
+  ModifyUser(user) {
+    return this.http
+      .put('/api/user', user)
+      .then((modifyResult) => {
+        const { ErrorModifing, UserModified } = modifyResult.data;
+        if (ErrorModifing) {
+          this.Message.warning(ErrorModifing);
+          throw new Error('ModifyUserError', ErrorModifing);
+        }
+        this.Message.success(`El usuario ${ UserModified.Name } fue modificado.`);
+        this.Observer.notify();
+        return UserModified;
+      })
+      .catch((putError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error('HTTPRequestError', JSON.stringify(putError));
+      });
+  }
 
-    // let Facade = {
-    //     Subscribe: (observer) => {
-    //         Observer.subscribe(observer);
-    //     },
-    //     Unsubscribe: (callback) =>{
-    //         Observer.unsubscribe(callback);
-    //     },
-    //     GetUsers: (callback) => {
-    //         $http.get('/api/Users').then(
-    //             (res) => {
-    //                 var e = res.data.Error;
-    //                 e ? 
-    //                     (
-    //                         Message.error("Ocurrió un error" + e, 10),
-    //                         log.error(JSON.stringify(e)),
-    //                         callback(e, null)
-    //                     ) :
-    //                     callback(null, res.data.Users);
-    //             },
-    //             (error) => {
-    //                 Message.error("Ocurrió un error -> [Descrito en consola]", 10);
-    //                 log.error(error);
-    //         });
-    //     },
-    //     CreateUser: (userData, callback) => {
-    //         $http.post('/User', userData).then(
-		// 		(r) => {
-		// 			var e = r.data.Error
-    //                 var u = r.data.User;
-		// 			if(e){
-    //                     Message.warning(e, 10);
-    //                     callback(e, null);
-		// 			}else{
-    //                     Message.success('El usuario ' + u.Name + ' fue creado.', 10);
-    //                     Observer.notify();
-    //                     callback(null, u);
-		// 			}
-		// 		},
-		// 		(error) => {
-    //                 Message.error(error, 10);
-    //                 callback('Ocurrió un error creando el usuario, ' +
-    //                          'puede verlo revisando la consola.', null);
-		// 			log.error(error);
-		// 		});
-    //     },
-    //     ModifyUser: (userData, callback) => {
-    //         $http.put('/User', userData).then(
-    //             (r) => {
-    //                 var e = r.data.Error;
-    //                 var u = r.data.User;
-    //                 if(e){
-    //                     Message.warning(e, 10);
-    //                     callback(e, null);
-    //                 }else{
-    //                     Message.success('El usuario ' + u.Name + ' fue modificado.', 10);
-    //                     Observer.notify();
-    //                     callback(null, u);
-    //                 }
-    //             },
-    //             (e) => {
-    //                 Message.error(e, 10);
-    //                 callback('Ocurrió un error modificando el usuario, ' +
-    //                          'puede verlo revisando la consola.', null);
-    //                 log.error(e);
-    //             }
-    //         );
-            
-    //     },
-    //     DeleteUser: (id) => {
-    //         Message.confirm('Desea eliminar el usuario?', 5, (response) => {
-    //             if(response){
-    //                 $http.delete('/User/' + id).then(
-    //                     (data) => {
-    //                         var fueRemovido = data.data.User.ok && data.data.User.n;
-    //                         if(fueRemovido){
-    //                             Message.success('El usuario fue eliminado.', 10);
-    //                             Observer.notify();
-    //                         }
-    //                     },
-    //                     (error) => {
-    //                         Message.error(error, 10);
-    //                         log.error('Ocurrió un error-> ' + error);
-    //                     });
-    //             }
-    //         });
-    //     },
-    //     GetPermissions: function(callback){
-    //         $http.get('/api/Permissions').then(
-    //             (res) => {
-    //                 var e = res.data.Error;
-    //                 e ? 
-    //                     (
-    //                         Message.error("Ocurrió un error" + e, 10),
-    //                         log.error(JSON.stringify(e)),
-    //                         callback(e, null)
-    //                     ) :
-    //                     callback(null, res.data.Permissions);
-    //             },
-    //             (error) => {
-    //                 Message.error("Ocurrió un error -> [Descrito en consola]", 10);
-    //                 log.error(JSON.stringify(error));
-    //         });
-    //     },
-    //     GetConfigurations: function(callback){
-    //         $http.get('/api/Configurations').then(
-    //             (res) => {
-    //                 var e = res.data.Error;
-    //                 e ? 
-    //                     (
-    //                         Message.error("Ocurrió un error" + e, 10),
-    //                         log.error(JSON.stringify(e)),
-    //                         callback(e, null)
-    //                     ) :
-    //                     callback(null, res.data.Configurations);
-    //             },
-    //             (error) => {
-    //                 Message.error("Ocurrió un error -> [Descrito en consola]", 10);
-    //                 log.error(JSON.stringify(error));
-    //         });
-    //     },
-    //     CreateConfiguration: (config, callback) => {
-    //         $http.post('/Configuration', config).then(
-		// 		(r) => {
-		// 			var e = r.data.Error
-    //                 var c = r.data.Configuration;
-		// 			if(e){
-    //                     Message.warning(e, 10);
-    //                     callback(e, null);
-		// 			}else{
-    //                     Message.success('Configuración ' + c.Name + ' creada con éxito.', 10);
-    //                     Observer.notify();
-    //                     callback(null, c);
-		// 			}
-		// 		},
-		// 		(error) => {
-    //                 Message.error(JSON.stringify(error), 10);
-    //                 callback('Ocurrió un error creando la configuración, ' +
-    //                          'puede verlo revisando la consola.', null);
-		// 			log.error(JSON.stringify(error));
-		// 		});
-    //     },
-    //     Login : (user, callback) => {
-    //         $http.post('/Authenticate', user).then(
-    //             (r) => {
-    //                 var e = r.data.Error;
-    //                 e ? false
-    //                     (
-    //                         Message.error('Error:' + e, 10),
-    //                         callback(e, null)
-    //                     ) :
-    //                     callback(null, r.data.User);
-    //             }, 
-    //             (e) => {
-    //                 Message.error('Error:' + e, 10);
-    //                 log.error('Ocurrió un error-> ' + JSON.stringify(e));
-    //             });
-    //     },
-    //     Logout: () => {
-    //         changeUser({});
-    //     },
-    //     clearListeners: () => {
-    //         Observer.unsubscribeAll();
-    //         Socket.cleanExit();
-    //     }
-    // };
+  DeleteUser(id) {
+    return this.Message.confirm(
+    'Desea eliminar el usuario?',
+    Number('5'),
+    (response) =>
+      response && this.http
+        .delete(`/api/user/${ id }`)
+        .then((deletedResult) => {
+          const { ok, 'n': NumberOfDeletes } = deletedResult.data.User;
+          if (ok && NumberOfDeletes) {
+            this.Message.success('El usuario fue eliminado.');
+            this.Observer.notify();
+          }
+          return id;
+        })
+        .catch((deleteError) => {
+          this.Message.error('Ocurrió un error con la consulta http');
+          throw new Error('HTTPRequestError', JSON.stringify(deleteError));
+        })
+    );
+  }
 
-    // return Facade;
+  Subscribe(fn) {
+    return this.Observer.Subscribe(fn);
+  }
+
+  Unsubscribe(fn) {
+    return this.Observer.Unsubscribe(fn);
+  }
+
+  ChangeUser(user) {
+    return angular.extend(this.currentUser, user);
+  }
+
+  URLBaseDecode(str) {
+    this.output = str.replace('-', '+').replace('_', '/');
+    this.decoder = {
+      0: this.output,
+      2: () => {
+        this.output += '==';
+        return this.output;
+      },
+      3: () => {
+        this.output += '=';
+        return this.output;
+      },
+      default: () => {
+        throw Object.assign({ URLBase64Error: 'Illegal base64url string!' });
+      },
+    };
+    return window.atob(this.decoder[this.output.length % Number('4')] || this.decoder.default);
+  }
+
+  GetUserFromToken() {
+    const token = this.Storage.getToken();
+    return token ? JSON.parse(this.URLBaseDecode(JSON.stringify(token).split('.')[1])) : {};
+  }
+
+  GetPermissions() {
+    return this.http
+      .get('/api/permissions')
+      .then((permissions) => {
+        const { Error: GetPermissionsError, Permissions } = permissions.data;
+        if (GetPermissionsError) {
+          this.Message.error('Ocurrió un error obteniendo los permisos');
+          throw new Error('GetUsersError', JSON.stringify(GetPermissionsError));
+        }
+        return Permissions;
+      })
+      .catch((getError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error('HTTPRequestError', JSON.stringify(getError));
+      });
+  }
+
+  GetConfigurations() {
+    return this.http
+      .get('/api/configurations')
+      .then((configurations) => {
+        const { Error: GetConfigurationsError, Configurations } = configurations.data;
+        if (GetConfigurationsError) {
+          this.Message.error('Ocurrió un error obteniendo las configuraciones');
+          throw new Error('GetUsersError', JSON.stringify(GetConfigurationsError));
+        }
+        return Configurations;
+      })
+      .catch((getError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error('HTTPRequestError', JSON.stringify(getError));
+      });
+  }
+
+  CreateConfiguration(config) {
+    return this.http
+      .post('/api/user', config)
+      .then((createResult) => {
+        const { Error: CreateConfigurationError, Configurations } = createResult.data;
+        if (CreateConfigurationError) {
+          this.Message.warning(CreateConfigurationError);
+          throw new Error(CreateConfigurationError);
+        }
+        this.Message.success(`La configuración ${ Configurations.Name } fue creada.`);
+        this.Observer.notify();
+        return Configurations;
+      })
+      .catch((postError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error('HTTPRequestError', JSON.stringify(postError));
+      });
+  }
+  Login(user) {
+    return this.http
+    .post('/api/authenticate', user)
+    .then((loginData) => {
+      const { Error: userLoginError, User } = loginData.data;
+      if (userLoginError) {
+        this.Message.error(`Error:${ JSON.stringify(userLoginError) }`);
+        throw new Error('UserLoginError', JSON.stringify(userLoginError));
+      }
+      return User;
+    })
+    .catch((postError) => {
+      this.Message.error('Ocurrió un error con la consulta http');
+      throw new Error('HTTPRequestError', JSON.stringify(postError));
+    });
+  }
+
+  Logout() {
+    return this.ChangeUser({});
+  }
+
+  ClearListeners() {
+    this.Observer.unsubscribeAll();
+    this.Socket.cleanExit();
+  }
 }

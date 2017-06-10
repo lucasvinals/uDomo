@@ -1,88 +1,53 @@
-import User from '../../services/user';
-// import Common from '../../services/common';
+import { controller, inject } from 'ng-annotations';
 
-function userController($scope) {
-  /**
-   * Init object for buttons
-   */
-  $scope.conf = {
-    'Security': false,
-    'Scenes': false,
-    'Readings': false,
-    'Devices': false,
-    'Users': false,
-  };
+@controller('ControllerUser')
+@inject('FactoryUser', '$scope')
+export default class {
+  constructor(User, scope) {
+    this.scope = scope;
+    this.User = User;
+    this.conf = {
+      'Security': false,
+      'Scenes': false,
+      'Readings': false,
+      'Devices': false,
+      'Users': false,
+    };
+    this.GetUsers();
+    this.User.Subscribe(this.GetUsers);
+  }
 
-  /**
-   * Read User
-   */
-  const getUsers = (function iifeGetUsers() {
-    User
+  GetUsers() {
+    return this.User
       .GetUsers()
       .then((users) => {
-        $scope.users = users;
+        this.users = users;
       });
-    return iifeGetUsers;
-  }());
+  }
 
-  /**
-   * Observer pattern
-   */
-  User.Subscribe(getUsers);
+  DeleteUser(id) {
+    return this.User.DeleteUser(id);
+  }
 
-  /**
-   * Remove User
-   */
-  $scope.removeUser = (id) => {
-    User.DeleteUser(id);
-  };
+  ModifyUser(user) {
+    return this.User.ModifyUser(user);
+  }
 
-  /**
-   * Modify User
-   */
-  $scope.modifyUser = (user) => {
-    User.ModifyUser(user);
-  };
+  ClearListeners() {
+    this.scope.$on('$destroy', () => this.User.ClearListeners());
+  }
 
-  /**
-   * Clean exit
-   */
-  $scope.$on('$destroy', () => {
-    User.clearListeners();
-  });
+  GetPermissions() {
+    return this.User.GetPermissions((errorCB, permissions) => {
+      this.permissions = permissions;
+    });
+  }
 
-  // $scope.canRemove = () => $rootScope.currentUser.Administrator;
-
-  /**
-   * Get Permissions
-   */
-  const getPermissions = (function iifePermissions() {
-    User.GetPermissions((error, permissions) => {
-        $scope.permissions = permissions;
-      });
-    return iifePermissions;
-  }());
-
-  /**
-   * Get Configurations
-   */
-  const getConfigurations = (function iifeConfigurations() {
-    User
+  GetConfigurations() {
+    return this.User
       .GetConfigurations()
       .then((configurations) => {
-        $scope.configurations = configurations;
+        this.configurations = configurations;
       });
-    return iifeConfigurations;
-  }());
-
-  // $scope.createConfiguration = (c) => {
-  //   c._id = Common.newID();
-  //   User.CreateConfiguration(c, (e, success) => {
-  //       e &&
-  //         log.error('Ocurrió un error creando la configuración') ||
-  //         log.success('Se creó la configuración.');
-  //     });
-  // };
+  }
 }
-
-export default angular.module('uDomo.User').controller('userController', [ '$scope', userController ]);

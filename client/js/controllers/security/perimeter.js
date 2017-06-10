@@ -1,5 +1,8 @@
-function PerimeterController($scope) {
-  $scope.tagline = 'Perimeter';
-}
+import { controller } from 'ng-annotations';
 
-export default angular.module('uDomo.Security').controller('PerimeterController', [ '$scope', PerimeterController ]);
+@controller('ControllerPerimeter')
+export default class {
+  constructor() {
+    this.tagline = 'Perimeter';
+  }
+}
