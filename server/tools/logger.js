@@ -1,4 +1,5 @@
 module.exports = (loggerType) => {
+  const Console = console;
 /**
   * Reset = "\x1b[0m"
   * Bright = "\x1b[1m"
@@ -29,20 +30,17 @@ module.exports = (loggerType) => {
   switch (loggerType) {
     case 'development':
       return {
-        /* eslint-disable */
-        error: (msg) => !console.log('\n\x1b[41m\x1b[1m' + msg + '\x1b[0m\n'),
-        success: (msg) => !console.log('\n\x1b[42m\x1b[1m' + msg + '\x1b[0m\n'),
-        warning: (msg) => !console.log('\n\x1b[43m\x1b[1m' + msg + '\x1b[0m\n'),
-        info: (msg) => !console.log('\n\x1b[44m\x1b[1m' + msg + '\x1b[0m\n'),
-        
+        'error': (msg) => !Console.log(`\n\x1b[41m\x1b[1m${ msg }\x1b[0m\n`),
+        success: (msg) => !Console.log(`\n\x1b[42m\x1b[1m${ msg }\x1b[0m\n`),
+        warning: (msg) => !Console.log(`\n\x1b[43m\x1b[1m${ msg }\x1b[0m\n`),
+        info: (msg) => !Console.log(`\n\x1b[44m\x1b[1m${ msg }\x1b[0m\n`),
       };
     default:
       return {
-        error: () => {},
-        success: () => {},
-        warning: () => {},
-        info: () => {},
+        'error': () => Console.log,
+        success: () => Console.log,
+        warning: () => Console.log,
+        info: () => Console.log,
       };
-      /* eslint-enable */
   }
 };
