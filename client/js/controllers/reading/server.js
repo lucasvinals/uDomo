@@ -1,49 +1,51 @@
-import Reading from '../../services/reading';
-import Socket from '../../services/socket';
+import { inject, controller } from 'ng-annotations';
 
-function ServerController($scope) {
-  /* Style - Set the correct color to temperature intervals */
-  $scope.temperatureColor = (temperature) => Reading.temperatureColor(temperature);
-
+@controller('ControllerServerSensors')
+@inject('$scope', 'FactorySocket', 'FactoryReading')
+export default class {
+  constructor(scope, Socket, Reading) {
+    this.Socket = Socket;
+    this.Reading = Reading;
+    this.scope = scope;
+    this.AttachServerSensors();
+  }
   /**
-   * Styles
+   * Style - Set the correct color to temperature intervals
    */
-  /**
-   * Change the current bar width
-   */
-  $scope.changeTypeOfLight = (maxIndoor, maxOutdoor) => Reading.lightType($scope, maxIndoor, maxOutdoor);
+  TemperatureColor(temperature) {
+    return this.Reading.temperatureColor(temperature);
+  }
 
-  /**
-   * Set light percent
-   */
-  $scope.percentLight = (light, maxValue) => Reading.percentLight(light, maxValue);
+  ChangeTypeOfLight(maxIndoor, maxOutdoor) {
+    return this.Reading.lightType(this, maxIndoor, maxOutdoor);
+  }
 
-  Socket.on('bienvenido', (mensaje) => {
-    window.log.info(`Mensaje: ${ mensaje }`);
-  });
+  PercentLight(light, maxValue) {
+    return this.Reading.percentLight(light, maxValue);
+  }
 
-  /* Socket - Listen for incomming messages in 'changedValues' event */
-  Socket.on('serverSensor', (sensorData) => {
-    /**
-     * ServerSensor - TSL2561
-     */
-    $scope.serverSensorL = sensorData.Sensor.Light.readValue;
-    $scope.maxLightIndoor = sensorData.Sensor.Light.maxIn;
-    $scope.maxLightOutdoor = sensorData.Sensor.Light.maxOut;
-    $scope.maxLight = $scope.maxLight || $scope.maxLightIndoor;
+  AttachServerSensors() {
+    /* Socket - Listen for incomming messages in 'changedValues' event */
+    this.Socket.on('serverSensor', (sensorData) => {
+      /**
+       * ServerSensor - TSL2561
+       */
+      this.serverSensorL = sensorData.Sensor.Light.readValue;
+      this.maxLightIndoor = sensorData.Sensor.Light.maxIn;
+      this.maxLightOutdoor = sensorData.Sensor.Light.maxOut;
+      this.maxLight = this.maxLight || this.maxLightIndoor;
 
-    /**
-     * ServerSensor - BMP180
-     */
-    $scope.serverSensorT = sensorData.Sensor.Temperature;
-    $scope.serverSensorP = sensorData.Sensor.Pressure;
-    $scope.serverSensorA = sensorData.Sensor.Altitude;
-  });
-
-  $scope.$on('$destroy', () => {
-    Socket.clear('bienvenido');
-    Socket.clear('serverSensor');
-  });
+      /**
+       * ServerSensor - BMP180
+       */
+      this.serverSensorT = sensorData.Sensor.Temperature;
+      this.serverSensorP = sensorData.Sensor.Pressure;
+      this.serverSensorA = sensorData.Sensor.Altitude;
+    });
+  }
+  ClearListeners() {
+    this.scope.$on('$destroy', () => {
+      this.Socket.clear('serverSensor');
+    });
+  }
 }
-
-export default angular.module('uDomo.Reading').controller('ServerController', [ '$scope', ServerController ]);

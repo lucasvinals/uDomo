@@ -1,94 +1,94 @@
-/* eslint id-length:0 */
-import Device from '../../services/device';
-import Zone from '../../services/zone';
-import $ from 'jquery';
+import { inject, controller } from 'ng-annotations';
+import { get } from 'lodash';
 
-function DeviceController($scope, $window) {
-  let lastID = '';
-  $scope.devices = [];
-
-  function setDeviceInfo() {
-    [ $scope.deviceInfo ] = $scope.devices.filter((dev) => _.get(dev, '_id') === lastID);
+@controller('ControllerDevice')
+@inject('FactoryDevice', 'FactoryZone', '$window', '$scope')
+export default class {
+  constructor(Device, Zone, $window, scope) {
+    this.Device = Device;
+    this.Zone = Zone;
+    this.window = $window;
+    this.scope = scope;
+    this.devices = [];
+    this.lastID = '';
+    this.Device.Subscribe(this.GetDevices);
+    this.EstaOnline = () => (typeof this.deviceInfo !== 'undefined' && this.deviceInfo.Online === true) || false;
+    this.EstaGuardado = () => (typeof this.deviceInfo !== 'undefined' && this.deviceInfo.Saved === true) || false;
+    /* Clean exit */
+    this.scope.$on('$destroy', () => {
+      // this.jQuery('#saveDeviceModal').modal('hide');
+      this.Device.ClearListeners('updateDevices');
+    });
   }
 
-  const getDevices = (function iifeGetDevices() {
-    Device.getDevices((error, devices) => {
-      if (error) {
-        window.log.error(`Error obteniendo dispositivos de la base de datos -> ${ error }`);
+  SetDeviceInfo() {
+    [ this.deviceInfo ] = this.devices.filter((dev) => get(dev, '_id') === this.lastID);
+  }
+
+  GetDevices() {
+    return this.Device.GetDevices((errorCB, devices) => {
+      if (errorCB) {
+        window.log.error(`Error obteniendo dispositivos de la base de datos -> ${ errorCB }`);
       } else {
-        $scope.devices = devices;
-        setDeviceInfo();
-        $scope.cantidadDisp = $scope.devices.length;
+        this.devices = devices;
+        this.SetDeviceInfo();
+        this.cantidadDisp = this.devices.length;
       }
     });
-    return iifeGetDevices;
-  }());
+  }
 
-  /**
-   * Observer
-   */
-  Device.Subscribe(getDevices);
-
-  $scope.saveDevice = (device) => {
-      try{
-          device.Saved = true;
-          device.Zone = $scope.availableZones.filter((zone) => zone._id == device.zoneSelected)[0];
-          Device.saveDevice(device, (error, deviceSaved) => {
-              error ?
-                  log.error('No se pudo guardar el dispositivo -> ' + error) :
-                  log.success('Device \'' + deviceSaved.Name + '\' successfully saved');
-          });
-      }catch(e){
-          log.error('Ocurrió un problema guardando el dispositivo -> ' + e.stack);
-      }
-  };
-
-  $scope.removeDevice = (id) => {
-      try {
-          Device.deleteDevice(id);
-      } catch (ex) {
-          log.error('Ocurrió un problema al eliminar el dispositivo: ' + ex.stack);
-      }
-  };
-
-  $scope.tempDevice = (index) => {
-      $scope.tmpDevice = $scope.devices[index];
-
-      Zone.GetZones((error, zones) => {
-          error ?
-              log.error('Error obteniendo áreas.') :
-              $scope.availableZones = zones;
+  SaveDevice(device) {
+    try {
+      device.Saved = true;
+      [ device.Zone ] = this.availableZones.filter((zone) => get(zone, '_id') === device.zoneSelected);
+      this.Device.SaveDevice(device, (errorCB, deviceSaved) => {
+        const result = errorCB ?
+          window.log.error(`No se pudo guardar el dispositivo -> ${ errorCB }`) :
+          window.log.success(`Device '${ deviceSaved.Name }' successfully saved`);
+        return result;
       });
-  };
+    } catch (saveError) {
+      window.log.error(`Ocurrió un problema guardando el dispositivo -> ${ saveError.stack }`);
+    }
+  }
 
-  $scope.changePin = (_id, Pin, val) => {
-      Device.sendMessage(
-          'rChangePin', {
-                          "_id"   : _id,
-                          "pin"   : +Pin,
-                          "value" : val,
-                          "mode"  : "digital"
-                      });
-  };
+  RemoveDevice(id) {
+    try {
+      this.Device.DeleteDevice(id);
+    } catch (removeError) {
+      window.log.error(`Ocurrió un problema al eliminar el dispositivo: ${ removeError.stack }`);
+    }
+  }
+
+  TempDevice(index) {
+    this.tmpDevice = this.devices[index];
+
+    this.Zone.GetZones((getError, zones) => {
+      const result = getError ?
+        window.log.error('Error obteniendo áreas.') :
+        this.availableZones = zones;
+      return result;
+    });
+  }
+
+  ChangePin(_id, Pin, val) {
+    this.Device.SendMessage('rChangePin',
+      {
+        _id,
+        'pin': Number(Pin),
+        'value': val,
+        'mode': 'digital',
+      }
+    );
+  }
 
   /* Mejora. Iniciar los modales desde acá, no en la vista */
-  $scope.viewInfoDevice = (devID) => {
-      lastID = devID;
-      setDeviceInfo();
-  };
+  ViewInfoDevice(devID) {
+    this.lastID = devID;
+    this.SetDeviceInfo();
+  }
 
-  $scope.estaOnline   = () => typeof $scope.deviceInfo !== 'undefined' && $scope.deviceInfo.Online === true || false;
-  $scope.estaGuardado = () => typeof $scope.deviceInfo !== 'undefined' && $scope.deviceInfo.Saved  === true || false;
-
-  $scope.programDevice = function(ip){
-      $window.open("http://" + ip + "/device", "_blank");
-  };
-
-  /* Clean exit */
-  $scope.$on('$destroy', (event) => {
-    $('#saveDeviceModal').modal('hide');
-    Device.clearListeners('updateDevices');
-  });
+  ProgramDevice(ip) {
+    this.window.open(`http://${ ip }/device`, '_blank');
+  }
 }
-
-export default angular.module('uDomo.Device').controller('deviceController', [ '$scope', '$window', DeviceController ]);
