@@ -34,12 +34,11 @@ const windows = {
   defaultLog: 'C:/Users/Lucas/Desktop/uDomo/server/db/logs/log.txt',
 };
 
-function platformSpecific() {
-  return process.platform === 'linux' ? //eslint-disable-line
-    linux :
-    process.platform === 'windows' ?
-      windows :
-      {};
+function platformSpecific({ platform } = process) {
+  return {
+    linux,
+    windows,
+  }[platform] || {};
 }
 
 module.exports = merge(
