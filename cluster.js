@@ -4,10 +4,6 @@ const started = Date.now();
  */
 const { argv } = require('optimist');
 /**
- * Shell commands.
- */
-const { execFile } = require('child_process');
-/**
  * Common config
  */
 const { DEFAULT_CLUSTER_PORT } = require('./server/config/environment');
@@ -19,6 +15,10 @@ const net = require('net');
 const { times, repeat } = require('lodash');
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
+/**
+ * Shell commands.
+ */
+const execFile = Promise.promisify(require('child_process').execFile);
 /**
  * Set mongoose default Promise library to bluebird,
  * this prevents the mongo mpromise deprecation message
@@ -75,6 +75,14 @@ function killServer() {
   return process.kill(process.pid);
 }
 /**
+ * Init redis-server
+ * Further application restarts get the same instance
+ * Redis is awesome!
+ */
+function initRedis() {
+  return execFile('redis-server', [ '--daemonize yes' ]);
+}
+/**
  * Shutdown mongod process
  */
 function killMongoDB(previousError) {
@@ -82,7 +90,7 @@ function killMongoDB(previousError) {
     process.log.error(`Something happened previously: ${ previousError }`);
   }
 
-  return Promise.promisify(execFile)(
+  return execFile(
     `${ database.binary }`,
     [
       '--dbpath',
@@ -95,7 +103,7 @@ function killMongoDB(previousError) {
  * Repair mongod database directory
  */
 function repairMongoDB() {
-  return Promise.promisify(execFile)(
+  return execFile(
     `${ database.binary }`,
     [
       '--repair',
@@ -117,7 +125,7 @@ function initMongoDB() {
    * --fork: Create a child process and exit parent.
    * With --fork option, mongod exits clean and the callback reaches a result!
    */
-  return Promise.promisify(execFile)(
+  return execFile(
     `${ database.binary }`,
     [
       '--dbpath', `${ database.storage }`,
@@ -158,14 +166,12 @@ function getWorkerIndex(ipAddress, threads) {
 function checkCorrectNumberOfCores() {
   return new Promise((fullfill, reject) => {
     function message() {
-      /* eslint-disable */
       process.log.error(
-        `${ repeat('*', 10) }
+        `${ repeat('*', Number('10')) }
         You can't run cluster with ${ numProcesses } spawn processes.
         Please give a valid number from 1 to ${ machineCPUs })
-        ${ repeat('*', 10) }`.replace(/\s+/g, ' ').trim()
+        ${ repeat('*', Number('10')) }`.replace(/\s+/g, ' ').trim()
       );
-      /* eslint-enable */
     }
 
     return (numProcesses < 1 || numProcesses > machineCPUs) ?
@@ -249,6 +255,7 @@ function normalInit() {
    * (4) Init the master process.
    */
   return checkCorrectNumberOfCores()
+    .then(initRedis)
     .then(initMongoDB)
     .then(connectToMongoDB)
     .then(seedDatabase)
