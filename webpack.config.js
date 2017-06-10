@@ -49,6 +49,7 @@ plugins.push(
   new webpack.DefinePlugin(
     {
       DEVELOPMENT: JSON.stringify(DEVELOPMENT),
+      PRODUCTION: JSON.stringify(PRODUCTION),
     }
   )
 );
@@ -115,11 +116,16 @@ module.exports = {
         test: /\.(woff2?|woff|ttf|eot|svg)$/,
         loader: 'url-loader?limit=10000&name=fonts/[name].[ext]',
       },
+      DEVELOPMENT ?
+      {
+        test: /\.(html)$/,
+        loader: 'raw-loader',
+      } : {},
     ],
   },
   output: {
     path: path.join(__dirname, 'udomo'),
-    publicPath: PRODUCTION ? '/' : 'udomo/',
+    publicPath: '/',
     filename: PRODUCTION ? 'bundle.[hash:12].min.js' : 'bundle.js',
   },
   devServer: {
