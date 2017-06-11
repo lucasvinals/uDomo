@@ -1,3 +1,20 @@
+if (DEVELOPMENT) {
+  const Require = require;
+  Require('../views/index.html');
+  Require('../views/configuration/index.html');
+  Require('../views/device/index.html');
+  Require('../views/home/index.html');
+  Require('../views/notFound/index.html');
+  Require('../views/parts/header.html');
+  Require('../views/parts/login.html');
+  Require('../views/permission/index.html');
+  Require('../views/reading/index.html');
+  Require('../views/scene/index.html');
+  Require('../views/security/index.html');
+  Require('../views/user/index.html');
+  Require('../views/zone/index.html');
+}
+
 import angular from 'angular';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
