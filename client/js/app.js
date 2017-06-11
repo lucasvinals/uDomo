@@ -1,18 +1,26 @@
 if (DEVELOPMENT) {
   const Require = require;
-  Require('../views/index.html');
+  Require('../index.html');
   Require('../views/configuration/index.html');
   Require('../views/device/index.html');
+  Require('../views/device/modals/info.html');
+  Require('../views/device/modals/save.html');
   Require('../views/home/index.html');
   Require('../views/notFound/index.html');
   Require('../views/parts/header.html');
   Require('../views/parts/login.html');
   Require('../views/permission/index.html');
   Require('../views/reading/index.html');
+  Require('../views/reading/others.html');
+  Require('../views/reading/server.html');
   Require('../views/scene/index.html');
   Require('../views/security/index.html');
+  Require('../views/security/perimeter.html');
+  Require('../views/security/video.html');
+  Require('../views/security/warnings.html');
   Require('../views/user/index.html');
   Require('../views/zone/index.html');
+  Require('../views/zone/modals/create.html');
 }
 
 import angular from 'angular';
