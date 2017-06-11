@@ -1,5 +1,5 @@
 const Zone = require('../../server/api/zone/zone.model');
-const { Promise } = require('es6-promise');
+const Promise = require('bluebird');
 const uuid = require('uuid/v4');
 
 function CreateZone() {

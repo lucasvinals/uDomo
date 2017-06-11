@@ -1,6 +1,6 @@
 #Logs
 *.log
-shelljs_*
+dump.rdb
 
 #Libraries and builds
 node_modules/
@@ -17,6 +17,7 @@ server/backups/
 server/db/
 
 #Specific system configuration
+environment
 
 #IDEs
 .vscode/

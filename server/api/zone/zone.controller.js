@@ -1,27 +1,34 @@
 const Zone = require('./zone.model');
 const Device = require('../device/device.model');
-const { log } = process;
 const { get } = require('lodash');
-const { statusPhrasesToCodes: httpCodes } = require('know-your-http-well');
-
+const httpStatus = require('http-status');
 /**
  * Handlers with entity's name
  */
-const errorHandler = require('../handlers').errorHandler('Zone');
-const respondWithResult = require('../handlers').respondWithResult('Zone');
+const errorHandler = require('../handlers').errorHandler('Zones');
+const respondWithResult = require('../handlers').respondWithResult('Zones');
 
 const Zones = {
   /**
-   * Find Zones
+   * Find a zone
    */
-  Find: (request, response) =>
+  FindOne: (request, response) =>
+    Zone
+      .findOne({ _id: get(request, 'params.id', null) })
+      .exec()
+      .then(respondWithResult(response))
+      .catch(errorHandler(response, httpStatus.NOT_FOUND)),
+  /**
+   * Find zones
+   */
+  FindAll: (request, response) =>
     Zone
       .find()
       .exec()
       .then(respondWithResult(response))
-      .catch(errorHandler(response, httpCodes.NOT_FOUND)),
+      .catch(errorHandler(response, httpStatus.NOT_FOUND)),
   /**
-   * Create Zone
+   * Create zone
    */
   Create: (request, response) =>
     Zone
@@ -34,11 +41,11 @@ const Zones = {
         return Zone
           .create(get(request, 'body', {}));
       })
-      .then(respondWithResult(response, httpCodes.CREATED))
-      .catch(errorHandler(response, httpCodes.CONFLICT)),
+      .then(respondWithResult(response, httpStatus.CREATED))
+      .catch(errorHandler(response, httpStatus.CONFLICT)),
 
   /**
-   * Modify Zone
+   * Modify zone
    */
   Modify: (request, response) =>
     Zone
@@ -52,7 +59,7 @@ const Zones = {
       .catch(errorHandler(response)),
 
   /**
-   * Delete Zone
+   * Delete zone
    */
   Delete: (request, response) =>
     Zone
@@ -60,17 +67,15 @@ const Zones = {
       .exec()
       .then((zone) => {
         Device
-          .find()
-          .populate('Zone')
+          .delete({ '_id': get(request, 'params.id', null) })
           .exec()
-          .then(log.warning);
-          // .remove({ [Zone._id]: _.get(zone, '_id', null) });
+          .then(Device.updateSavedTo(false));
 
         return zone;
       })
-      .then((zone) => zone.remove())
+      .then((zone) => zone.delete())
       .then(respondWithResult(response))
-      .catch(errorHandler(response, httpCodes.PRECONDITION_FAILED)),
+      .catch(errorHandler(response, httpStatus.PRECONDITION_FAILED)),
 };
 
 module.exports = Zones;

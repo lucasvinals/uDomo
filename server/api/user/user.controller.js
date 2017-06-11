@@ -2,21 +2,30 @@ const User = require('./user.model');
 const { sign: CreateToken } = require('jsonwebtoken');
 const { entrophy } = require('../../config/environment');
 const { get } = require('lodash');
-const { Promise } = require('es6-promise');
-const { statusPhrasesToCodes: httpCodes } = require('know-your-http-well');
+const Promise = require('bluebird');
+const httpStatus = require('http-status');
 /**
  * Handlers with entity's name
  */
-const errorHandler = require('../handlers').errorHandler('User');
-const respondWithResult = require('../handlers').respondWithResult('User');
+const errorHandler = require('../handlers').errorHandler('Users');
+const respondWithResult = require('../handlers').respondWithResult('Users');
 
 const Users = {
   /**
+   * Get one user
+   */
+  FindOne: (request, response) =>
+    User
+      .findOne({ _id: get(request, 'params.id', null) })
+      .exec()
+      .then(respondWithResult(response))
+      .catch(errorHandler(response)),
+  /**
    * Get all users
    */
-  Find: (request, response) =>
+  FindAll: (request, response) =>
     User
-      .find({})
+      .find()
       .exec()
       .then(respondWithResult(response))
       .catch(errorHandler(response)),
@@ -56,7 +65,7 @@ const Users = {
    */
   Delete: (request, response) =>
     User
-      .findByIdAndRemove(get(request, 'params.id', null))
+      .delete({ '_id': get(request, 'params.id', null) })
       .then(respondWithResult(response))
       .catch(errorHandler(response)),
 };
@@ -98,7 +107,7 @@ const Login = {
           request.Token = token;
           return next();
         }) :
-        reject(httpCodes.FORBIDDEN);
+        reject(httpStatus.FORBIDDEN);
     })
     .then(respondWithResult(response))
     .catch(errorHandler(response)),

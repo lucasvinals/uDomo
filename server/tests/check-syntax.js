@@ -1,6 +1,6 @@
 const fileSystem = require('fs');
 const check = require('syntax-error');
-const tester = require('glob');
+const { sync: reader } = require('glob');
 const log = require('../tools/logger')('server');
 const { partition, each } = require('lodash');
 
@@ -11,7 +11,7 @@ function checkSyntaxis(paths) {
   const [ clientPaths, serverPaths ] = partition(paths, (path) => path.includes('client'));
   log.info('Checking server files for syntax errors');
   each(serverPaths, (pattern) => {
-    each(tester.sync(pattern), (file) => {
+    each(reader(pattern), (file) => {
       fileSystem.readFile(file, (readError, fileContent) => {
         if (readError) {
           throw readError;
@@ -29,7 +29,7 @@ function checkSyntaxis(paths) {
    */
   log.info('Checking client js files for syntax errors');
   each(clientPaths, (pattern) => {
-    each(tester.sync(pattern), (file) => {
+    each(reader(pattern), (file) => {
       fileSystem.readFile(file, (readError, fileContent) => {
         if (readError) {
           throw readError;

@@ -1,39 +1,37 @@
-angular.module('Patterns', []).factory('Observer', () => {
+import angular from 'angular';
+import { service } from 'ng-annotations';
 
-    class ObserverPattern{
-        constructor(){
-            this.Observers = [];
-        }
-        /**
-         * Register an observer (callback function)
-         */
-        subscribe(observer){
-            this.Observers.push(observer); 
-        }
-        /**
-         * Quit an observer (callback function)
-         */
-        unsubscribe(observer){
-            this.Observers = this.Observers.filter((o) => o != observer);
-        }
-        /**
-         * Reset the observers to make a clean exit
-         */
-        unsubscribeAll(){
-            this.Observers = [];
-        }
-        /**
-         * Listener. Call when something changes.. 
-         * Ex: CRUD operations
-         */
-        notify(){
-            angular.forEach(this.Observers, (observer) => {
-              var exec = observer();
-            });
-        }
-    }
-    /**
-     * Return an instance of the pattern 
-     */
-    return new ObserverPattern();
-});
+@service('FactoryObserver')
+export default class {
+  constructor() {
+    this.Observers = [];
+  }
+  /**
+   * Register an observer (callback function)
+   */
+  Subscribe(observer) {
+    this.Observers.push(observer);
+  }
+  /**
+   * Quit an observer (callback function)
+   */
+  Unsubscribe(observer) {
+    this.Observers = this.Observers.filter((obs) => obs !== observer);
+  }
+  /**
+   * Reset the observers to make a clean exit
+   */
+  UnsubscribeAll() {
+    this.Observers = [];
+  }
+  /**
+   * Listener. Call when something changes..
+   * Ex: CRUD operations
+   */
+  Notify() {
+    angular.forEach(this.Observers, (observer) =>
+      // const exec = observer();
+      observer
+    );
+  }
+}

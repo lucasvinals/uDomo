@@ -15,19 +15,22 @@ ARCHITECTURE_uDomo='linux-x64'
 # Bibliotecas de ESP8266
 LIBRARIESDIR=$HOMEDIR'/Arduino/libraries'
 
-
 # Instalar aplicaciones necesarias
-echo -e "\e[103m\e[91m Actualizando el sistema e instalando aplicaciones necesarias \e[0m"
+echo -e "\e[103m\e[91m Updating the system and installing needed software \e[0m"
 # MongoDB installs (04/10/2016) the outdated v2.4 in Raspbian (Debian), but we're good for now.
-sudo apt-get update && sudo apt-get --yes --force-yes install bash git tar mongodb realpath
+sudo apt -qq update && sudo apt --yes --force-yes install bash git tar mongodb realpath yarn redis-server
 
 SERVERDIR=$HOMEDIR'/uDomo/server'
+
+# Set default environment to production
+echo 'production' > $SERVERDIR'/../environment'
+
 BINARIESDIR=$SERVERDIR'/binaries'
 if [ -d "$BINARIESDIR" ]; then
-  echo -e '\e[103m\e[91m Vaciando el árbol de directorios '$BINARIESDIR'...\e[0m'
+  echo -e '\e[103m\e[91m Emptying tree directory '$BINARIESDIR'...\e[0m'
   rm -r $BINARIESDIR
 else
-  echo -e '\e[103m\e[91m El árbol de directorios '$BINARIESDIR' no existe. Creando...\e[0m'
+  echo -e "\e[103m\e[91m The tree directory '$BINARIESDIR' doesn't exists. Creating...\e[0m"
 fi
 
 mkdir $BINARIESDIR
@@ -42,56 +45,62 @@ mkdir $BINARIESDIR/nodejs && mv $BINARIESDIR/node-*/* $BINARIESDIR/nodejs
 # Elimino los archivos sobrantes
 rm -r $BINARIESDIR/node-* $BINARIESDIR/nodejs.org
 # Pruebo que ande bien
-$BINARIESDIR/nodejs/bin/node -e "console.log('\n\x1b[42m\x1b[37m\x1b[1m','NodeJS se instalo correctamente\!','\x1b[0m\n');"
- 
+$BINARIESDIR/nodejs/bin/node -e "console.log('\n\x1b[42m\x1b[37m\x1b[1m','NodeJS was successfully installed\!','\x1b[0m\n');"
+
+# Add NodeJS binaries to PATH
+if [ ! -f $HOMEDIR'/.profile' ]; then # .profile doesn't exists
+  echo 'PATH=$PATH:'$BINARIESDIR'/nodejs/bin' > $HOMEDIR/.profile
+else # .profile exists
+  ! $(grep -Fxq $(echo 'PATH=$PATH:'$BINARIESDIR'/nodejs/bin') $HOMEDIR/.profile) &&
+  echo 'PATH=$PATH:'$BINARIESDIR'/nodejs/bin' >> $HOMEDIR/.profile
+fi
+
+# Update PATH
+source $HOMEDIR'/.profile';
+
 # Si no existe el directorio, lo creo.
 if [ ! -d "$LIBRARIESDIR" ]; then
-  echo -e '\e[103m\e[91m El árbol de directorios '$LIBRARIESDIR' no existe. Creando...\e[0m'
+  echo -e "\e[103m\e[91m The tree directory '$LIBRARIESDIR' doesn't exists. Creating...\e[0m"
   mkdir -p $LIBRARIESDIR
 fi
 
 # Descargo SocketIO para ESP8266
 if [ ! -d $LIBRARIESDIR'/Socket.io-v1.x-Library' ]; then
-  echo -e "\e[103m\e[91m Descargando SocketIO...\e[0m"
+  echo -e "\e[103m\e[91m Downloading SocketIO...\e[0m"
   ( cd $LIBRARIESDIR && git clone https://github.com/washo4evr/Socket.io-v1.x-Library.git )
 fi
 
 # Descargo ArduinoJSON
 if [ ! -d $LIBRARIESDIR'/ArduinoJson' ]; then
-  echo -e "\e[103m\e[91m Descargando ArduinoJson...\e[0m"
+  echo -e "\e[103m\e[91m Downloading ArduinoJson...\e[0m"
   ( cd $LIBRARIESDIR && git clone https://github.com/bblanchon/ArduinoJson.git )
 fi
 
 # Descargo ESP8266TrueRandom
 if [ ! -d $LIBRARIESDIR'/ESP8266TrueRandom' ]; then
-  echo -e "\e[103m\e[91m Descargando ESP8266TrueRandom...\e[0m"
+  echo -e "\e[103m\e[91m Downloading ESP8266TrueRandom...\e[0m"
   ( cd $LIBRARIESDIR && git clone https://github.com/marvinroger/ESP8266TrueRandom.git )
 fi
 
 # Si hay un log viejo, lo borro.
-[ -f $SERVERDIR'/npm-debug.log' ] && echo -e "\e[103m\e[91m Logs de NPM previos. Borrando...\e[0m" && rm $SERVERDIR'/npm-debug.log'
+[ -f $SERVERDIR'/npm-debug.log' ] && echo -e "\e[103m\e[91m Previous NPM logs. Deleting...\e[0m" && rm $SERVERDIR'/npm-debug.log'
 
 # Si no existe el directorio público, lo creo.
-[ ! -d $SERVERDIR'/../udomo' ] && echo -e "\e[103m\e[91m El árbol de directorios \"udomo\" no existe. Creando...\e[0m" && mkdir $SERVERDIR'/../udomo'
+[ ! -d $SERVERDIR'/../udomo' ] && echo -e "\e[103m\e[91m The tree directory 'udomo' doesn't exists. Creating...\e[0m" && mkdir $SERVERDIR'/../udomo'
 
 # Si no existe el árbol de directorios de la base de datos, lo creo.
 if [ ! -d $SERVERDIR'/db' ]; then
-  echo -e "\e[103m\e[91m El árbol de directorios \"db\" no existe. Creando...\e[0m"
+  echo -e "\e[103m\e[91m The tree directory 'db' doesn't exists. Creating...\e[0m"
   mkdir -p $SERVERDIR'/db/data/db'
   mkdir $SERVERDIR'/db/logs' && echo "" > $SERVERDIR'/db/logs/log.txt'
 fi
 
-echo -e "\e[44m Se van a instalar/actualizar las librerías de NPM\e[0m\n"
-$BINARIESDIR/nodejs/bin/npm install --prefix $SERVERDIR'/../'
+echo -e "\e[44m Installing/updating libraries \e[0m\n"
+( cd $HOMEDIR'/uDomo' && yarn )
+yarn global add gulp nsp snyk npm-check
 
 # Esto es un error conocido de NPM cuando se instala en un directorio especificado. Deja un directorio llamado "etc" vacío
 [ -d $SERVERDIR'/../etc' ] && rm -r $SERVERDIR'/../etc'
-
-# No existe un archivo de configuracion de la base de datos, así que copio el ejemplo e informo que se edite...
-# if [ ! -f $SERVERDIR'/config/db.js' ]; then
-  # cp $SERVERDIR'/config/dbExample.js' $SERVERDIR'/config/db.js'
-  # echo -e "\n\e[91m\e[103m No existe un archivo de configuración de la base de datos.\n Por favor, edite el archivo en "$SERVERDIR"/config/db.js de acuerdo a su sistema.\e[0m\n"
-# fi
 
 # Añado un cron para que se inicie con un sólo hilo por lo menos (npm start), cuando levante la red (if-up)
 if [ ! -f '/etc/network/if-up.d/uDomo' ]; then
@@ -103,21 +112,6 @@ if [ ! -f '/etc/network/if-up.d/uDomo' ]; then
   sudo chmod 0600 /etc/network/if-up.d/uDomo
 fi
 
-if [ ! -f $HOMEDIR'/.bashrc' ]; then # Doesn't exists
-  bash -c 'echo "alias node=$BINARIESDIR/nodejs/bin/node" >> $HOMEDIR/.bashrc'
-  bash -c 'echo "alias npm=$BINARIESDIR/nodejs/bin/npm" >> $HOMEDIR/.bashrc'
-else # Exists
-  # Add NodeJS as an alias
-  ! $(grep 'alias node='$BINARIESDIR'/nodejs/bin/node' $HOMEDIR'/.bashrc' -R) &&
-  echo 'alias node='$BINARIESDIR'/nodejs/bin/node' >> $HOMEDIR'/.bashrc';
-
-  # Add NPM as an alias
-  ! $(grep 'alias npm='$BINARIESDIR'/nodejs/bin/npm' $HOMEDIR'/.bashrc' -R) && 
-  echo 'alias npm='$BINARIESDIR'/nodejs/bin/npm' >> $HOMEDIR'/.bashrc';
-
-  # Update PATH
-  source $HOMEDIR'/.bashrc';
-fi
-
-echo -e "\n\e[91m\e[103m Por favor, edite el archivo en "$SERVERDIR"/config/db.js de acuerdo a su sistema.\e[0m\n"
-echo -e "\n\e[42m\e[97mTodo instalado. Iniciar servicio de uDomo con \""$BINARIESDIR"/nodejs/bin/npm start\" o \""$BINARIESDIR"/nodejs/bin/npm run cluster\" una vez que todo esté configurado.\e[0m"
+echo -e "\n\e[91m\e[103m Please, edit the database file in "$SERVERDIR"/config/db.js accordingly. \n"
+echo -e "\n All system is ready. Now, because the PATH is not automatically updated, you should log out / log in. \e[0m"
+echo -e "\n\e[42m\e[97m Start the uDomo service with '$BINARIESDIR"/nodejs/bin/npm start' or '$BINARIESDIR"/nodejs/bin/npm run cluster' once the system is configured. \e[0m"

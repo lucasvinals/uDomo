@@ -1,0 +1,96 @@
+<div>
+                <!-- New Users  ng-controller='ControllerMain'-->
+                <div id='newUsers' class='modal fade' role='dialog'>
+                    <div class='modal-dialog'>
+                        <div class='modal-content'>
+                            <form class='form text-center' role='form' id='cForm'>
+                                <h4>Crear Usuario</h4>
+                                <div class='form-group'>
+                                    <div class='col-md-6'>
+                                        <input type='text' 
+                                            class='form-control userRegisterInput'
+                                            ng-model='cUser.Name' 
+                                            placeholder='Nombre' 
+                                            autofocus 
+                                            required>
+                                        <input type='email' 
+                                            class='form-control userRegisterInput'
+                                            ng-model='cUser.Email' 
+                                            placeholder='Email'
+                                            required>
+                                        <input type='password' 
+                                            class='form-control userRegisterInput'
+                                            ng-model='cUser.Password' 
+                                            placeholder='Contraseña'
+                                            required>
+                                    </div>
+                                    <div class='col-md-6'>
+                                        <input type='text' 
+                                            class='form-control userRegisterInput'
+                                            ng-model='cUser.Username' 
+                                            placeholder='Usuario'
+                                            required>
+                                        <input type='number'
+                                                class='form-control userRegisterInput'
+                                                ng-model='cUser.Age'
+                                                placeholder='Edad'
+                                                required
+                                                min='1'>
+                                        <input type='password' 
+                                            class='form-control userRegisterInput'
+                                            ng-model='cUser.Password2' 
+                                            placeholder='Repita contraseña'
+                                            required>
+                                    </div>
+                                    
+                                    <!--  <select ng-model='selPerm' 
+                                            ng-options='Perm as Perm.Name for Perm in Permissions'
+                                            ng-change='addNewPermission(selPerm)'
+                                            class='text-info'> <option value='' disabled selected>Roles y Permisos</option>
+                                    </select> -->
+                                    <!-- <ul class='list-unstyled'
+                                        ng-repeat='P in newPermissions'>
+                                        <li class='text-info'>
+                                            <i class='fa fa-times text-danger' 
+                                                ng-click='deleteNewPermission($index)'>
+                                            </i>
+                                            <label ng-bind='P.Name'></label>
+                                        </li>
+                                    </ul> -->
+                                </div>
+                                <div class='form-footer'>
+                                    <button type='button'
+                                            class='btn btn-sm btn-primary'
+                                            data-dismiss='modal'
+                                            ng-click='CreateUser(cUser)'
+                                            ng-disabled='cForm.$invalid || cForm.$error'>Crear
+                                    </button>
+                                    <button type='button'
+                                            class='btn btn-sm btn-default'
+                                            data-dismiss='modal'>Salir
+                                    </button>
+                                </div>
+                            </form><br>
+                        </div>
+                    </div>
+                </div>
+                <div id='login' class='modal fade' role='dialog'>
+                    <div class='modal-dialog modal-sm'>
+                        <div class='modal-content'>
+                            <form class='form text-left col-md-offset-1' role='form'>
+                                <h4>Ingresar a uDomo</h4>
+                                <div class='form-group'>
+                                    <input type='text' ng-model='lUser.Username' placeholder='Username'>
+                                    <input type='password' ng-model='lUser.Password' placeholder='Contraseña'>
+                                </div>
+                                <button type='button'
+                                        class='btn btn-sm btn-primary'
+                                        data-dismiss='modal'
+                                        ng-click='Login(lUser)'>Ingresar
+                                </button>
+                            </form><br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+       

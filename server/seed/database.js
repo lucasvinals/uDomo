@@ -5,11 +5,14 @@ const Backup = require('../api/backup/backup.model');
 const Permission = require('../api/permission/permission.model');
 const Route = require('../api/route/route.model');
 const User = require('../api/user/user.model');
-const { Promise } = require('es6-promise');
+const Promise = require('bluebird');
 
 function DropDatabase() {
   return Promise.all(
     [
+      /**
+       * Has to be physical remove. Do not change to 'delete'
+       */
       User.remove({}),
       Permission.remove({}),
       Configuration.remove({}),

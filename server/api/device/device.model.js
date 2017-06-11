@@ -1,4 +1,5 @@
 const database = require('mongoose');
+const { get, set } = require('lodash');
 const mongooseDelete = require('mongoose-delete');
 const deviceSchema = new database.Schema(
   {
@@ -24,5 +25,19 @@ const deviceSchema = new database.Schema(
  * go to: https://www.npmjs.com/package/mongoose-delete#method-overridden
  */
 deviceSchema.plugin(mongooseDelete, { overrideMethods: 'all' });
+
+/**
+ * Update property Saved of the devices in process.devices
+ * Curryfied function to use in chain of promises.
+ */
+deviceSchema.statics.updateSavedTo = (status) =>
+  (device) =>
+    set(
+      process.devices.find(
+        (dev) => get(dev, '_id', 0) === get(device, '_id')
+      ),
+      'Saved',
+      status
+    ) || {};
 
 module.exports = database.model('Device', deviceSchema);
