@@ -2,15 +2,12 @@ import io from 'socket.io-client';
 import { service, inject } from 'ng-annotations';
 
 @service('FactorySocket')
-@inject('$rootScope')
+@inject('$rootScope', '$location')
 export default class {
-  /*@ngInject*/
-  constructor(rootScope) {
+  constructor(rootScope, location) {
     this.rootScope = rootScope;
-    this.IO = io;
-    this.socketURL = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host;
-    this.socket = this.IO.connect(
-      this.socketURL,
+    this.socket = io.connect(
+      `${ location.protocol() === 'https' ? 'wss' : 'ws' }://${ location.host() }:${ location.port() }`,
       {
         forceNew: true,
         reconnect: true,
@@ -18,7 +15,7 @@ export default class {
       }
     );
   }
-  on(eventName, onCallback) {
+  On(eventName, onCallback) {
     return this.socket.on(eventName, (...args) =>
       this.rootScope.$apply(
         () =>
@@ -26,15 +23,15 @@ export default class {
       )
     );
   }
-  emit(eventName, dataToSend, response) {
+  Emit(eventName, dataToSend, response) {
     return this.socket.emit(eventName, dataToSend, (...args) =>
       this.rootScope.$apply(() => response && response.apply(this.socket, args))
     );
   }
-  clear(eventName) {
+  Clear(eventName) {
     return this.socket.off(eventName);
   }
-  cleanExit() {
+  CleanExit() {
     return this.socket.close();
   }
 }
