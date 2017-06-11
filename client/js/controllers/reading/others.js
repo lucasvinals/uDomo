@@ -19,7 +19,7 @@ export default class {
     return this.Reading.temperatureColor(temperature);
   }
   ListenForServerData() {
-    this.Socket.on('serverSensor', (serverData) => {
+    this.Socket.On('serverSensor', (serverData) => {
       /**
        * Server Values
        */
@@ -28,6 +28,6 @@ export default class {
     });
   }
   RemoveListenersOnDestroy() {
-    this.scope.$on('$destroy', () => this.Socket.clear());
+    this.scope.$on('$destroy', () => this.Socket.Clear());
   }
 }

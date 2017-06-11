@@ -26,7 +26,7 @@ export default class {
 
   AttachServerSensors() {
     /* Socket - Listen for incomming messages in 'changedValues' event */
-    this.Socket.on('serverSensor', (sensorData) => {
+    this.Socket.On('serverSensor', (sensorData) => {
       /**
        * ServerSensor - TSL2561
        */
@@ -45,7 +45,7 @@ export default class {
   }
   ClearListeners() {
     this.scope.$on('$destroy', () => {
-      this.Socket.clear('serverSensor');
+      this.Socket.Clear('serverSensor');
     });
   }
 }

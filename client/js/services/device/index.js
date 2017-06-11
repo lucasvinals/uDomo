@@ -114,13 +114,13 @@ export default class {
   }
 
   ClearListeners(clearInter) {
-    this.Observer.unsubscribeAll();
-    this.Socket.clear('devices');
+    this.Observer.UnsubscribeAll();
+    this.Socket.Clear('devices');
     window.clearInterval(clearInter);
   }
 
   SendMessage(listener, message) {
-    this.Socket.emit(listener, message);
+    this.Socket.Emit(listener, message);
   }
 /*
   Hacer que:
