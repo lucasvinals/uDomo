@@ -5,8 +5,8 @@
   "main": "cluster.js",
   "version": "1.0.0",
   "scripts": {
-    "start": "NODE_ENV=development node cluster.js -c 1",
-    "cluster": "NODE_ENV=production node cluster.js",
+    "start": "NODE_ENV=development nodemon --watch server -- ./cluster.js -c 1",
+    "cluster": "NODE_ENV=production nodemon -- ./cluster.js",
     "clean": "rimraf udomo dump.rdb *.log",
     "copystatic": "mkdir -p ./udomo && cp -r ./client/views ./udomo/views",
     "basicWorkflow": "npm run clean && npm run copystatic",
