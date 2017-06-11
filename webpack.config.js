@@ -129,7 +129,7 @@ module.exports = {
     filename: PRODUCTION ? 'bundle.[hash:12].min.js' : 'bundle.js',
   },
   devServer: {
-    contentBase: './client/views',
+    contentBase: './client',
     /**
      * This loads HMR on webpack.
      */
