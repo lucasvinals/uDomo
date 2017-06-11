@@ -42,8 +42,6 @@ export default class {
   // }
 
   States() {
-    const viewPath = DEVELOPMENT ? '' : '/views';
-
     this.stateProvider
     /**
     * Main Page - Contains all the information that persists.
@@ -52,15 +50,13 @@ export default class {
       .state('uDomo', {
         url: '/',
         abstract: true,
-        // templateUrl: './views/index.html',
-        // controller: 'ControllerMain',
       })
       /**
        * Homepage - Welcome and all the information to the user
        */
       .state('uDomo.home', {
         url: '',
-        templateUrl: `.${ viewPath }/home/index.html`,
+        templateUrl: './views/home/index.html',
         controller: 'ControllerHome',
       })
       /**
@@ -68,7 +64,7 @@ export default class {
        */
       .state('uDomo.users', {
         url: 'users',
-        templateUrl: `.${ viewPath }/user/index.html`,
+        templateUrl: './views/user/index.html',
         controller: 'ControllerUser',
       })
       /**
@@ -76,7 +72,7 @@ export default class {
        */
       .state('uDomo.users.configurations', {
         url: 'user/configurations',
-        templateUrl: `.${ viewPath }/configuration/index.html`,
+        templateUrl: './views/configuration/index.html',
         controller: 'ControllerUser',
       })
       /**
@@ -84,7 +80,7 @@ export default class {
        */
       .state('uDomo.user.permissions', {
         url: 'user/permissions',
-        templateUrl: `.${ viewPath }/permission/index.html`,
+        templateUrl: './views/permission/index.html',
         controller: 'ControllerUser',
       })
       /**
@@ -92,7 +88,7 @@ export default class {
        */
       .state('uDomo.zones', {
         url: 'zones',
-        templateUrl: `.${ viewPath }/zone/index.html`,
+        templateUrl: './views/zone/index.html',
         controller: 'ControllerZone',
       })
       /**
@@ -100,7 +96,7 @@ export default class {
        */
       .state('uDomo.devices', {
         url: 'devices',
-        templateUrl: `.${ viewPath }/device/index.html`,
+        templateUrl: './views/device/index.html',
         controller: 'ControllerDevice',
       })
       /**
@@ -108,7 +104,7 @@ export default class {
        */
       .state('uDomo.scenes', {
         url: 'scenes',
-        templateUrl: `.${ viewPath }/scene/index.html`,
+        templateUrl: './views/scene/index.html',
         controller: 'ControllerScene',
       })
       /**
@@ -116,7 +112,7 @@ export default class {
        */
       .state('uDomo.otherReadings', {
         url: 'readings/others',
-        templateUrl: `.${ viewPath }/reading/others.html`,
+        templateUrl: './views/reading/others.html',
         controller: 'ControllerOtherSensors',
       })
       /**
@@ -124,7 +120,7 @@ export default class {
        */
       .state('uDomo.serverReadings', {
         url: 'readings/server',
-        templateUrl: `.${ viewPath }/reading/server.html`,
+        templateUrl: './views/reading/server.html',
         controller: 'ControllerServerSensors',
       })
       /**
@@ -132,17 +128,17 @@ export default class {
        */
       .state('uDomo.videos', {
         url: 'security/videos',
-        templateUrl: `.${ viewPath }/security/videos.html`,
+        templateUrl: './views/security/videos.html',
         controller: 'ControllerVideo',
       })
       .state('uDomo.perimeter', {
         url: 'security/perimeter',
-        templateUrl: `.${ viewPath }/security/perimeter.html`,
+        templateUrl: './views/security/perimeter.html',
         controller: 'ControllerPerimeter',
       })
       .state('uDomo.warnings', {
         url: 'security/warnings',
-        templateUrl: `.${ viewPath }/security/warnings.html`,
+        templateUrl: './views/security/warnings.html',
         controller: 'ControllerPerimeter',
       })
       // /**
@@ -150,7 +146,7 @@ export default class {
       //  */
       .state('uDomo.notFound', {
         url: '404',
-        templateUrl: `.${ viewPath }/notFound/index.html`,
+        templateUrl: './views/notFound/index.html',
         controller: 'ControllerNotFound',
       });
     /**
