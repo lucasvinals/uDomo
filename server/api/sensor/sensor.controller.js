@@ -2,15 +2,15 @@
 // Execute python or js to get all values,
 // response
 
-//var serverCode      = require('../../config/sensors').jsDummy;
-//var serverSensor    = require(serverCode.dir + serverCode.fileName + serverCode.extension);
+// var serverCode      = require('../../config/sensors').jsDummy;
+// var serverSensor    = require(serverCode.dir + serverCode.fileName + serverCode.extension);
 //
 // var pythonShell     = require('python-shell');
-//var sensor          = new pythonShell(   serverCode.dir + 
-//                                        serverCode.fileName + 
-//                                        serverCode.extension, 
+// var sensor          = new pythonShell(   serverCode.dir +
+//                                        serverCode.fileName +
+//                                        serverCode.extension,
 //                                        {mode: 'json'}
-//);
+// );
 
 const Promise = require('bluebird');
 /**

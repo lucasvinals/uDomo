@@ -1,15 +1,16 @@
-let Zone   = require('../models/zone');
-var log     = log || process.log;
+const Zone = require('./zone.model');
 
 module.exports = (io) => {
-    /*************************************** Get Areas ***************************************************/
-    io.on('connection', (socket) => {
-        socket.on('Areas/Area/Read/Request', () => {
-            Areas.find({}, (error, areas) => {
-                /* Emit all areas and errors */
-                io.sockets.emit('Areas/Area/Read/Response', {"Error": error, "Areas": areas});
-            });
-        });
-    });
-    /****************************************************************************************************/
+  /**
+   * Get all zones
+   */
+  io.on('connection', (socket) =>
+    socket.on('Zones/Zone/Read/Request', () =>
+      Zone
+        .find()
+        .exec()
+        .then((Zones) => io.sockets.emit('Zones/Zone/Read/Response', { Error: null, Zones }))
+        .catch((findError) => io.sockets.emit('Zones/Zone/Read/Response', { Error: findError, Zones: [] }))
+    )
+  );
 };
