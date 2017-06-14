@@ -5,14 +5,14 @@
   "main": "cluster.js",
   "version": "1.0.0",
   "scripts": {
-    "start": "NODE_ENV=development nodemon --watch server -- ./cluster.js -c 1",
-    "cluster": "NODE_ENV=production nodemon -- ./cluster.js",
+    "start": "nodemon --watch server -- ./cluster.js -c 1",
+    "cluster": "nodemon -- ./cluster.js",
     "clean": "rimraf udomo dump.rdb *.log",
     "copystatic": "mkdir -p ./udomo && cp -r ./client/views ./udomo/views",
-    "basicWorkflow": "npm run clean && npm run copystatic",
+    "basicWorkflow": "yarn run clean && yarn run copystatic",
     "prepareSystem": "bash ./server/tools/prepareSystem.sh",
-    "production": "npm run basicWorkflow && NODE_ENV=production webpack && npm start",
-    "development": "(NODE_ENV=development webpack-dev-server &) && npm start"
+    "production": "NODE_ENV=production yarn run basicWorkflow && webpack && yarn run cluster",
+    "development": "NODE_ENV=development concurrently --kill-others --raw 'yarn run cluster' 'webpack-dev-server'"
   },
   "repository": {
     "type": "git",
@@ -90,7 +90,8 @@
     },
     "globals": {
       "DEVELOPMENT": true,
-      "PRODUCTION": true
+      "PRODUCTION": true,
+      "PORT": true
     },
     "parser": "babel-eslint",
     "parserOptions": {
