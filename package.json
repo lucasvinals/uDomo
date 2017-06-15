@@ -1,5 +1,5 @@
 {
-  "name": "udomo_webapplication",
+  "name": "udomo",
   "author": "Lucas Vinals",
   "license": "GPL-3.0",
   "main": "cluster.js",
@@ -11,7 +11,10 @@
     "copystatic": "mkdir -p ./udomo && cp -r ./client/views ./udomo/views",
     "basicWorkflow": "yarn run clean && yarn run copystatic",
     "production": "NODE_ENV=production yarn run basicWorkflow && webpack && yarn run cluster",
-    "development": "NODE_ENV=development concurrently --kill-others --raw 'yarn run cluster' 'webpack-dev-server'"
+    "development": "NODE_ENV=development concurrently --kill-others --raw 'yarn run cluster' 'webpack-dev-server'",
+    "snyk-auth": "snyk auth",
+    "snyk-test": "snyk test -q",
+    "snyk-protect": "snyk protect -q"
   },
   "repository": {
     "type": "git",
@@ -36,9 +39,10 @@
     "mongoose-delete": "^0.3.4",
     "ng-annotations": "^1.1.0",
     "optimist": "^0.6.1",
-    "socket.io": "^2.0.1",
+    "socket.io": "2.0.2",
     "socket.io-redis": "^5.1.0",
-    "uuid": "^3.0.1"
+    "uuid": "^3.0.1",
+    "snyk": "^1.34.3"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",
@@ -121,5 +125,6 @@
         }
       ]
     }
-  }
+  },
+  "snyk": true
 }
