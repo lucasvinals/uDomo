@@ -7,7 +7,7 @@
   "scripts": {
     "start": "nodemon --watch server -- ./cluster.js -c 1",
     "cluster": "nodemon -- ./cluster.js",
-    "clean": "rimraf udomo dump.rdb *.log",
+    "clean": "rimraf udomo dump.rdb *.log .com.google*",
     "copystatic": "mkdir -p ./udomo && cp -r ./client/views ./udomo/views",
     "basicWorkflow": "yarn run clean && yarn run copystatic",
     "prepareSystem": "bash ./server/tools/prepareSystem.sh",
