@@ -7,7 +7,7 @@ export default class {
   constructor(rootScope, location) {
     this.rootScope = rootScope;
     this.socket = io.connect(
-      `${ location.protocol() === 'https' ? 'wss' : 'ws' }://${ location.host() }:${ location.port() }`,
+      `${ location.protocol() === 'https' ? 'wss' : 'ws' }://${ location.host() }:${ PORT }`,
       {
         forceNew: true,
         reconnect: true,

@@ -2,7 +2,9 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
-
+const { DEFAULT_CLUSTER_PORT } = require('./server/config/environment');
+const { argv } = require('optimist');
+const PORT = Number(argv.p) || DEFAULT_CLUSTER_PORT;
 const PRODUCTION = process.env.NODE_ENV === 'production';
 const DEVELOPMENT = process.env.NODE_ENV === 'development';
 
@@ -45,14 +47,7 @@ const plugins = PRODUCTION ?
 /**
  * Use environment variables in the client!
  */
-plugins.push(
-  new webpack.DefinePlugin(
-    {
-      DEVELOPMENT: JSON.stringify(DEVELOPMENT),
-      PRODUCTION: JSON.stringify(PRODUCTION),
-    }
-  )
-);
+plugins.push(new webpack.DefinePlugin({ DEVELOPMENT, PRODUCTION, PORT }));
 
 module.exports = {
   devtool: 'source-map',
@@ -147,14 +142,13 @@ module.exports = {
      */
     compress: true,
     /**
-     * Redirect all /api calls to uDomo backend
+     * Redirect all uDomo '/api' calls...
      */
     proxy: {
       '/api': {
         target: {
-          host: 'localhost',
-          port: 12078,
-          protocol: 'http:',
+          host: '0.0.0.0',
+          port: PORT,
         },
         secure: false,
       },
