@@ -8,6 +8,8 @@
 HOMEDIR=~
 # ESP8266 Libraries
 LIBRARIESDIR=$HOMEDIR'/Arduino/libraries'
+# Server main directory
+SERVERDIR=$HOMEDIR'/udomo/server'
 
 # Install NodeJS
 echo -e "\e[44m> Installing NodeJS \e[0m\n"
@@ -63,16 +65,15 @@ rm -f $SERVERDIR'/npm-debug.log'
 if [ ! -d $SERVERDIR'/db' ]; then
   echo -e "\e[103m\e[91m> The tree directory 'db' doesn't exists. Creating...\e[0m"
   mkdir -p $SERVERDIR'/db/data/db'
-  mkdir $SERVERDIR'/db/logs' && echo "" > $SERVERDIR'/db/logs/log.txt'
+  mkdir $SERVERDIR'/db/logs' && echo "<------ uDomo Database Log ------>" > $SERVERDIR'/db/logs/log.txt'
 fi
 
-# Install some aditional (recommended) global packages
-echo -e "\e[44m> Installing/updating libraries \e[0m\n"
-( cd $HOMEDIR'/uDomo' && yarn )
-yarn global add nsp snyk npm-check
 
+echo -e "\e[44m> Installing/updating libraries \e[0m\n"
 # Install all project dependencies
-yarn
+( cd $HOMEDIR'/udomo' && yarn --ignore-engines)
+# Install some aditional (recommended) global packages
+yarn global add nsp snyk npm-check
 
 echo -e "\e[103m\e[91m> Checking dependencies vulnerabilities...\e[0m"
 nsp check
