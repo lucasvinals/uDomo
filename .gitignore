@@ -1,6 +1,7 @@
 #Logs
 *.log
 dump.rdb
+.tmp
 
 #Libraries and builds
 node_modules/
