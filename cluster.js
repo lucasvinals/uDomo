@@ -6,7 +6,7 @@ const { argv } = require('optimist');
 /**
  * Common config
  */
-const { DEFAULT_CLUSTER_PORT } = require('./server/config/environment');
+const { clusterPort } = require('./server/config/environment');
 /**
  * Libraries
  */
@@ -47,7 +47,7 @@ process.clusterHost = 'localhost';
 /**
  * Set the application port
  */
-process.clusterPort = Number(argv.p) || DEFAULT_CLUSTER_PORT;
+process.clusterPort = Number(argv.p) || clusterPort;
 /**
  * Database configurations
  */

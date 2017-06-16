@@ -2,9 +2,9 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
-const { DEFAULT_CLUSTER_PORT } = require('./server/config/environment');
+const { clusterPort } = require('./server/config/environment');
 const { argv } = require('optimist');
-const PORT = Number(argv.p) || DEFAULT_CLUSTER_PORT;
+const PORT = Number(argv.p) || clusterPort;
 const PRODUCTION = process.env.NODE_ENV === 'production';
 const DEVELOPMENT = process.env.NODE_ENV === 'development';
 

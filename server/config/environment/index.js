@@ -9,12 +9,11 @@ process.ROOTDIR = execSync(
   .replace('\n', '')
   .trim();
 /**
- * Read the environment file or set NODE_ENV to 'development'
+ * Set the environment with CLI option or 'development'
  */
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 module.exports = merge(
-  {
-    DEFAULT_CLUSTER_PORT: 12078,
-  },
-  require(`./${ process.env.NODE_ENV }`));
+  require('./shared'),
+  require(`./${ process.env.NODE_ENV }`)
+);
