@@ -9,7 +9,7 @@ HOMEDIR=~
 # ESP8266 Libraries
 LIBRARIESDIR=$HOMEDIR'/Arduino/libraries'
 # Server main directory
-SERVERDIR=$HOMEDIR'/udomo/server'
+SERVERDIR=$HOMEDIR'/uDomo/server'
 
 # Install NodeJS
 echo -e "\e[44m> Installing NodeJS \e[0m\n"
@@ -71,7 +71,7 @@ fi
 
 echo -e "\e[44m> Installing/updating libraries \e[0m\n"
 # Install all project dependencies
-( cd $HOMEDIR'/udomo' && yarn --ignore-engines)
+( cd $HOMEDIR'/uDomo' && yarn --ignore-engines)
 # Install some aditional (recommended) global packages
 yarn global add nsp snyk npm-check
 
@@ -82,12 +82,12 @@ yarn run snyk-protect
 yarn run snyk-test
 
 # Set a cron service to start the application when there is a network running.
-if [ ! -f '/etc/network/if-up.d/udomo' ]; then
-  sudo bash -c 'cat << EOF > /etc/network/if-up.d/udomo
+if [ ! -f '/etc/network/if-up.d/uDomo' ]; then
+  sudo bash -c 'cat << EOF > /etc/network/if-up.d/uDomo
   #!/bin/bash
-  ( cd ~/udomo && yarn run production )
+  ( cd ~/uDomo && yarn run production )
   EOF'
-  sudo chmod 0600 /etc/network/if-up.d/udomo
+  sudo chmod 0600 /etc/network/if-up.d/uDomo
 fi
 
 echo -e "\n\e[91m\e[103m> Please, edit the database file in "$SERVERDIR"/config/db.js accordingly. \n"
