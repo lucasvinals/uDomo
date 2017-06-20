@@ -1,20 +1,18 @@
 const started = Date.now();
-/**
- * Command line '--' style arguments
- */
-const { argv } = require('optimist');
+const { cpus } = require('os');
 /**
  * Common config
  */
-const { clusterPort } = require('./server/config/environment');
+const { clusterPort, ssl } = require('./server/config/environment');
 /**
  * Libraries
  */
 const cluster = require('cluster');
-const net = require('net');
+const https = require('https');
 const { times, repeat } = require('lodash');
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
+const { readFileSync } = require('fs');
 /**
  * Shell commands.
  */
@@ -27,12 +25,12 @@ mongoose.Promise = Promise;
 /**
  * How many cores are available?
  */
-const machineCPUs = Number(require('os').cpus().length);
+const machineCPUs = Number(cpus().length);
 /**
  * If '-cores' option is passed, then set them accordingly,
  * if not, then use all cores available.
  */
-const numProcesses = Number(argv.c) || machineCPUs;
+const numProcesses = Number(process.env.CORES) || machineCPUs;
 /**
  * Custom log, with colours.
  * Could be replaces with a library, but this works well.
@@ -47,7 +45,7 @@ process.clusterHost = 'localhost';
 /**
  * Set the application port
  */
-process.clusterPort = Number(argv.p) || clusterPort;
+process.clusterPort = Number(process.env.PORT) || clusterPort;
 /**
  * Database configurations
  */
@@ -223,24 +221,30 @@ function spawnMaster() {
   /**
    * Create the outside facing server listening on process.clusterPort
    */
-  return net
-  .createServer({ pauseOnConnect: true })
-  .on('connection', (connection) => {
-    /**
-     * Received a connection and need to pass it to the appropriate worker.
-     * Get the worker for this connection's source IP and send it the connection.
-     */
-    const ipAddress = connection.remoteAddress;
-    const index = getWorkerIndex(ipAddress, numProcesses);
-    workers[index].send('uDomoNewConnection', connection);
-  })
-  .listen(process.clusterPort, () => {
-    process.log.info(
-      `\n> New instance of Master with PID ${ process.pid } started in ${ (Date.now() - started) } ms.`
-      .replace(/\s+/g, ' ')
-      .trim()
-    );
-  });
+  return https
+    .createServer({
+      key: readFileSync(ssl.key),
+      cert: readFileSync(ssl.cert),
+      requestCert: false,
+      rejectUnauthorized: false,
+    })
+    .on('connection', (connection) => {
+      connection.pause();
+      /**
+       * Received a connection and need to pass it to the appropriate worker.
+       * Get the worker for this connection's source IP and send it the connection.
+       */
+      const ipAddress = connection.remoteAddress;
+      const index = getWorkerIndex(ipAddress, numProcesses);
+      workers[index].send('uDomoNewConnection', connection);
+    })
+    .listen(process.clusterPort, () => {
+      process.log.info(
+        `\n> New instance of Master with PID ${ process.pid } started in ${ (Date.now() - started) } ms.`
+        .replace(/\s+/g, ' ')
+        .trim()
+      );
+    });
 }
 
 /**
