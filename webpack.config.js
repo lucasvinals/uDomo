@@ -3,8 +3,7 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const { clusterPort } = require('./server/config/environment');
-const { argv } = require('optimist');
-const PORT = Number(argv.p) || clusterPort;
+const PORT = process.env.PORT || clusterPort;
 const PRODUCTION = process.env.NODE_ENV === 'production';
 const DEVELOPMENT = process.env.NODE_ENV === 'development';
 
@@ -50,7 +49,7 @@ const plugins = PRODUCTION ?
 plugins.push(new webpack.DefinePlugin({ DEVELOPMENT, PRODUCTION, PORT }));
 
 module.exports = {
-  devtool: 'source-map',
+  devtool: DEVELOPMENT ? 'source-map' : '',
   entry: './client/js/app.js',
   plugins,
   resolve: {},
