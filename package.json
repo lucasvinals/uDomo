@@ -12,7 +12,7 @@
     "copy-images": "mkdir -p ./udomo/images && cp -R ./client/images/* ./udomo/images/",
     "copystatic": "concurrently --raw 'yarn run copy-views' 'yarn run copy-images'",
     "basicWorkflow": "yarn run clean && yarn run copystatic",
-    "build:production": "yarn run basicWorkflow && webpack -p",
+    "build:production": "yarn run basicWorkflow && NODE_ENV=production webpack -p",
     "production": "NODE_ENV=production concurrently --kill-others-on-fail --raw 'yarn run build:production' 'yarn run cluster'",
     "development": "NODE_ENV=development concurrently --kill-others --raw 'yarn start' 'webpack-dev-server'",
     "snyk-auth": "snyk auth",
