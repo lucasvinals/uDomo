@@ -5,13 +5,13 @@
   "main": "cluster.js",
   "version": "1.0.0",
   "scripts": {
-    "start": "nodemon --inspect --watch server -- ./cluster.js -c 1",
+    "start": "CORES=1 nodemon --inspect --watch server -- ./cluster.js",
     "cluster": "nodemon -- ./cluster.js",
-    "clean": "rimraf udomo dump.rdb *.log .com.google*",
-    "copystatic": "mkdir -p ./udomo && cp -r ./client/views ./udomo/views",
+    "clean": "rimraf ./udomo dump.rdb *.log .com.google* v8*",
+    "copystatic": "mkdir -p ./udomo/views && cp -R ./client/views/**/ ./udomo/views/",
     "basicWorkflow": "yarn run clean && yarn run copystatic",
-    "production": "NODE_ENV=production yarn run basicWorkflow && webpack && yarn run cluster",
-    "development": "NODE_ENV=development concurrently --kill-others --raw 'yarn run cluster' 'webpack-dev-server'",
+    "production": "yarn run basicWorkflow && NODE_ENV=production concurrently --kill-others-on-fail --raw 'webpack -p' 'yarn run cluster'",
+    "development": "NODE_ENV=development concurrently --kill-others --raw 'yarn start' 'webpack-dev-server'",
     "snyk-auth": "snyk auth",
     "snyk-test": "snyk test -q",
     "snyk-protect": "snyk protect -q"
@@ -38,11 +38,10 @@
     "mongoose": "^4.10.2",
     "mongoose-delete": "^0.3.4",
     "ng-annotations": "^1.1.0",
-    "optimist": "^0.6.1",
-    "socket.io": "2.0.2",
+    "snyk": "^1.34.3",
+    "socket.io": "^2.0.3",
     "socket.io-redis": "^5.1.0",
-    "uuid": "^3.0.1",
-    "snyk": "^1.34.3"
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",
@@ -54,7 +53,7 @@
     "bootstrap-loader": "^2.1.0",
     "bootstrap-sass": "^3.3.7",
     "css-loader": "^0.28.4",
-    "eslint": "^3.17.1",
+    "eslint": "^4.0.0",
     "eslint-config-strict": "^13.0.0",
     "extract-text-webpack-plugin": "^2.1.0",
     "file-loader": "^0.11.1",
@@ -80,7 +79,7 @@
     "style-loader": "^0.18.1",
     "syntax-error": "^1.3.0",
     "url-loader": "^0.5.8",
-    "webpack": "^2.6.0",
+    "webpack": "^3.0.0",
     "webpack-dev-server": "^2.4.5"
   },
   "eslintConfig": {
