@@ -11,7 +11,7 @@ function seedDatabase() {
       throw new Error(seedError);
     });
   }
-  return true;
+  return Promise.resolve();
 }
 
 module.exports = seedDatabase;
