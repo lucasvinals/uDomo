@@ -2,46 +2,54 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
+const Glob = require('glob');
+const PurifyCSSPlugin = require('purifycss-webpack');
 const { clusterPort } = require('./server/config/environment');
 const PORT = process.env.PORT || clusterPort;
 const PRODUCTION = process.env.NODE_ENV === 'production';
 const DEVELOPMENT = process.env.NODE_ENV === 'development';
 
 const plugins = PRODUCTION ?
-[
-  new webpack.optimize.UglifyJsPlugin(
-    {
-      sourceMap: true,
-      compress: {
-        warnings: true,
-      },
-    }
-  ),
-  new ExtractTextPlugin('style-[contenthash:10].css'),
-  new HTMLWebpackPlugin(
-    {
-      template: './client/views/indexProduction.html',
-      filename: './views/index.html',
-      minify: {
-        minifyURLs: 'String',
-        removeComments: true,
-        removeScriptTypeAttributes: true,
-        removeStyleLinkTypeAttributes: true,
-        removeTagWhitespace: true,
-        useShortDoctype: true,
-        removeAttributeQuotes: true,
-        minifyJS: true,
-        minifyCSS: true,
-        caseSensitive: true,
-        collapseWhitespace: true,
-      },
-    }
-  ),
-] :
-[
-  new webpack.HotModuleReplacementPlugin(),
-  new webpack.NamedModulesPlugin(),
-];
+  [
+    new webpack.optimize.UglifyJsPlugin(
+      {
+        sourceMap: true,
+        compress: {
+          warnings: true,
+        },
+      }
+    ),
+    new ExtractTextPlugin('style-[contenthash:10].css'),
+    new PurifyCSSPlugin(
+      {
+        paths: Glob.sync(path.join(__dirname, 'udomo/views/**/*.html')),
+        minimize: true,
+      }
+    ),
+    new HTMLWebpackPlugin(
+      {
+        template: './client/views/indexProduction.html',
+        filename: './views/index.html',
+        minify: {
+          minifyURLs: 'String',
+          removeComments: true,
+          removeScriptTypeAttributes: true,
+          removeStyleLinkTypeAttributes: true,
+          removeTagWhitespace: true,
+          useShortDoctype: true,
+          removeAttributeQuotes: true,
+          minifyJS: true,
+          minifyCSS: true,
+          caseSensitive: true,
+          collapseWhitespace: true,
+        },
+      }
+    ),
+  ] :
+  [
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NamedModulesPlugin(),
+  ];
 
 /**
  * Use environment variables in the client!
