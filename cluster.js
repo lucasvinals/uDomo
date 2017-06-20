@@ -141,7 +141,7 @@ function initMongoDB() {
       timeout: 15000,
     }
   )
-  .then(() => database.url);
+    .then(() => database.url);
 }
 /**
  * Connect to mongod running database.
@@ -176,7 +176,7 @@ function checkCorrectNumberOfCores() {
       message() && reject(new Error(`Invalid number of cores: ${ numProcesses }`)) :
       fullfill();
   })
-  .catch(killServer);
+    .catch(killServer);
 }
 
 /**
@@ -241,8 +241,8 @@ function spawnMaster() {
     .listen(process.clusterPort, () => {
       process.log.info(
         `\n> New instance of Master with PID ${ process.pid } started in ${ (Date.now() - started) } ms.`
-        .replace(/\s+/g, ' ')
-        .trim()
+          .replace(/\s+/g, ' ')
+          .trim()
       );
     });
 }
