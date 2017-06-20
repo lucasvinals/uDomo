@@ -118,11 +118,7 @@ module.exports = {
         test: /\.(woff2?|woff|ttf|eot|svg)$/,
         loader: 'url-loader?limit=10000&name=fonts/[name].[ext]',
       },
-      DEVELOPMENT ?
-      {
-        test: /\.(html)$/,
-        loader: 'raw-loader',
-      } : {},
+      DEVELOPMENT ? { test: /\.(html)$/, loader: 'raw-loader' } : {},
     ],
   },
   output: {
