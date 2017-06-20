@@ -10,7 +10,8 @@
     "clean": "rimraf ./udomo dump.rdb *.log .com.google* v8*",
     "copystatic": "mkdir -p ./udomo/views && cp -R ./client/views/**/ ./udomo/views/",
     "basicWorkflow": "yarn run clean && yarn run copystatic",
-    "production": "yarn run basicWorkflow && NODE_ENV=production concurrently --kill-others-on-fail --raw 'webpack -p' 'yarn run cluster'",
+    "build:production": "yarn run basicWorkflow && webpack -p",
+    "production": "NODE_ENV=production concurrently --kill-others-on-fail --raw 'yarn run build:production' 'yarn run cluster'",
     "development": "NODE_ENV=development concurrently --kill-others --raw 'yarn start' 'webpack-dev-server'",
     "snyk-auth": "snyk auth",
     "snyk-test": "snyk test -q",
@@ -80,7 +81,7 @@
     "syntax-error": "^1.3.0",
     "url-loader": "^0.5.8",
     "webpack": "^3.0.0",
-    "webpack-dev-server": "^2.4.5"
+    "webpack-dev-server": "2.4.5"
   },
   "eslintConfig": {
     "extends": [
