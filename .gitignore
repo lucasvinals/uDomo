@@ -8,6 +8,10 @@ node_modules/
 udomo/
 devices/main/thirdParty
 node*
+v8*
+
+# SSL certificates and keys
+server/ssl
 
 #Backups
 server/backups/
