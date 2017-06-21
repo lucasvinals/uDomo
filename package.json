@@ -5,8 +5,8 @@
   "main": "cluster.js",
   "version": "1.0.0",
   "scripts": {
-    "start": "CORES=1 nodemon --inspect --watch server -- ./cluster.js",
-    "cluster": "nodemon -- ./cluster.js",
+    "start": "NODE_ENV=development CORES=1 nodemon --inspect --watch ./server -- ./cluster.js",
+    "cluster": "NODE_ENV=production forever start --watch --watchDirectory=server cluster.js",
     "clean": "rimraf ./udomo dump.rdb *.log .com.google* v8*",
     "copy-views": "mkdir -p ./udomo/views && cp -R ./client/views/**/ ./udomo/views/",
     "copy-images": "mkdir -p ./udomo/images && cp -R ./client/images/* ./udomo/images/",
@@ -33,6 +33,7 @@
     "compression": "^1.6.2",
     "concurrently": "^3.4.0",
     "express": "^4.15.3",
+    "forever": "^0.15.3",
     "helmet": "^3.6.1",
     "http-status": "^1.0.1",
     "jsonwebtoken": "^7.4.1",
