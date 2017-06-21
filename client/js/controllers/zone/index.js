@@ -8,6 +8,7 @@ export default class {
     this.Zone = Zone;
     this.Common = Common;
     this.scope = scope;
+    this.GetZones();
     this.Zone.Subscribe(this.GetZones);
     this.scope.$on('$destroy', this.Zone.ClearListeners);
   }

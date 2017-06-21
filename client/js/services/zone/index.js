@@ -25,20 +25,20 @@ export default class {
   }
 
   GetZones() {
-    this.http
-    .get('/api/zone')
-    .then((zones) => {
-      const { Error: GetZonesError, Zones } = zones.data;
-      if (GetZonesError) {
-        this.Message.error(`Error: ${ JSON.stringify(GetZonesError) }`);
-        throw new Error('GetZonesError', JSON.stringify(GetZonesError));
-      }
-      return Zones;
-    })
-    .catch((httpZoneError) => {
-      this.Message.error('Ocurrió un error con la consulta http');
-      window.log.error(JSON.stringify(httpZoneError));
-    });
+    return this.http
+      .get('/api/zone')
+      .then((zones) => {
+        const { Error: GetZonesError, Zones } = zones.data;
+        if (GetZonesError) {
+          this.Message.error(`Error: ${ JSON.stringify(GetZonesError) }`);
+          throw new Error('GetZonesError', JSON.stringify(GetZonesError));
+        }
+        return Zones;
+      })
+      .catch((httpZoneError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        window.log.error(JSON.stringify(httpZoneError));
+      });
   }
 
   CreateZone(zoneToCreate) {
