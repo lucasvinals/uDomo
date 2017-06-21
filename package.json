@@ -6,8 +6,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "NODE_ENV=development CORES=1 nodemon --inspect --watch ./server -- ./cluster.js",
-    "cluster": "NODE_ENV=production forever start --watch --watchDirectory=server cluster.js",
-    "clean": "rimraf ./udomo dump.rdb *.log .com.google* v8*",
+    "cluster": "NODE_ENV=production forever start cluster.js",
+    "clean": "rimraf ./udomo dump.rdb *.log .com.google* v8* /root/.forever/*.log",
     "copy-views": "mkdir -p ./udomo/views && cp -R ./client/views/**/ ./udomo/views/",
     "copy-images": "mkdir -p ./udomo/images && cp -R ./client/images/* ./udomo/images/",
     "copystatic": "concurrently --raw 'yarn run copy-views' 'yarn run copy-images'",
@@ -15,6 +15,7 @@
     "build:production": "yarn run basicWorkflow && NODE_ENV=production webpack -p",
     "production": "NODE_ENV=production concurrently --kill-others-on-fail --raw 'yarn run build:production' 'yarn run cluster'",
     "development": "NODE_ENV=development concurrently --kill-others --raw 'yarn start' 'webpack-dev-server'",
+    "logs:production": "tail -f ~/.forever/*.log",
     "snyk-auth": "snyk auth",
     "snyk-test": "snyk test -q",
     "snyk-protect": "snyk protect -q"
