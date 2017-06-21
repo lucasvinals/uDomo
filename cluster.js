@@ -144,13 +144,6 @@ function initMongoDB() {
     .then(() => database.url);
 }
 /**
- * Connect to mongod running database.
- * @param {String} url
- */
-function connectToMongoDB(url) {
-  return mongoose.connect(url, { server: { reconnectTries: Number.MAX_VALUE } });
-}
-/**
  * Get a number from 1 to numProcesses accordingly to the IP.
  * Same worker given the same IP address.
  */
@@ -261,7 +254,6 @@ function normalInit() {
   return checkCorrectNumberOfCores()
     .then(initRedis)
     .then(initMongoDB)
-    .then(connectToMongoDB)
     .then(seedDatabase)
     .then(spawnMaster);
 }
@@ -285,7 +277,7 @@ if (cluster.isMaster) {
     .catch(killServer);
 } else {
   /**
-   * Spanw the server listening to the main connection.
+   * Spawn the server listening to the main connection.
    */
   childServer({ 'serverPort': 0 });
 }

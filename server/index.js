@@ -13,6 +13,7 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { cloneDeep } = require('lodash');
 const httpStatus = require('http-status');
+const mongoose = require('mongoose');
 const req = require;
 
 function uDomoModules(path) {
@@ -138,6 +139,10 @@ function init({ serverPort }) {
       app.get('*', (request, response) =>
         response.sendFile('index.html', { root: `${ process.ROOTDIR }/udomo/views` })
       );
+      /**
+       * Connect to mongoose instance
+       */
+      mongoose.connect(process.MongoURL, { server: { reconnectTries: Number.MAX_VALUE } });
     })
     .catch((ModuleError) => process.log.error(`Error ocurred loading modules: ${ ModuleError }`));
 
