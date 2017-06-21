@@ -84,7 +84,7 @@ export default class {
         controller: 'ControllerUser',
       })
       /**
-       * Areas management
+       * Zones management
        */
       .state('uDomo.zones', {
         url: 'zones',

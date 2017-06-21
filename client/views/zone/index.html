@@ -1,7 +1,7 @@
 <div>
     <button class="col-md-offset-4 col-md-4 btn btn-lg btn-primary"
             data-toggle="modal"
-            data-target="#createArea">
+            data-target="#createZone">
         <span class="glyphicon glyphicon-plus"></span> Crear Área
     </button>
     <br><br>
@@ -67,20 +67,20 @@
             <th colspan="2">Acción</th>
         </thead>
         <tbody>
-            <tr class="text-left" data-ng-repeat="area in areas">
-                <td data-ng-bind="area.Name"></td>
+            <tr class="text-left" data-ng-repeat="zone in zones">
+                <td data-ng-bind="zone.Name"></td>
                 <td>
                     <span class="glyphicon glyphicon-ok btn btn-success"
                             data-toggle="modal" data-target="#listDevices"
-                            data-ng-click="lastAreaSel($index)"></span>
+                            data-ng-click="lastZoneSel($index)"></span>
                     <span class="glyphicon glyphicon-plus btn btn-info" 
                             data-toggle="modal" 
-                            data-target="#Area{{$index}}"></span>
+                            data-target="#Zone{{$index}}"></span>
                     <span class="glyphicon glyphicon-remove btn btn-danger" 
-                            data-ng-click="removeArea($index)"></span>
+                            data-ng-click="removeZone($index)"></span>
                 </td>
                 <td>
-                    <div id="Area{{$index}}" tabindex="-1"
+                    <div id="Zone{{$index}}" tabindex="-1"
                          class="modal fade" role="dialog"
                          aria-labelledby="executionOptionLabel">
                         <div class="modal-dialog">
@@ -88,7 +88,7 @@
                                 <form class="form text-left col-md-offset-1" role="form">
                                     <h4>Detalles del Área</h4>
                                     <div class="modal-body">
-                                        Nombre: <label data-ng-bind="area.Name"></label><br>
+                                        Nombre: <label data-ng-bind="zone.Name"></label><br>
                                     </div>
                                 </form><br>
                             </div>

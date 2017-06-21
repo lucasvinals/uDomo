@@ -38,21 +38,21 @@
                 </div>
 
                 <h4 class='negrita'>Selecione o 
-                    <a  href='/areas'
-                        aria-label='Go to areas Ir a Áreas' 
+                    <a  href='/zones'
+                        aria-label='Go to zones Ir a Áreas' 
                         title='Ir a áreas' 
                         target-blank> cree una nueva área</a>
                 </h4>
                 <div class='form-group radio' show-errors>
-                    <div data-ng-repeat='area in availableAreas' class="col-md-9">
+                    <div data-ng-repeat='zone in availableZones' class="col-md-9">
                         <label>
                             <input  required 
                                     type='radio'
-                                    name='Areas'
-                                    value='{{area.Name}}'
-                                    data-ng-click='tmpDevice.areaSelected = area._id' />
+                                    name='Zones'
+                                    value='{{zone.Name}}'
+                                    data-ng-click='tmpDevice.zoneSelected = zone._id' />
                             <span   class='negrita'
-                                    data-ng-bind='area.Name'></span>
+                                    data-ng-bind='zone.Name'></span>
                         </label>
                     </div>
                 </div>
@@ -66,8 +66,8 @@
                            type="button"
                            value="Guardar"
                            ng-disabled='(formADispositivo.$invalid || 
-                                        availableAreas.length == 0) && 
-                                        tmpDevice.areaSelected != 1'    
+                                        availableZones.length == 0) && 
+                                        tmpDevice.zoneSelected != 1'    
                            data-dismiss='modal'
                            ng-click='saveDevice(tmpDevice)'/>
                 </div>
