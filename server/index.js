@@ -13,7 +13,7 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { cloneDeep } = require('lodash');
 const httpStatus = require('http-status');
-const mongoose = require('mongoose');
+const connectDatabase = require('./tools/connectToMongoDB.js');
 const req = require;
 
 function uDomoModules(path) {
@@ -140,9 +140,9 @@ function init({ serverPort }) {
         response.sendFile('index.html', { root: `${ process.ROOTDIR }/udomo/views` })
       );
       /**
-       * Connect to mongoose instance
+       * Connect to database engine
        */
-      mongoose.connect(process.MongoURL, { server: { reconnectTries: Number.MAX_VALUE } });
+      connectDatabase();
     })
     .catch((ModuleError) => process.log.error(`Error ocurred loading modules: ${ ModuleError }`));
 
