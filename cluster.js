@@ -218,8 +218,7 @@ function spawnMaster() {
     .createServer({
       key: readFileSync(ssl.key),
       cert: readFileSync(ssl.cert),
-      requestCert: false,
-      rejectUnauthorized: false,
+      timeout: 2000,
     })
     .on('connection', (connection) => {
       connection.pause();
