@@ -32,7 +32,8 @@ echo -e '\e[44m> Installing NodeJS \e[0m\n'
 # Install required packages
 echo -e '\e[103m\e[91m> Updating the system and installing needed software \e[0m'
 # MongoDB installs (04/10/2016) the outdated v2.4 in Raspbian (Debian), but we're good for now.
-su - root -c 'apt -qq update && apt --yes --force-yes install bash git mongodb realpath yarn redis-server'
+npm i -g yarn
+su - root -c 'apt -qq update && apt --yes --force-yes install bash git mongodb realpath redis-server'
 
 # Check if there is an Arduino libraries directory; if not, create.
 if [ ! -d $LIBRARIESDIR ]; then
@@ -63,7 +64,7 @@ rm -f $SERVERDIR'/npm-debug.log'
 
 # Check if there is a database directory; if not, create.
 if [ ! -d $SERVERDIR'/db' ]; then
-  echo -e '\e[103m\e[91m> The tree directory db doesn\''t exists. Creating...\e[0m'
+  echo -e "\e[103m\e[91m> The tree directory db doesn't exists. Creating...\e[0m"
   mkdir -p $SERVERDIR'/db/data/db'
   mkdir $SERVERDIR'/db/logs' && echo '<------ uDomo Database Log ------>' > $SERVERDIR'/db/logs/log.txt'
 fi
