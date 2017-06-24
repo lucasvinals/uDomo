@@ -114,11 +114,30 @@ function init({ serverPort }) {
    * Prevent EventEmmiter memory leak
    */
   socketio.sockets.setMaxListeners(0);
+  /**
+   *  Emulate a connection event on the server by emitting the event with
+   *  the connection the master sent us.
+   */
+  process.on('message', (event, connection) => {
+    if (event === 'uDomoNewConnection') {
+      process.log.info(`\n> New connection from IP: ${ connection.remoteAddress }`);
+      server.emit('connection', connection);
+      connection.resume();
+    }
+  });
+
+  /**
+   * If an error occurs, log it. I think this is not the best option,
+   * but for now works. Should be Winston, Trace,etc...?
+   */
+  process.on('uncaughtException', (uncaughtError) =>
+    process.log.error(`An error has occurred ${ uncaughtError.stack }`)
+  );
 
   /**
    * Init modules in 'server/api'
    */
-  uDomoModules('/api')
+  return uDomoModules('/api')
     .then((modules) => {
       /**
        * Define the /api/[method], require corresponding module and init.
@@ -143,33 +162,14 @@ function init({ serverPort }) {
        * Connect to database engine
        */
       connectDatabase();
+      /**
+       * Log server info
+       */
+      process.log.info(
+        `\n> New instance of Server with PID ${ process.pid } started in ${ (Date.now() - started) } ms.`
+      );
     })
     .catch((ModuleError) => process.log.error(`Error ocurred loading modules: ${ ModuleError }`));
-
-  /**
-   * LISTENERS
-   */
-  /**
-   *  Emulate a connection event on the server by emitting the event with
-   *  the connection the master sent us.
-   */
-  process.on('message', (event, connection) => {
-    if (event === 'uDomoNewConnection') {
-      process.log.info(`\n> New connection from IP: ${ connection.remoteAddress }`);
-      server.emit('connection', connection);
-      connection.resume();
-    }
-  });
-  /**
-   * If an error occurs, log it
-   */
-  process.on('uncaughtException', (uncaughtError) =>
-    process.log.error(`An error has occurred ${ uncaughtError.stack }`));
-
-  /**
-   * Log server info
-   */
-  process.log.info(`\n> New instance of Server with PID ${ process.pid } started in ${ (Date.now() - started) } ms.`);
 }
 
 module.exports = init;
