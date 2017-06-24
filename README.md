@@ -2,7 +2,7 @@
 > Simple home automation. Yet, complete appliances management.
 
 ## Steps to get uDomo running:
-* Clone this repository `git clone git@github.com:lucasvinals/uDomo.git uDomo`
+* Clone this repository `git clone https://github.com/lucasvinals/uDomo`
 * **cd** to this directory and execute in a console: **bash ./server/tools/prepareSystem.sh**
 * Change database configuration in ./server/config/db.js
 * Execute: ** yarn run development** (with HMR) or ** yarn run production ** (with uglify, tree shaking, etc)
