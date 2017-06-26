@@ -4,6 +4,8 @@
 # Created: 04/2016
 # Modified: 06/2017
 
+# Platform -> 'linux-debian', 'osx'
+PLATFORM='linux-debian-based'
 # Main directory
 HOMEDIR=~
 # ESP8266 Libraries
@@ -36,7 +38,12 @@ source $HOMEDIR/.nvm/nvm.sh
 echo -e '\e[103m\e[91m> Updating the system and installing needed software \e[0m'
 npm i -g yarn
 # MongoDB installs (04/10/2016) the outdated v2.4 in Raspbian (Debian), but we're good for now.
-su - root -c 'apt -qq update && apt --yes --force-yes install bash git mongodb realpath redis-server python2.7'
+DEPENDENCIES_uDomo='git mongodb redis-server python'
+if [ '$PLATFORM' == 'linux-debian-based' ]; then
+  su - root -c 'apt -qq update && apt --yes --force-yes install '$DEPENDENCIES_uDomo
+elif [ '$PLATFORM' == 'osx' ]; then
+  brew install $DEPENDENCIES_uDomo
+fi
 
 # Check if there is an Arduino libraries directory; if not, create.
 if [ ! -d $LIBRARIESDIR ]; then
