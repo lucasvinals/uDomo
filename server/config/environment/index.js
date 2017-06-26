@@ -1,13 +1,9 @@
 const { merge } = require('lodash');
-const { execSync } = require('child_process');
+const { realpathSync } = require('fs');
 /**
  * Get the main app path
  */
-process.ROOTDIR = execSync(
-  `${ process.platform === 'linux' ? 'realpath' : 'cd' } .`)
-  .toString()
-  .replace('\n', '')
-  .trim();
+process.ROOTDIR = realpathSync('../../../');
 /**
  * Set the environment with CLI option or 'development'
  */
