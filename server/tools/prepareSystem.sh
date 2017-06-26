@@ -29,11 +29,14 @@ echo -e '\e[44m> Installing NodeJS \e[0m\n'
   nvm install node
 )
 
+# Update PATH with the newly installed Node
+source $HOMEDIR/.nvm/nvm.sh
+
 # Install required packages
 echo -e '\e[103m\e[91m> Updating the system and installing needed software \e[0m'
-# MongoDB installs (04/10/2016) the outdated v2.4 in Raspbian (Debian), but we're good for now.
 npm i -g yarn
-su - root -c 'apt -qq update && apt --yes --force-yes install bash git mongodb realpath redis-server'
+# MongoDB installs (04/10/2016) the outdated v2.4 in Raspbian (Debian), but we're good for now.
+su - root -c 'apt -qq update && apt --yes --force-yes install bash git mongodb realpath redis-server python2.7'
 
 # Check if there is an Arduino libraries directory; if not, create.
 if [ ! -d $LIBRARIESDIR ]; then
