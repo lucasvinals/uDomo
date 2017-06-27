@@ -39,7 +39,7 @@ echo -e '\e[103m\e[91m> Updating the system and installing needed software \e[0m
 npm i -g yarn
 # MongoDB installs (04/10/2016) the outdated v2.4 in Raspbian (Debian), but we're good for now.
 DEPENDENCIES_uDomo='git mongodb redis-server python'
-if [ '$PLATFORM' == 'linux-debian-based' ]; then
+if [ "$PLATFORM" == 'linux-debian-based' ]; then
   su - root -c 'apt -qq update && apt --yes --force-yes install '$DEPENDENCIES_uDomo
 elif [ '$PLATFORM' == 'osx' ]; then
   brew install $DEPENDENCIES_uDomo
