@@ -3,7 +3,7 @@ const { realpathSync } = require('fs');
 /**
  * Get the main app path
  */
-process.ROOTDIR = realpathSync('../../../');
+process.ROOTDIR = realpathSync('.');
 /**
  * Set the environment with CLI option or 'development'
  */
