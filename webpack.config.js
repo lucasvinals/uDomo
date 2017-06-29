@@ -1,8 +1,8 @@
-const path = require('path');
 const webpack = require('webpack');
+const path = require('path');
+const glob = require('glob');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
-const Glob = require('glob');
 const PurifyCSSPlugin = require('purifycss-webpack');
 const { clusterPort } = require('./server/config/environment');
 const PORT = process.env.PORT || clusterPort;
@@ -16,13 +16,16 @@ const plugins = PRODUCTION ?
         sourceMap: true,
         compress: {
           warnings: true,
+          'screw_ie8': true,
         },
+        beautify: false,
+        comments: false,
       }
     ),
     new ExtractTextPlugin('style-[contenthash:10].css'),
     new PurifyCSSPlugin(
       {
-        paths: Glob.sync(path.join(__dirname, 'udomo/views/**/*.html')),
+        paths: glob.sync(path.join(__dirname, 'udomo/views/**/*.html')),
         minimize: true,
       }
     ),
