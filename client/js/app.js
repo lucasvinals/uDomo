@@ -1,5 +1,7 @@
 if (DEVELOPMENT) {
   const Require = require;
+  Require('../../node_modules/angular/angular.min.js');
+  Require('../../node_modules/angular-ui-router/release/angular-ui-router.min.js');
   Require('../index.html');
   Require('../views/configuration/index.html');
   Require('../views/device/index.html');
