@@ -9,6 +9,7 @@ udomo/
 devices/main/thirdParty
 node*
 v8*
+webpack_cache
 
 # SSL certificates and keys
 server/ssl
