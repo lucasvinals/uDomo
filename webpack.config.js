@@ -73,6 +73,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
+            cacheDirectory: './webpack_cache/',
             plugins: [ 'transform-decorators-legacy' ],
             presets: [
               [
@@ -92,8 +93,15 @@ module.exports = {
        * if not, include as file (file-loader)
        */
       {
-        test: /\.(png|jpg|gif)$/,
-        use: 'url-loader?limit=10000&name=images/[hash:12].[ext]',
+        test: /\.(png|jpg|gif|ico)$/,
+        use: {
+          loader: 'url-loader',
+          options: {
+            cacheDirectory: './webpack_cache/',
+            limit: 10000,
+            name: 'images/[hash:12].[ext]',
+          },
+        },
         exclude: /node_modules/,
       },
       /**
@@ -104,7 +112,14 @@ module.exports = {
         use: PRODUCTION ?
           ExtractTextPlugin.extract(
             {
-              use: 'css-loader?minimize&localIdentName=[hash:base64:10]',
+              use: {
+                loader: 'css-loader',
+                options: {
+                  cacheDirectory: './webpack_cache/',
+                  minimize: true,
+                  localIdentName: '[hash:base64:10]',
+                },
+              },
             }
           ) :
           /**
@@ -118,7 +133,14 @@ module.exports = {
        */
       {
         test: /\.(woff2?|woff|ttf|eot|svg)$/,
-        loader: 'url-loader?limit=10000&name=fonts/[name].[ext]',
+        use: {
+          loader: 'url-loader',
+          options: {
+            cacheDirectory: './webpack_cache/',
+            limit: 10000,
+            name: 'fonts/[name].[ext]',
+          },
+        },
       },
       DEVELOPMENT ? { test: /\.(html)$/, loader: 'raw-loader' } : {},
     ],
