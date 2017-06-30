@@ -1,6 +1,9 @@
 if (DEVELOPMENT) {
   const Require = require;
-  Require('../../node_modules/angular/angular.min.js');
+  window.alertify = Require('../../node_modules/alertifyjs/build/alertify.min.js');
+  /**
+   * Angular-ui-router loads also Angular.
+   */
   Require('../../node_modules/angular-ui-router/release/angular-ui-router.min.js');
   Require('../index.html');
   Require('../views/configuration/index.html');

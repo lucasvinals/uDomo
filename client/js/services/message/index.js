@@ -1,10 +1,9 @@
-import Alertify from 'alertifyjs';
 import { service } from 'ng-annotations';
 
 @service('FactoryMessage')
 export default class {
   constructor() {
-    this.Alertify = Alertify;
+    this.Alertify = window.alertify;
   }
   'error'(message, duration = Number('7')) {
     return this.Alertify.notify(message, 'custom_error', duration);
