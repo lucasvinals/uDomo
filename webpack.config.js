@@ -61,10 +61,6 @@ plugins.push(new webpack.DefinePlugin({ DEVELOPMENT, PRODUCTION, PORT }));
 
 module.exports = {
   devtool: DEVELOPMENT ? 'source-map' : '',
-  externals: {
-    angular: 'angular',
-    'angular-ui-router': 'angular-ui-router',
-  },
   entry: './client/js/app.js',
   plugins,
   module: {
