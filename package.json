@@ -38,7 +38,7 @@
     "jsonwebtoken": "^7.4.1",
     "lodash": "^4.17.4",
     "method-override": "^2.3.9",
-    "mongoose": "^4.10.2",
+    "mongoose": "4.10.8",
     "mongoose-delete": "^0.3.4",
     "ng-annotations": "^1.1.0",
     "snyk": "^1.34.3",
