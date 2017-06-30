@@ -63,7 +63,14 @@ module.exports = {
   devtool: DEVELOPMENT ? 'source-map' : '',
   entry: './client/js/app.js',
   plugins,
+  resolve: {
+    alias: {
+      'ng-annotations': `${ process.ROOTDIR }/node_modules/ng-annotations/index.js`,
+    },
+    unsafeCache: true,
+  },
   module: {
+    noParse: [ /ng-annotations/ ],
     rules: [
       /**
        * Transpile ES6 (ES2015) to ES5 with Babel
