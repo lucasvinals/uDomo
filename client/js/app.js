@@ -23,7 +23,6 @@ if (DEVELOPMENT) {
   Require('../views/zone/modals/create.html');
 }
 
-import angular from 'angular';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 /**
@@ -146,7 +145,6 @@ Directives.autodeclare(uDomoDirectives);
 /**
  * Routes
  */
-import 'angular-ui-router';
 import Routes from './app.routes';
 const uDomoRoutes = angular.module('uDomo.Routes', []);
 Routes.autodeclare(uDomoRoutes);

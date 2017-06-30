@@ -1,5 +1,3 @@
-
-import angular from 'angular';
 import { service, inject } from 'ng-annotations';
 
 @service('FactoryUser')
@@ -71,23 +69,23 @@ export default class {
 
   DeleteUser(id) {
     return this.Message.confirm(
-    'Desea eliminar el usuario?',
-    Number('5'),
-    (response) =>
-      response && this.http
-        .delete(`/api/user/${ id }`)
-        .then((deletedResult) => {
-          const { ok, 'n': NumberOfDeletes } = deletedResult.data.User;
-          if (ok && NumberOfDeletes) {
-            this.Message.success('El usuario fue eliminado.');
-            this.Observer.notify();
-          }
-          return id;
-        })
-        .catch((deleteError) => {
-          this.Message.error('Ocurrió un error con la consulta http');
-          throw new Error('HTTPRequestError', JSON.stringify(deleteError));
-        })
+      'Desea eliminar el usuario?',
+      Number('5'),
+      (response) =>
+        response && this.http
+          .delete(`/api/user/${ id }`)
+          .then((deletedResult) => {
+            const { ok, 'n': NumberOfDeletes } = deletedResult.data.User;
+            if (ok && NumberOfDeletes) {
+              this.Message.success('El usuario fue eliminado.');
+              this.Observer.notify();
+            }
+            return id;
+          })
+          .catch((deleteError) => {
+            this.Message.error('Ocurrió un error con la consulta http');
+            throw new Error('HTTPRequestError', JSON.stringify(deleteError));
+          })
     );
   }
 
@@ -181,19 +179,19 @@ export default class {
   }
   Login(user) {
     return this.http
-    .post('/api/authenticate', user)
-    .then((loginData) => {
-      const { Error: userLoginError, User } = loginData.data;
-      if (userLoginError) {
-        this.Message.error(`Error:${ JSON.stringify(userLoginError) }`);
-        throw new Error('UserLoginError', JSON.stringify(userLoginError));
-      }
-      return User;
-    })
-    .catch((postError) => {
-      this.Message.error('Ocurrió un error con la consulta http');
-      throw new Error('HTTPRequestError', JSON.stringify(postError));
-    });
+      .post('/api/authenticate', user)
+      .then((loginData) => {
+        const { Error: userLoginError, User } = loginData.data;
+        if (userLoginError) {
+          this.Message.error(`Error:${ JSON.stringify(userLoginError) }`);
+          throw new Error('UserLoginError', JSON.stringify(userLoginError));
+        }
+        return User;
+      })
+      .catch((postError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error('HTTPRequestError', JSON.stringify(postError));
+      });
   }
 
   Logout() {
