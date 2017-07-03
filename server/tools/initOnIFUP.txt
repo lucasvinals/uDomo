@@ -1,2 +1,2 @@
 #!/bin/sh -e
-( cd ~/uDomo && yarn run production )
+( cd ~/uDomo && yarn run cluster )
