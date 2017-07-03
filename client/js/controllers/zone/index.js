@@ -1,5 +1,4 @@
 import { controller, inject } from 'ng-annotations';
-import { get, set } from 'lodash';
 
 @controller('ControllerZone')
 @inject('FactoryZone', 'FactoryCommon', '$scope')
@@ -24,11 +23,11 @@ export default class {
   }
 
   CreateZone(zone) {
-    set(zone, 'id', this.Common.newID());
+    zone._id = this.Common.newID();
     this.Zone.CreateZone(zone);
   }
 
   RemoveZone(index) {
-    this.Zone.DeleteZone(get(this.zones[index], '_id'));
+    this.Zone.DeleteZone(this.zones[index]._id);
   }
 }

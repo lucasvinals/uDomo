@@ -7,7 +7,8 @@ module.exports = {
   },
   clusterPort: process.env.CLUSTER_PORT || defaultPort,
   ssl: {
-    cert: `${ process.ROOTDIR }/server/ssl/server.crt`,
-    key: `${ process.ROOTDIR }/server/ssl/server.key`,
+    cert: `${ process.ROOTDIR }/server/ssl/server/server.crt`,
+    key: `${ process.ROOTDIR }/server/ssl/server/server.key`,
+    ca: `${ process.ROOTDIR }/server/ssl/ca/ca.crt`,
   },
 };

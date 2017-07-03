@@ -1,4 +1,3 @@
-import { get } from 'lodash';
 import { service, inject } from 'ng-annotations';
 
 @service('FactoryBackup')
@@ -14,13 +13,13 @@ export default class {
     this.http
       .get('/api/Backups')
       .then((backups) => {
-        const getError = get(backups, 'data.Error', '');
+        const getError = backups.data.Error;
         if (getError) {
           this.Message.error('Ocurrió un error obteniendo los backups. Revise la consola.');
           this.log.error(JSON.stringify(getError));
           getAllCallback(getError, []);
         } else {
-          getAllCallback(null, get(backups, 'data.Backups', []));
+          getAllCallback(null, backups.data.Backups);
         }
       })
       .catch((httpError) => {

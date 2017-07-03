@@ -1,5 +1,10 @@
 if (DEVELOPMENT) {
   const Require = require;
+  window.alertify = Require('../../node_modules/alertifyjs/build/alertify.min.js');
+  /**
+   * Angular-ui-router loads also Angular.
+   */
+  Require('../../node_modules/angular-ui-router/release/angular-ui-router.min.js');
   Require('../index.html');
   Require('../views/configuration/index.html');
   Require('../views/device/index.html');
@@ -23,7 +28,6 @@ if (DEVELOPMENT) {
   Require('../views/zone/modals/create.html');
 }
 
-import angular from 'angular';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 /**
@@ -146,7 +150,6 @@ Directives.autodeclare(uDomoDirectives);
 /**
  * Routes
  */
-import 'angular-ui-router';
 import Routes from './app.routes';
 const uDomoRoutes = angular.module('uDomo.Routes', []);
 Routes.autodeclare(uDomoRoutes);

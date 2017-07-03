@@ -1,5 +1,4 @@
 import { inject, controller } from 'ng-annotations';
-import { get } from 'lodash';
 
 @controller('ControllerDevice')
 @inject('FactoryDevice', 'FactoryZone', '$window', '$scope')
@@ -22,7 +21,7 @@ export default class {
   }
 
   SetDeviceInfo() {
-    [ this.deviceInfo ] = this.devices.filter((dev) => get(dev, '_id') === this.lastID);
+    [ this.deviceInfo ] = this.devices.filter((dev) => dev._id === this.lastID);
   }
 
   GetDevices() {
@@ -40,7 +39,7 @@ export default class {
   SaveDevice(device) {
     try {
       device.Saved = true;
-      [ device.Zone ] = this.availableZones.filter((zone) => get(zone, '_id') === device.zoneSelected);
+      [ device.Zone ] = this.availableZones.filter((zone) => zone._id === device.zoneSelected);
       this.Device.SaveDevice(device, (errorCB, deviceSaved) => {
         const result = errorCB ?
           window.log.error(`No se pudo guardar el dispositivo -> ${ errorCB }`) :

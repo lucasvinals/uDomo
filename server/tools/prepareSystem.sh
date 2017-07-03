@@ -38,7 +38,7 @@ source $HOMEDIR/.nvm/nvm.sh
 echo -e '\e[103m\e[91m> Updating the system and installing needed software \e[0m'
 npm i -g yarn
 # MongoDB installs (04/10/2016) the outdated v2.4 in Raspbian (Debian), but we're good for now.
-DEPENDENCIES_uDomo='git mongodb redis-server python'
+DEPENDENCIES_uDomo='git mongodb redis-server python openssl'
 if [ "$PLATFORM" == 'linux-debian-based' ]; then
   su - root -c 'apt -qq update && apt --yes --force-yes install '$DEPENDENCIES_uDomo
 elif [ '$PLATFORM' == 'osx' ]; then
@@ -91,6 +91,83 @@ nsp check
 yarn run snyk-auth &
 yarn run snyk-protect
 # yarn run snyk-test
+
+# Generate all SSL certificates
+echo -e '\e[44m> Generating all SSL certificates \e[0m\n'
+## Generate CA certificates
+CA_DIR=$SERVERDIR'/ssl/ca'
+echo -e '\e[44m> Creating SSL Certificate Authority directory \e[0m\n'
+mkdir -p $CA_DIR
+
+# Generate passphrase
+PASSPHRASE=$(pwgen 50 1 -s)
+
+# Generate private key
+echo -e '\e[44m> Generating private key CA \e[0m\n'
+openssl genrsa \
+-aes256 \
+-out $CA_DIR'/ca.key' \
+-passout pass:$PASSPHRASE \
+4096
+
+# Certificate signing request
+echo -e '\e[44m> Signing request CA \e[0m\n'
+openssl req \
+-new \
+-days 1024 \
+-key $CA_DIR'/ca.key' \
+-passin pass:$PASSPHRASE \
+-out $CA_DIR'/ca.csr' \
+-subj "/C=AR/ST=SantaFe/L=Rosario/O=ACME Signing Authority Inc/CN=local.udomo.com"
+
+# Signing the certificate
+echo -e '\e[44m> Sign the certificate CA \e[0m\n'
+openssl x509 \
+-req \
+-days 365 \
+-in $CA_DIR'/ca.csr' \
+-out $CA_DIR'/ca.crt' \
+-signkey $CA_DIR'/ca.key' \
+-passin pass:$PASSPHRASE
+
+## Generate server certificates
+SERVER_SSL_DIR=$SERVERDIR'/ssl/server'
+echo -e '\e[44m> Generating SSL server certificates \e[0m\n'
+mkdir -p $SERVER_SSL_DIR
+
+# Generate private key
+echo -e '\e[44m> Creating private key server \e[0m\n'
+openssl genrsa \
+-aes256 \
+-passout pass:$PASSPHRASE \
+-out $SERVER_SSL_DIR'/server.key' \
+4096
+
+#  Certificate Signing Request
+echo -e '\e[44m> Signing request server \e[0m\n'
+openssl req \
+-new \
+-key $SERVER_SSL_DIR'/server.key' \
+-passin pass:$PASSPHRASE \
+-out $SERVER_SSL_DIR'/server.csr' \
+-subj "/C=AR/ST=SantaFe/L=Rosario/O=ACME Signing Authority Inc/CN=local.udomo.com"
+
+# Remove passphrase
+echo -e '\e[44m> Removing passphrase server \e[0m\n'
+cp $SERVER_SSL_DIR'/server.key' $SERVER_SSL_DIR'/server.key.passphrase'
+openssl rsa \
+-in $SERVER_SSL_DIR'/server.key.passphrase' \
+-passin pass:$PASSPHRASE \
+-out $SERVER_SSL_DIR'/server.key'
+
+# Signing the certificate
+echo -e '\e[44m> Signing the server certificate \e[0m\n'
+openssl x509 \
+-req \
+-days 365 \
+-in $SERVER_SSL_DIR'/server.csr' \
+-signkey $SERVER_SSL_DIR'/server.key' \
+-out $SERVER_SSL_DIR'/server.crt'
 
 # Set a cron service to start the application when there is a network running.
 if [ ! -f '/etc/network/if-up.d/uDomo' ]; then
