@@ -215,11 +215,16 @@ function spawnMaster() {
    * Create the outside facing server listening on process.clusterPort
    */
   return https
-    .createServer({
-      key: readFileSync(ssl.key),
-      cert: readFileSync(ssl.cert),
-      timeout: 2000,
-    })
+    .createServer(
+      {
+        ca: readFileSync(ssl.ca),
+        cert: readFileSync(ssl.cert),
+        key: readFileSync(ssl.key),
+        rejectUnauthorized: false,
+        requestCert: true,
+        timeout: 2000,
+      }
+    )
     .on('connection', (connection) => {
       connection.pause();
       /**
