@@ -84,10 +84,9 @@ echo -e '\e[44m> Installing/updating libraries \e[0m\n'
 # Install all project dependencies
 ( cd $HOMEDIR'/uDomo' && yarn --ignore-engines)
 # Install some aditional (recommended) global packages
-yarn global add nsp snyk npm-check
 
 echo -e '\e[103m\e[91m> Checking dependencies vulnerabilities...\e[0m'
-nsp check
+yarn run nsp
 yarn run snyk-auth &
 yarn run snyk-protect
 # yarn run snyk-test

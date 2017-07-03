@@ -16,6 +16,7 @@
     "production": "NODE_ENV=production concurrently --kill-others-on-fail --raw 'yarn run build:production' 'yarn run cluster'",
     "development": "NODE_ENV=development concurrently --kill-others --raw 'yarn start' 'webpack-dev-server'",
     "logs:production": "tail -f ~/.forever/*.log",
+    "nsp": "nsp check",
     "snyk-auth": "snyk auth",
     "snyk-test": "snyk test -q",
     "snyk-protect": "snyk protect -q"
@@ -41,7 +42,8 @@
     "mongoose": "4.10.8",
     "mongoose-delete": "^0.3.4",
     "ng-annotations": "^1.1.0",
-    "snyk": "^1.34.3",
+    "nsp": "^2.6.3",
+    "snyk": "^1.36.2",
     "socket.io": "^2.0.3",
     "socket.io-client": "^2.0.3",
     "socket.io-redis": "^5.1.0",
