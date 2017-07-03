@@ -70,7 +70,6 @@ module.exports = {
     unsafeCache: true,
   },
   module: {
-    noParse: [ /ng-annotations/ ],
     rules: [
       /**
        * Transpile ES6 (ES2015) to ES5 with Babel
