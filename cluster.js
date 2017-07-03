@@ -69,7 +69,8 @@ process.devices = [];
  * If an unrecoverable error occurs,
  * kill the process.
  */
-function killServer() {
+function killServer(killError) {
+  process.log.error('Process killed by: ', JSON.stringify(killError));
   return process.kill(process.pid);
 }
 /**
