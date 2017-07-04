@@ -48,7 +48,8 @@
     "socket.io": "^2.0.3",
     "socket.io-client": "^2.0.3",
     "socket.io-redis": "^5.1.0",
-    "uuid": "^3.0.1"
+    "uuid": "^3.0.1",
+    "ws": "^3.0.0"
   },
   "devDependencies": {
     "angular": "^1.6.4",
@@ -123,5 +124,9 @@
       ]
     }
   },
-  "snyk": true
+  "snyk": true,
+  "optionalDependencies": {
+    "bufferutil": "^3.0.1",
+    "utf-8-validate": "^3.0.2"
+  }
 }
