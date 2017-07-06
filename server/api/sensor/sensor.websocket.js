@@ -3,7 +3,7 @@ module.exports = (io) => {
 //    sensor.on('message', function (data){
 //            io.sockets.emit('serverSensor', data);
 //    });
-  io.on('connection', (socket) => {
+  // io.on('connection', (socket) => {
     /**
      * Device's incomming message
      */
@@ -25,8 +25,8 @@ module.exports = (io) => {
   /**
    * User/device is nowdisconnected
    */
-    socket.on('disconnect', () => {
-      socket = null;
-    });
-  });
+  //   socket.on('disconnect', () => {
+  //     socket = null;
+  //   });
+  // });
 };

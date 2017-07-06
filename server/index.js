@@ -3,7 +3,7 @@ const Promise = require('bluebird');
 const morgan = require('morgan')('dev');
 const compression = require('compression')();
 const crypto = require('crypto');
-const fileSystem = require('fs');
+const { readdir, existsSync } = require('fs');
 const socketio = require('socket.io')();
 const sioRedis = require('socket.io-redis');
 const methodOverride = require('method-override')('X-HTTP-Method-Override');
@@ -14,11 +14,12 @@ const helmet = require('helmet');
 const { cloneDeep } = require('lodash');
 const httpStatus = require('http-status');
 const connectDatabase = require('./tools/connectToMongoDB.js');
+const InitWebsocket = require('./websocket');
 const req = require;
 
 function uDomoModules(path) {
   return new Promise((resolve, reject) =>
-    fileSystem.readdir(
+    readdir(
       `${ String(__dirname) }${ path }`,
       (fsError, modules) => {
         if (fsError) {
@@ -101,6 +102,7 @@ function init({ serverPort }) {
    * The server on the main process manage the connections with the clients.
    */
   const server = app.listen(serverPort, process.clusterHost);
+  const websocketServer = new InitWebsocket(server);
   /**
    * Socket.IO attached to Express instance
    */
@@ -144,8 +146,16 @@ function init({ serverPort }) {
        * Once Express 5.0 is stable, change Express Router intance for app.router
        */
       modules.map((module) =>
-        app.use(`/api/${ module.name }`, module.file(express.Router({ mergeParams: true }), socketio))
+        app.use(`/api/${ module.name }`, module.file(express.Router({ mergeParams: true })))
       );
+
+      modules.map((uDomoModule) => {
+        const path = `${ process.ROOTDIR }/server/api/${ uDomoModule.name }/${ uDomoModule.name }.websocket.js`;
+        if (existsSync(path)) {
+          req(path)(websocketServer);
+        }
+        return path;
+      });
       /**
        * Don't allow these routes
        */
