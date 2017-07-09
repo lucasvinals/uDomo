@@ -79,6 +79,10 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
+            /**
+             * Excelente guide for performance tips
+             * https://medium.com/@lcxfs1991/webpack-performance-the-comprehensive-guide-4d382d36253b
+             */
             cacheDirectory: './webpack_cache/',
             plugins: [ 'transform-decorators-legacy' ],
             presets: [

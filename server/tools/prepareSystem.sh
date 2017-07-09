@@ -86,6 +86,7 @@ echo -e '\e[44m> Installing/updating libraries \e[0m\n'
 # Install some aditional (recommended) global packages
 
 # Generate all SSL certificates
+# Great guide from: https://matoski.com/article/node-express-generate-ssl/
 echo -e '\e[44m> Generating all SSL certificates \e[0m\n'
 ## Generate CA certificates
 CA_DIR=$SERVERDIR'/ssl/ca'
