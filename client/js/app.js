@@ -1,10 +1,12 @@
 if (DEVELOPMENT) {
   const Require = require;
   window.alertify = Require('../../node_modules/alertifyjs/build/alertify.min.js');
+  window.jQuery = Require('../../node_modules/jquery/dist/jquery.min.js');
+  Require('../../node_modules/bootstrap/dist/js/bootstrap.min.js');
   /**
    * Angular-ui-router loads also Angular.
    */
-  Require('../../node_modules/angular-ui-router/release/angular-ui-router.min.js');
+  Require('../../node_modules/@uirouter/angularjs/release/angular-ui-router.min.js');
   Require('../index.html');
   Require('../views/configuration/index.html');
   Require('../views/device/index.html');
@@ -77,11 +79,8 @@ import FactoryReading from './services/reading';
 import ControllerOtherSensor from './controllers/reading/others';
 import ControllerServerSensor from './controllers/reading/server';
 const uDomoReading = angular.module('uDomo.Reading', []);
-[
-  FactoryReading,
-  ControllerOtherSensor,
-  ControllerServerSensor,
-].map((component) => component.autodeclare(uDomoReading));
+[ FactoryReading, ControllerOtherSensor, ControllerServerSensor ]
+  .map((component) => component.autodeclare(uDomoReading));
 /**
  * Device
  */
@@ -130,11 +129,8 @@ import ControllerPerimeter from './controllers/security/perimeter';
 import ControllerWarning from './controllers/security/warnings';
 import ControllerVideo from './controllers/security/video';
 const uDomoSecurity = angular.module('uDomo.Security', []);
-[
-  ControllerPerimeter,
-  ControllerWarning,
-  ControllerVideo,
-].map((component) => component.autodeclare(uDomoSecurity));
+[ ControllerPerimeter, ControllerWarning, ControllerVideo ]
+  .map((component) => component.autodeclare(uDomoSecurity));
 /**
  * Filters
  */
