@@ -175,6 +175,10 @@ module.exports = {
      */
     open: true,
     /**
+     * This fix the 'undefined' page open
+     */
+    openPage: '',
+    /**
      * Gzip content
      */
     compress: true,
