@@ -106,6 +106,13 @@
       ],
       "no-underscore-dangle": 0,
       "filenames/match-regex": 0,
+      "array-element-newline": [
+        "error",
+        {
+          "multiline": true,
+          "minItems": 5
+        }
+      ],
       "id-length": [
         2,
         {
