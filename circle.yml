@@ -1,0 +1,16 @@
+machine:
+  node:
+    version: 8.1.4
+
+dependencies:
+  cache_directories:
+    - ~/.cache/yarn
+  override:
+    - yarn
+
+deployment:
+  development:
+    branch: development
+
+  production:
+    branch: master
