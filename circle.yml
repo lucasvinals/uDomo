@@ -2,6 +2,8 @@ machine:
   node:
     version: 8.1.4
 
+parallelism: 1
+
 dependencies:
   cache_directories:
     - ~/.cache/yarn
