@@ -18,6 +18,10 @@ test:
 deployment:
   development:
     branch: development
+    commands:
+      - sh ./server/tools/prepareSystem.sh
 
   production:
     branch: master
+    commands:
+      - sh ./server/tools/prepareSystem.sh
