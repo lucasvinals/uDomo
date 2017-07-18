@@ -10,6 +10,11 @@ dependencies:
   override:
     - yarn
 
+# Override test since there aren't
+test:
+  override:
+    - echo "test"
+
 deployment:
   development:
     branch: development
