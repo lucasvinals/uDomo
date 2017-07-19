@@ -49,10 +49,7 @@ const plugins = PRODUCTION ?
       }
     ),
   ] :
-  [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NamedModulesPlugin(),
-  ];
+  [ new webpack.HotModuleReplacementPlugin(), new webpack.NamedModulesPlugin() ];
 
 /**
  * Use environment variables in the client!
@@ -60,7 +57,7 @@ const plugins = PRODUCTION ?
 plugins.push(new webpack.DefinePlugin({ DEVELOPMENT, PRODUCTION, PORT }));
 
 module.exports = {
-  devtool: DEVELOPMENT ? 'source-map' : '',
+  devtool: DEVELOPMENT ? 'cheap-module-source-map' : '',
   entry: './client/js/app.js',
   plugins,
   resolve: {
@@ -136,7 +133,7 @@ module.exports = {
            * For development use style-loader
            */
           [ 'style-loader', 'css-loader?localIdentName=[path][name]---[local]' ],
-        include: /node_modules\/bootstrap/,
+        include: [ /node_modules\/bootstrap/, /node_modules\/alertifyjs/ ],
       },
       /**
        * Fonts
