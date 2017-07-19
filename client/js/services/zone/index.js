@@ -35,28 +35,28 @@ export default class {
         }
         return Zones;
       })
-      .catch((httpZoneError) => {
+      .catch((httpError) => {
         this.Message.error('Ocurrió un error con la consulta http');
-        window.log.error(JSON.stringify(httpZoneError));
+        window.log.error(httpError);
       });
   }
 
   CreateZone(zoneToCreate) {
     return this.http.post('/api/zone', zoneToCreate)
       .then((response) => {
-        const { Error: CreateZoneError, Zone } = response.data;
+        const { Error: CreateZoneError, Zones } = response.data;
         if (CreateZoneError) {
-          this.Message.error(`Error: ${ JSON.stringify(CreateZoneError) }`);
-          window.log.error(JSON.stringify(CreateZoneError));
-          throw new Error('CreateZoneError', JSON.stringify(CreateZoneError));
+          this.Message.error(`Error: ${ CreateZoneError }`);
+          window.log.error(CreateZoneError);
+          throw new Error(CreateZoneError);
         }
-        this.Message.success(`El área ${ Zone.Name } fue creada.`);
-        this.Observer.notify();
-        return Zone;
+        this.Message.success(`El área ${ Zones.Name } fue creada.`);
+        this.Observer.Notify();
+        return Zones;
       })
       .catch((httpError) => {
         this.Message.error('Ocurrió un error con la consulta http');
-        throw new Error('HTTPRequestError', JSON.stringify(httpError));
+        throw new Error(httpError);
       });
   }
 
@@ -73,7 +73,7 @@ export default class {
       })
       .catch((httpError) => {
         this.Message.error('Ocurrió un error con la consulta http');
-        throw new Error('HTTPRequestError', JSON.stringify(httpError));
+        throw new Error(httpError);
       });
   }
 
@@ -86,17 +86,14 @@ export default class {
           if (response) {
             return this.http
               .delete(`/api/zone/${ zoneId }`)
-              .then((deletedResult) => {
-                const { ok, 'n': NumberOfDeletes } = deletedResult.data.Zone;
-                if (ok && NumberOfDeletes) {
-                  this.Message.success('La zona fue eliminada.');
-                  this.Observer.notify();
-                }
+              .then(() => {
+                this.Message.success('La zona fue eliminada.');
+                this.Observer.Notify();
                 return zoneId;
               })
               .catch((httpError) => {
                 this.Message.error('Ocurrió un error con la consulta http');
-                throw new Error('HTTPRequestError', JSON.stringify(httpError));
+                throw new Error(httpError);
               });
           }
           return false;

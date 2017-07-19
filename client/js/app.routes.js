@@ -90,7 +90,7 @@ export default class {
         url: 'zones',
         templateUrl: './views/zone/index.html',
         controller: 'ControllerZone',
-        controllerAs: 'Z',
+        controllerAs: 'Zone',
       })
       /**
        * Devices - Save, Program, view info, etc
