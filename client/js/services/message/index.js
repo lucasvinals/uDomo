@@ -15,10 +15,12 @@ export default class {
     return this.Alertify.notify(message, 'custom_warning', duration);
   }
   confirm(message, duration = Number('10'), response) {
-    return this.Alertify.confirm(message)
+    return this.Alertify
+      .confirm(message)
       .autoCancel(duration)
       .set('movable', true)
       .set('closable', true)
+      .set('title', 'uDomo')
       .set('defaultFocus', 'ok')
       .set('labels', { ok: 'OK', cancel: 'Cancelar' })
       .set('onok', () => response(true));
