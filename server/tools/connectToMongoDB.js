@@ -11,7 +11,14 @@ function connect() {
    * 3 = disconnecting
    */
   if (mongoose.connection.readyState === 0) {
-    return mongoose.connect(process.MongoURL, { server: { reconnectTries: Number.MAX_VALUE } });
+    return mongoose.connect(
+      process.MongoURL,
+      {
+        useMongoClient: true,
+        keepAlive: true,
+        reconnectTries: Number.MAX_VALUE,
+      }
+    );
   }
   return mongoose.connection;
 }
