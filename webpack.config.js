@@ -1,4 +1,9 @@
-const webpack = require('webpack');
+const {
+  DefinePlugin,
+  HotModuleReplacementPlugin,
+  NamedModulesPlugin,
+  optimize,
+} = require('webpack');
 const path = require('path');
 const glob = require('glob');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -11,7 +16,7 @@ const DEVELOPMENT = process.env.NODE_ENV === 'development';
 
 const plugins = PRODUCTION ?
   [
-    new webpack.optimize.UglifyJsPlugin(
+    new optimize.UglifyJsPlugin(
       {
         sourceMap: true,
         compress: {
@@ -49,12 +54,12 @@ const plugins = PRODUCTION ?
       }
     ),
   ] :
-  [ new webpack.HotModuleReplacementPlugin(), new webpack.NamedModulesPlugin() ];
+  [ new HotModuleReplacementPlugin(), new NamedModulesPlugin() ];
 
 /**
  * Use environment variables in the client!
  */
-plugins.push(new webpack.DefinePlugin({ DEVELOPMENT, PRODUCTION, PORT }));
+plugins.push(new DefinePlugin({ DEVELOPMENT, PRODUCTION, PORT }));
 
 module.exports = {
   devtool: DEVELOPMENT ? 'cheap-module-source-map' : '',
@@ -116,7 +121,24 @@ module.exports = {
        */
       {
         test: /\.css$/,
-        use: PRODUCTION ?
+        use: DEVELOPMENT ?
+          /**
+           * For development use style-loader and css-loader
+           */
+          [
+            {
+              loader: 'style-loader',
+            },
+            {
+              loader: 'css-loader',
+              options: {
+                localIndentName: '[path][name]---[local]',
+              },
+            },
+          ] :
+          /**
+           * For production use ExtractTextPlugin
+           */
           ExtractTextPlugin.extract(
             {
               use: {
@@ -128,12 +150,8 @@ module.exports = {
                 },
               },
             }
-          ) :
-          /**
-           * For development use style-loader
-           */
-          [ 'style-loader', 'css-loader?localIdentName=[path][name]---[local]' ],
-        include: [ /node_modules\/bootstrap/, /node_modules\/alertifyjs/ ],
+          ),
+        include: [ /node_modules\/bootstrap/, /node_modules\/alertifyjs/, /client\/css/ ],
       },
       /**
        * Fonts
