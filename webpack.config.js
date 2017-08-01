@@ -60,10 +60,21 @@ const plugins = PRODUCTION ?
  * Use environment variables in the client!
  */
 plugins.push(new DefinePlugin({ DEVELOPMENT, PRODUCTION, PORT }));
+plugins.push(
+  new optimize.CommonsChunkPlugin(
+    {
+      name: 'vendor',
+      filename: 'vendor.bundle.js',
+    }
+  )
+);
 
 module.exports = {
   devtool: DEVELOPMENT ? 'cheap-module-source-map' : '',
-  entry: './client/js/app.js',
+  entry: {
+    app: './client/js/app.js',
+    vendor: [ 'ng-annotations' ],
+  },
   plugins,
   resolve: {
     alias: {
