@@ -189,4 +189,23 @@ if (DEVELOPMENT && module.hot) {
   module.hot.accept();
 }
 
+/**
+ * Handle errors properly /m/
+ * https://www.sitepoint.com/proper-error-handling-javascript/
+ */
+window.addEventListener('error',
+  (exception) => {
+    const { stack } = exception.error;
+    let message = exception.error.toString();
+
+    if (stack) {
+      message += `\n${ stack }`;
+    }
+    window.log.error('Un error! ', message);
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/log', true);
+    xhr.send(message);
+  }
+);
+
 export default uDomo.name;
