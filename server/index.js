@@ -162,6 +162,15 @@ function init({ serverPort }) {
       response.sendFile('index.html', { root: `${ process.ROOTDIR }/udomo/views` })
     );
     /**
+     * Error handler listener for client error catching.
+     */
+    express
+      .Router({ mergeParams: true })
+      .post('/api/log', (request, response, next) => {
+        process.log.error(request.body);
+        next();
+      });
+    /**
      * Connect to database engine
      */
     connectDatabase();

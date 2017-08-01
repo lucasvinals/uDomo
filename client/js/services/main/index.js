@@ -9,9 +9,9 @@ export default class {
   /**
    * Clear listeners from main page.
    */
-  clearListeners() {
-    this.Socket.clear('Main/User/SignIn/Response');
-    this.Socket.clear('Main/User/Create/Response');
-    this.Socket.emit('disconnect', {});
+  ClearListeners() {
+    this.Socket.Clear('Main/User/SignIn/Response');
+    this.Socket.Clear('Main/User/Create/Response');
+    this.Socket.Emit('disconnect', {});
   }
 }

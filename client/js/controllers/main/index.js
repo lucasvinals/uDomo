@@ -28,7 +28,7 @@ export default class {
     /**
      * Clean exit
      */
-    this.scope.$on('$destroy', () => this.Main.clearListeners());
+    this.scope.$on('$destroy', () => this.Main.ClearListeners());
   }
 
   Login(user) {

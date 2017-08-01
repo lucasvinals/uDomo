@@ -10,10 +10,10 @@ export default class {
     this.Message = Message;
   }
 
-  clearListeners() {
+  ClearListeners() {
     this.Observer.UnsubscribeAll();
-    this.Socket.clear('Zones/Zone/Read/Response');
-    this.Socket.emit('disconnect', {});
+    this.Socket.Clear('Zones/Zone/Read/Response');
+    this.Socket.Emit('disconnect', {});
   }
 
   Subscribe(fn) {
