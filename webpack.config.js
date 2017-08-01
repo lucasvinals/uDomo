@@ -78,25 +78,27 @@ module.exports = {
        */
       {
         test: /\.js$/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            /**
-             * Excelente guide for performance tips
-             * https://medium.com/@lcxfs1991/webpack-performance-the-comprehensive-guide-4d382d36253b
-             */
-            cacheDirectory: './webpack_cache/',
-            plugins: [ 'transform-decorators-legacy' ],
-            presets: [
-              [
-                'es2015',
-                {
-                  modules: false,
-                },
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              /**
+               * Excellent guide for performance tips
+               * https://medium.com/@lcxfs1991/webpack-performance-the-comprehensive-guide-4d382d36253b
+               */
+              cacheDirectory: './webpack_cache/',
+              plugins: [ 'transform-decorators-legacy' ],
+              presets: [
+                [
+                  'es2015',
+                  {
+                    modules: false,
+                  },
+                ],
               ],
-            ],
+            },
           },
-        },
+        ],
         exclude: /node_modules/,
       },
       /**
@@ -106,14 +108,16 @@ module.exports = {
        */
       {
         test: /\.(png|jpg|gif|ico)$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            cacheDirectory: './webpack_cache/',
-            limit: 10000,
-            name: 'images/[hash:12].[ext]',
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              cacheDirectory: './webpack_cache/',
+              limit: 10000,
+              name: 'images/[hash:12].[ext]',
+            },
           },
-        },
+        ],
         exclude: /node_modules/,
       },
       /**
@@ -158,14 +162,16 @@ module.exports = {
        */
       {
         test: /\.(woff2?|woff|ttf|eot|svg)$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            cacheDirectory: './webpack_cache/',
-            limit: 10000,
-            name: 'fonts/[name].[ext]',
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              cacheDirectory: './webpack_cache/',
+              limit: 10000,
+              name: 'fonts/[name].[ext]',
+            },
           },
-        },
+        ],
       },
       DEVELOPMENT ? { test: /\.(html)$/, loader: 'raw-loader' } : {},
     ],
