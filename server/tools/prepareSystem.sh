@@ -5,7 +5,19 @@
 # Modified: 06/2017
 
 # Platform -> 'linux-debian', 'osx'
-PLATFORM='linux-debian-based'
+INPUT_PLATFORM_ERROR=0
+if [ "$1" = 'linux-debian-based' ]; then
+  PLATFORM='linux-debian-based'
+elif [ "$1" = 'osx' ]; then
+  PLATFORM='osx'
+else
+  INPUT_PLATFORM_ERROR=1
+fi
+if [ $INPUT_PLATFORM_ERROR -ne 0 ]; then
+  echo $(tput setaf 1)Error. Cannot find any platform with the name: \"$1\".
+  exit 1
+fi
+
 # Main directory
 HOMEDIR=~
 # ESP8266 Libraries
@@ -14,7 +26,7 @@ LIBRARIESDIR=$HOMEDIR'/Arduino/libraries'
 SERVERDIR=$HOMEDIR'/uDomo/server'
 
 # Install NodeJS
-echo -e '\e[44m> Installing NodeJS \e[0m\n'
+echo $(tput setaf 4)"> Installing NodeJS"$(tput sgr0)
 (
   if [ ! -d $HOMEDIR'/.nvm' ]; then
     cd $HOMEDIR
@@ -25,7 +37,9 @@ echo -e '\e[44m> Installing NodeJS \e[0m\n'
     ./install.sh
   fi
   # Update PATH to use NVM
-  source $HOMEDIR/.bashrc
+  if [ -f $HOMEDIR'/.bashrc' ]; then
+    source $HOMEDIR/.bashrc
+  fi
   source $HOMEDIR/.nvm/nvm.sh
   # This installs the latest NodeJS version. For production, it's recommended to add '--lts' flag.
   nvm install node
@@ -35,37 +49,37 @@ echo -e '\e[44m> Installing NodeJS \e[0m\n'
 source $HOMEDIR/.nvm/nvm.sh
 
 # Install required packages
-echo -e '\e[103m\e[91m> Updating the system and installing needed software \e[0m'
+echo $(tput setaf 4)'> Updating the system and installing needed software.'$(tput sgr0)
 npm i -g yarn
 # MongoDB installs (04/10/2016) the outdated v2.4 in Raspbian (Debian), but we're good for now.
 DEPENDENCIES_uDomo='git mongodb redis-server python openssl pwgen'
 if [ "$PLATFORM" == 'linux-debian-based' ]; then
   su - root -c 'apt -qq update && apt --yes --force-yes install '$DEPENDENCIES_uDomo
-elif [ '$PLATFORM' == 'osx' ]; then
+elif [ "$PLATFORM" == 'osx' ]; then
   brew install $DEPENDENCIES_uDomo
 fi
 
 # Check if there is an Arduino libraries directory; if not, create.
 if [ ! -d $LIBRARIESDIR ]; then
-  echo -e '\e[103m\e[91m> The tree directory '$LIBRARIESDIR' doesn\''t exists. Creating...\e[0m'
+  echo $(tput setaf 3)"> The tree directory "$LIBRARIESDIR" doesn\'t exists. Creating..."$(tput sgr0)
   mkdir -p $LIBRARIESDIR
 fi
 
 # Download SocketIO para ESP8266
 if [ ! -d $LIBRARIESDIR'/Socket.io-v1.x-Library' ]; then
-  echo -e '\e[103m\e[91m> Downloading SocketIO...\e[0m'
+  echo $(tput setaf 6)"> Downloading SocketIO..."$(tput sgr0)
   ( cd $LIBRARIESDIR && git clone https://github.com/washo4evr/Socket.io-v1.x-Library.git )
 fi
 
 # Download ArduinoJSON
 if [ ! -d $LIBRARIESDIR'/ArduinoJson' ]; then
-  echo -e '\e[103m\e[91m> Downloading ArduinoJson...\e[0m'
+  echo $(tput setaf 6)"> Downloading ArduinoJson..."$(tput sgr0)
   ( cd $LIBRARIESDIR && git clone https://github.com/bblanchon/ArduinoJson.git )
 fi
 
 # Download ESP8266TrueRandom
 if [ ! -d $LIBRARIESDIR'/ESP8266TrueRandom' ]; then
-  echo -e '\e[103m\e[91m> Downloading ESP8266TrueRandom...\e[0m'
+  echo $(tput setaf 6)"> Downloading ESP8266TrueRandom..."$(tput sgr0)
   ( cd $LIBRARIESDIR && git clone https://github.com/marvinroger/ESP8266TrueRandom.git )
 fi
 
@@ -74,30 +88,31 @@ rm -f $SERVERDIR'/npm-debug.log'
 
 # Check if there is a database directory; if not, create.
 if [ ! -d $SERVERDIR'/db' ]; then
-  echo -e "\e[103m\e[91m> The tree directory db doesn't exists. Creating...\e[0m"
+  echo $(tput setaf 3)"> The tree directory db doesn\'t exists. Creating..."$(tput sgr0)
   mkdir -p $SERVERDIR'/db/data/db'
   mkdir $SERVERDIR'/db/logs' && echo '<------ uDomo Database Log ------>' > $SERVERDIR'/db/logs/log.txt'
 fi
 
 
-echo -e '\e[44m> Installing/updating libraries \e[0m\n'
+echo $(tput setaf 4)"> Installing/updating libraries."$(tput sgr0)
 # Install all project dependencies
-( cd $HOMEDIR'/uDomo' && yarn --ignore-engines)
+# ( cd $HOMEDIR'/uDomo' && yarn --ignore-engines)
+yarn --ignore-engines
 # Install some aditional (recommended) global packages
 
 # Generate all SSL certificates
 # Great guide from: https://matoski.com/article/node-express-generate-ssl/
-echo -e '\e[44m> Generating all SSL certificates \e[0m\n'
+echo $(tput setaf 4)"> Generating all SSL certificates..."$(tput sgr0)
 ## Generate CA certificates
 CA_DIR=$SERVERDIR'/ssl/ca'
-echo -e '\e[44m> Creating SSL Certificate Authority directory \e[0m\n'
+echo $(tput setaf 6)"> Creating SSL Certificate Authority directory..."$(tput sgr0)
 mkdir -p $CA_DIR
 
 # Generate passphrase
 PASSPHRASE=$(pwgen 50 1 -s)
 
 # Generate private key
-echo -e '\e[44m> Generating private key CA \e[0m\n'
+echo $(tput setaf 6)"> Generating private key CA..."$(tput sgr0)
 openssl genrsa \
 -aes256 \
 -out $CA_DIR'/ca.key' \
@@ -105,7 +120,7 @@ openssl genrsa \
 4096
 
 # Certificate signing request
-echo -e '\e[44m> Signing request CA \e[0m\n'
+echo $(tput setaf 6)"> Signing request CA..."$(tput sgr0)
 openssl req \
 -new \
 -days 1024 \
@@ -115,7 +130,7 @@ openssl req \
 -subj "/C=AR/ST=SantaFe/L=Rosario/O=ACME Signing Authority Inc/CN=local.udomo.com"
 
 # Signing the certificate
-echo -e '\e[44m> Sign the certificate CA \e[0m\n'
+echo $(tput setaf 6)"> Sign the certificate CA..."$(tput sgr0)
 openssl x509 \
 -req \
 -days 365 \
@@ -126,11 +141,11 @@ openssl x509 \
 
 ## Generate server certificates
 SERVER_SSL_DIR=$SERVERDIR'/ssl/server'
-echo -e '\e[44m> Generating SSL server certificates \e[0m\n'
+echo $(tput setaf 6)"> Generating SSL server certificates..."$(tput sgr0)
 mkdir -p $SERVER_SSL_DIR
 
 # Generate private key
-echo -e '\e[44m> Creating private key server \e[0m\n'
+echo $(tput setaf 6)"> Creating private key server..."$(tput sgr0)
 openssl genrsa \
 -aes256 \
 -passout pass:$PASSPHRASE \
@@ -138,7 +153,7 @@ openssl genrsa \
 4096
 
 #  Certificate Signing Request
-echo -e '\e[44m> Signing request server \e[0m\n'
+echo $(tput setaf 6)"> Signing request server..."$(tput sgr0)
 openssl req \
 -new \
 -key $SERVER_SSL_DIR'/server.key' \
@@ -147,7 +162,7 @@ openssl req \
 -subj "/C=AR/ST=SantaFe/L=Rosario/O=ACME Signing Authority Inc/CN=local.udomo.com"
 
 # Remove passphrase
-echo -e '\e[44m> Removing passphrase server \e[0m\n'
+echo $(tput setaf 6)"> Removing passphrase server..."$(tput sgr0)
 cp $SERVER_SSL_DIR'/server.key' $SERVER_SSL_DIR'/server.key.passphrase'
 openssl rsa \
 -in $SERVER_SSL_DIR'/server.key.passphrase' \
@@ -155,7 +170,7 @@ openssl rsa \
 -out $SERVER_SSL_DIR'/server.key'
 
 # Signing the certificate
-echo -e '\e[44m> Signing the server certificate \e[0m\n'
+echo $(tput setaf 6)"> Signing the server certificate..."$(tput sgr0)
 openssl x509 \
 -req \
 -days 365 \
@@ -163,7 +178,7 @@ openssl x509 \
 -signkey $SERVER_SSL_DIR'/server.key' \
 -out $SERVER_SSL_DIR'/server.crt'
 
-echo -e '\e[103m\e[91m> Checking dependencies vulnerabilities...\e[0m'
+echo $(tput setaf 3)"> Checking dependencies vulnerabilities..."$(tput sgr0)
 yarn run nsp
 #yarn run snyk-auth &
 yarn run snyk-protect
@@ -175,5 +190,5 @@ if [ ! -f '/etc/network/if-up.d/uDomo' ]; then
   su - root -c 'chmod 0600 /etc/network/if-up.d/uDomo'
 fi
 
-echo -e '\n\e[91m\e[103m> Please, edit the database file in '$SERVERDIR'/config/db.js accordingly. \n'
-echo -e '\n\e[42m\e[97m> All system is ready. Please, start the uDomo service with "yarn run production" or "yarn run development" when the system is configured. \e[0m'
+echo $(tput setaf 3)"> Please, edit the database file in '$SERVERDIR'/config/db.js accordingly."
+echo $(tput setaf 2)"> Project ready. Please, start the uDomo service with yarn run production or yarn run development when the system is configured."
