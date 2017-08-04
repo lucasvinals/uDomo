@@ -20,7 +20,8 @@
     "nsp": "nsp check",
     "snyk-auth": "snyk auth",
     "snyk-test": "snyk test -q",
-    "snyk-protect": "snyk protect -q"
+    "snyk-protect": "snyk protect -q",
+    "test": "snyk test"
   },
   "repository": {
     "type": "git",
@@ -44,9 +45,9 @@
     "ng-annotations": "^1.1.0",
     "nsp": "^2.6.3",
     "snyk": "^1.37.0",
-    "socket.io": "^2.0.3",
+    "socket.io": "2.0.3",
     "socket.io-client": "^2.0.3",
-    "socket.io-redis": "^5.1.0",
+    "socket.io-redis": "5.1.0",
     "uuid": "^3.0.1",
     "ws": "^3.1.0"
   },
