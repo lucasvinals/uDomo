@@ -70,7 +70,7 @@ process.devices = [];
  * kill the process.
  */
 function killServer(killError) {
-  process.log.error('Process killed by: ', JSON.stringify(killError));
+  process.log.error(`This error caused the server to be killed: ${ killError }`);
   return process.kill(process.pid);
 }
 /**

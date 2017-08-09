@@ -2,15 +2,26 @@ machine:
   node:
     version: 8.1.4
 
+parallelism: 1
+
 dependencies:
   cache_directories:
     - ~/.cache/yarn
   override:
     - yarn
 
+# Override test since there aren't
+test:
+  override:
+    - echo "test"
+
 deployment:
   development:
     branch: development
+    commands:
+      - sh ./server/tools/prepareSystem.sh
 
   production:
     branch: master
+    commands:
+      - sh ./server/tools/prepareSystem.sh

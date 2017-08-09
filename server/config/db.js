@@ -2,7 +2,7 @@ const { execFileSync } = require('child_process');
 const port = process.clusterPort + 1;
 const { mongo } = require('./environment');
 
-function getBinary(searchWith) {
+function getBinary(searchWith = 'which') {
   return execFileSync(searchWith, [ 'mongod' ]).toString().replace('\n', '').trim();
 }
 
@@ -28,5 +28,5 @@ module.exports = {
   /**
    * Mongod binary
    */
-  binary: binaryIn[process.platform](),
+  binary: binaryIn[process.platform] ? binaryIn[process.platform]() : getBinary(),
 };

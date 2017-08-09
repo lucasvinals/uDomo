@@ -1,4 +1,9 @@
-const webpack = require('webpack');
+const {
+  DefinePlugin,
+  HotModuleReplacementPlugin,
+  NamedModulesPlugin,
+  optimize,
+} = require('webpack');
 const path = require('path');
 const glob = require('glob');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -11,7 +16,7 @@ const DEVELOPMENT = process.env.NODE_ENV === 'development';
 
 const plugins = PRODUCTION ?
   [
-    new webpack.optimize.UglifyJsPlugin(
+    new optimize.UglifyJsPlugin(
       {
         sourceMap: true,
         compress: {
@@ -49,19 +54,27 @@ const plugins = PRODUCTION ?
       }
     ),
   ] :
-  [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NamedModulesPlugin(),
-  ];
+  [ new HotModuleReplacementPlugin(), new NamedModulesPlugin() ];
 
 /**
  * Use environment variables in the client!
  */
-plugins.push(new webpack.DefinePlugin({ DEVELOPMENT, PRODUCTION, PORT }));
+plugins.push(new DefinePlugin({ DEVELOPMENT, PRODUCTION, PORT }));
+plugins.push(
+  new optimize.CommonsChunkPlugin(
+    {
+      name: 'vendor',
+      filename: 'vendor.bundle.js',
+    }
+  )
+);
 
 module.exports = {
-  devtool: DEVELOPMENT ? 'source-map' : '',
-  entry: './client/js/app.js',
+  devtool: DEVELOPMENT ? 'cheap-module-source-map' : '',
+  entry: {
+    app: './client/js/app.js',
+    vendor: [ 'ng-annotations' ],
+  },
   plugins,
   resolve: {
     alias: {
@@ -76,21 +89,27 @@ module.exports = {
        */
       {
         test: /\.js$/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            cacheDirectory: './webpack_cache/',
-            plugins: [ 'transform-decorators-legacy' ],
-            presets: [
-              [
-                'es2015',
-                {
-                  modules: false,
-                },
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              /**
+               * Excellent guide for performance tips
+               * https://medium.com/@lcxfs1991/webpack-performance-the-comprehensive-guide-4d382d36253b
+               */
+              cacheDirectory: './webpack_cache/',
+              plugins: [ 'transform-decorators-legacy' ],
+              presets: [
+                [
+                  'es2015',
+                  {
+                    modules: false,
+                  },
+                ],
               ],
-            ],
+            },
           },
-        },
+        ],
         exclude: /node_modules/,
       },
       /**
@@ -100,14 +119,16 @@ module.exports = {
        */
       {
         test: /\.(png|jpg|gif|ico)$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            cacheDirectory: './webpack_cache/',
-            limit: 10000,
-            name: 'images/[hash:12].[ext]',
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              cacheDirectory: './webpack_cache/',
+              limit: 10000,
+              name: 'images/[hash:12].[ext]',
+            },
           },
-        },
+        ],
         exclude: /node_modules/,
       },
       /**
@@ -115,7 +136,24 @@ module.exports = {
        */
       {
         test: /\.css$/,
-        use: PRODUCTION ?
+        use: DEVELOPMENT ?
+          /**
+           * For development use style-loader and css-loader
+           */
+          [
+            {
+              loader: 'style-loader',
+            },
+            {
+              loader: 'css-loader',
+              options: {
+                localIndentName: '[path][name]---[local]',
+              },
+            },
+          ] :
+          /**
+           * For production use ExtractTextPlugin
+           */
           ExtractTextPlugin.extract(
             {
               use: {
@@ -127,26 +165,24 @@ module.exports = {
                 },
               },
             }
-          ) :
-          /**
-           * For development use style-loader
-           */
-          [ 'style-loader', 'css-loader?localIdentName=[path][name]---[local]' ],
-        include: /node_modules\/bootstrap/,
+          ),
+        include: [ /node_modules\/bootstrap/, /node_modules\/alertifyjs/, /client\/css/ ],
       },
       /**
        * Fonts
        */
       {
         test: /\.(woff2?|woff|ttf|eot|svg)$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            cacheDirectory: './webpack_cache/',
-            limit: 10000,
-            name: 'fonts/[name].[ext]',
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              cacheDirectory: './webpack_cache/',
+              limit: 10000,
+              name: 'fonts/[name].[ext]',
+            },
           },
-        },
+        ],
       },
       DEVELOPMENT ? { test: /\.(html)$/, loader: 'raw-loader' } : {},
     ],
@@ -170,6 +206,10 @@ module.exports = {
      * Open a new browser tab when initialized
      */
     open: true,
+    /**
+     * This fix the 'undefined' page open
+     */
+    openPage: '',
     /**
      * Gzip content
      */

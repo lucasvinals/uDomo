@@ -67,7 +67,7 @@
             <th colspan="2">Acción</th>
         </thead>
         <tbody>
-            <tr class="text-left" data-ng-repeat="zone in zones">
+            <tr class="text-left" data-ng-repeat="zone in Zone.zones">
                 <td data-ng-bind="zone.Name"></td>
                 <td>
                     <span class="glyphicon glyphicon-ok btn btn-success"
@@ -77,7 +77,7 @@
                             data-toggle="modal" 
                             data-target="#Zone{{$index}}"></span>
                     <span class="glyphicon glyphicon-remove btn btn-danger" 
-                            data-ng-click="removeZone($index)"></span>
+                            data-ng-click="Zone.RemoveZone($index)"></span>
                 </td>
                 <td>
                     <div id="Zone{{$index}}" tabindex="-1"

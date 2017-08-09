@@ -17,7 +17,7 @@ export default class {
   Subscribe(observer) {
     return this.Observer.Subscribe(observer);
   }
-   /**
+  /**
    * Unubscribe a particular function in the Observer array
    * @param {function} observer
    */
@@ -58,15 +58,15 @@ export default class {
         if (CreateDeviceError) {
           this.Message.error(`Error: ${ JSON.stringify(CreateDeviceError) }`);
           window.log.error(JSON.stringify(CreateDeviceError));
-          throw new Error('CreateDeviceError', JSON.stringify(CreateDeviceError));
+          throw new Error(CreateDeviceError);
         }
-        this.Message.success(`El dispositivo ${ Device.Name } fue guardado.`);
-        this.Observer.notify();
+        this.Message.success(`The device ${ Device.Name } was saved.`);
+        this.Observer.Notify();
         return Device;
       })
       .catch((httpError) => {
-        this.Message.error('Ocurrió un error con la consulta http');
-        throw new Error('HTTPRequestError', JSON.stringify(httpError));
+        this.Message.error('Something happen with the HTTP request.');
+        throw new Error(httpError);
       });
   }
 
@@ -83,13 +83,13 @@ export default class {
                 const { ok, 'n': NumberOfDeletes } = deletedResult.data.Zone;
                 if (ok && NumberOfDeletes) {
                   this.Message.success('El dispositivo fue eliminado.');
-                  this.Observer.notify();
+                  this.Observer.Notify();
                 }
                 return id;
               })
               .catch((httpError) => {
-                this.Message.error('Ocurrió un error con la consulta http');
-                throw new Error('HTTPRequestError', JSON.stringify(httpError));
+                this.Message.error('Something happen with the HTTP request.');
+                throw new Error(httpError);
               });
           }
           return false;
@@ -103,13 +103,13 @@ export default class {
         const { Error: ModifyDeviceError, Device } = modifyDeviceResponse.data;
         if (ModifyDeviceError) {
           this.Message.error(`Error: ${ JSON.stringify(ModifyDeviceError) }`);
-          throw new Error('ModifyDeviceError', JSON.stringify(ModifyDeviceError));
+          throw new Error(ModifyDeviceError);
         }
         return Device;
       })
       .catch((httpError) => {
         this.Message.error('Ocurrió un error con la consulta http');
-        throw new Error('HTTPRequestError', JSON.stringify(httpError));
+        throw new Error(httpError);
       });
   }
 

@@ -40,7 +40,7 @@ export default class {
           throw new Error(ErrorCreated);
         }
         this.Message.success(`El usuario ${ UserCreated.Name } fue creado.`);
-        this.Observer.notify();
+        this.Observer.Notify();
       })
       .catch((postError) => {
         this.Message.error('Ocurrió un error con la consulta http');
@@ -58,7 +58,7 @@ export default class {
           throw new Error('ModifyUserError', ErrorModifing);
         }
         this.Message.success(`El usuario ${ UserModified.Name } fue modificado.`);
-        this.Observer.notify();
+        this.Observer.Notify();
         return UserModified;
       })
       .catch((putError) => {
@@ -78,7 +78,7 @@ export default class {
             const { ok, 'n': NumberOfDeletes } = deletedResult.data.User;
             if (ok && NumberOfDeletes) {
               this.Message.success('El usuario fue eliminado.');
-              this.Observer.notify();
+              this.Observer.Notify();
             }
             return id;
           })
@@ -169,7 +169,7 @@ export default class {
           throw new Error(CreateConfigurationError);
         }
         this.Message.success(`La configuración ${ Configurations.Name } fue creada.`);
-        this.Observer.notify();
+        this.Observer.Notify();
         return Configurations;
       })
       .catch((postError) => {
@@ -199,7 +199,7 @@ export default class {
   }
 
   ClearListeners() {
-    this.Observer.unsubscribeAll();
-    this.Socket.cleanExit();
+    this.Observer.UnsubscribeAll();
+    this.Socket.CleanExit();
   }
 }
