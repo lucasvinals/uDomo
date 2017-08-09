@@ -1,6 +1,6 @@
 machine:
   node:
-    version: 8.1.4
+    version: 8.2.1
 
 parallelism: 1
 
@@ -10,18 +10,17 @@ dependencies:
   override:
     - yarn
 
-# Override test since there aren't
 test:
   override:
-    - echo "test"
+    - yarn run test
 
-deployment:
-  development:
-    branch: development
-    commands:
-      - sh ./server/tools/prepareSystem.sh linux-debian-based
+# deployment:
+#   development:
+#     branch: development
+#     commands:
+#       - sh ./server/tools/prepareSystem.sh linux-debian-based
 
-  production:
-    branch: master
-    commands:
-      - sh ./server/tools/prepareSystem.sh linux-debian-based
+#   production:
+#     branch: master
+#     commands:
+#       - sh ./server/tools/prepareSystem.sh linux-debian-based
