@@ -19,9 +19,9 @@ deployment:
   development:
     branch: development
     commands:
-      - sh ./server/tools/prepareSystem.sh
+      - sh ./server/tools/prepareSystem.sh linux-debian-based
 
   production:
     branch: master
     commands:
-      - sh ./server/tools/prepareSystem.sh
+      - sh ./server/tools/prepareSystem.sh linux-debian-based
