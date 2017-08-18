@@ -3,51 +3,51 @@
         <div class='modal-content col-md-10'>
             <form class='form text-left' role='form'>
                 <table class='table table-condensed table-responsive'>
-                    <caption class="negrita">Detalle del Dispositivo</caption>
+                    <caption >Detalle del Dispositivo</caption>
                     <tr> <!-- IP -->
                         <td>IP</td>
-                        <td data-ng-bind='deviceInfo.IP' class='text-info text-right negrita'></td>
+                        <td data-ng-bind='deviceInfo.IP' class='text-info text-right'></td>
                     </tr>
                     <!--<div ng-show='estaGuardado'> POR ALGUNA RAZON NO ME FUNCIONA ESTE DIV ACÁ--> 
                         <tr ng-show="estaGuardado()"> <!-- Zona -->
                             <td>Zona</td>
                             <!-- Viene como un arreglo Zones, tengo que pasarlo como objecto -->
                              <td data-ng-bind='deviceInfo.Zone[0].Name' 
-                                class='text-info text-right negrita'>
+                                class='text-info text-right'>
                             </td> 
                         </tr>
                         <tr ng-show="estaGuardado()"> <!-- Número -->
                             <td>Número</td>
-                            <td data-ng-bind='deviceInfo.N' class='text-info text-right negrita'></td>
+                            <td data-ng-bind='deviceInfo.N' class='text-info text-right'></td>
                         </tr>
                     <!--</div>-->
                     <div>
                         <tr>
                             <td>Temperatura</td>
                             <td data-ng-bind='deviceInfo.T + " °C"' 
-                                class='text-info text-right negrita'></td>
+                                class='text-info text-right'></td>
                         </tr>
                         <tr>
                             <td>Presión</td>
                             <td data-ng-bind='deviceInfo.P + " hPa"'
-                                class='text-info text-right negrita'></td>
+                                class='text-info text-right'></td>
                         </tr>
                         <tr>
                             <td>Altitud</td>
                             <td data-ng-bind='deviceInfo.A + " m."'
-                                class='text-info text-right negrita'></td>
+                                class='text-info text-right'></td>
                         </tr>
                         <tr>
                             <td>Luz</td>
                             <td data-ng-bind='deviceInfo.L + " luxes."'
-                                class='text-info text-right negrita'></td>
+                                class='text-info text-right'></td>
                         </tr>
                         <tr>
-                            <table class='table table-condensed table-responsive negrita'>
+                            <table class='table table-condensed table-responsive'>
                                 <caption>Estado de pines</caption>
                                 <tr data-ng-repeat='(pin, value) in deviceInfo.Pins'>
                                     <td>
-                                        <label class='fa fa-2x negrita' 
+                                        <label class='fa fa-2x' 
                                                data-ng-bind='pin'>
                                         </label>
                                     </td>
