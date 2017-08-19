@@ -8,16 +8,23 @@ export default class {
   }
 
   buildAlert(msg, type, duration) {
-    this.element = document.getElementById('alertMessage');
-    this.element.innerHTML += `
-      <div class="alert alert-${ type } alert-dismissible fade show" role="alert">
+    const random = Math.floor(1 + (Math.random() * Number('100000000')));
+    const alertContainer = document.getElementById('alertMessage');
+    alertContainer.innerHTML += `
+      <div
+        id="alert_${ random }"
+        class="alert alert-${ type } alert-dismissible fade show"
+        role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
         ${ msg }
       </div>
     `;
-    this.timeout(() => (this.element.innerHTML = ''), duration * Number('1000'));
+    this.timeout(() => {
+      const alert = document.getElementById(`alert_${ random }`);
+      alertContainer.removeChild(alert);
+    }, duration * Number('1000'));
   }
   /**
    * Error message
@@ -42,25 +49,6 @@ export default class {
    */
   warning(message, duration = Number('10')) {
     return this.buildAlert(message, 'warning', duration);
-  }
-  /**
-   * Confirm prompt
-   * @param {string} message The text message to show. 
-   * @param {string} duration Number of seconds to dismiss.
-   * @param {function} response Result
-   */
-  confirm(message, duration = Number('10'), response) {
-    // return this.Alertify
-    //   .confirm(message)
-    //   .autoCancel(duration)
-    //   .set('movable', true)
-    //   .set('closable', true)
-    //   .set('title', 'uDomo')
-    //   .set('defaultFocus', 'ok')
-    //   .set('labels', { ok: 'OK', cancel: 'Cancelar' })
-    //   .set('onok', () => response(true));
-    this.result = true;
-    return this.result;
   }
   /**
    * Default message
