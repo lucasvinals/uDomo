@@ -91,11 +91,7 @@ function killMongoDB(previousError) {
 
   return execFile(
     `${ database.binary }`,
-    [
-      '--dbpath',
-      `${ database.storage }`,
-      '--shutdown',
-    ]
+    [ '--dbpath', `${ database.storage }`, '--shutdown' ]
   );
 }
 /**
@@ -104,11 +100,7 @@ function killMongoDB(previousError) {
 function repairMongoDB() {
   return execFile(
     `${ database.binary }`,
-    [
-      '--repair',
-      '--dbpath',
-      `${ database.storage }`,
-    ]
+    [ '--repair', '--dbpath', `${ database.storage }` ]
   );
 }
 /**
@@ -127,9 +119,12 @@ function initMongoDB() {
   return execFile(
     `${ database.binary }`,
     [
-      '--dbpath', `${ database.storage }`,
-      '--logpath', `${ database.defaultLog }`,
-      '--port', `${ database.port }`,
+      '--dbpath',
+      `${ database.storage }`,
+      '--logpath',
+      `${ database.defaultLog }`,
+      '--port',
+      `${ database.port }`,
       '--smallfiles',
       '--logappend',
       '--fork',
@@ -271,11 +266,12 @@ if (cluster.isMaster) {
      * (2) Repair the database.
      * (3) Retry normal workflow.
      */
-    .catch(() =>
-      killMongoDB()
-        .then(repairMongoDB)
-        .then(normalInit)
-    )
+    // .catch(() =>
+    //   killMongoDB()
+    //     .then(repairMongoDB)
+    //     .then(normalInit)
+    // )
+    .catch(console.log)
     /**
      * If some error is unrecoverable, kill the application.
      */
