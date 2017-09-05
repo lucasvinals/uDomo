@@ -75,7 +75,7 @@ app
    */
   .use(express.static(`${ process.ROOTDIR }/udomo`));
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'development') {
   /**
    * Log HTTP Requests in console
    */

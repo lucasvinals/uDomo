@@ -4,7 +4,7 @@ const DropDatabase = require('./database');
 const connectDatabase = require('../tools/connectToMongoDB.js');
 
 function seedDatabase() {
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === 'local') {
     connectDatabase();
     return DropDatabase()
       .then(CreateZone)

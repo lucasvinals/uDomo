@@ -13,6 +13,7 @@ const { clusterPort } = require('./server/config/environment');
 const PORT = process.env.PORT || clusterPort;
 const PRODUCTION = process.env.NODE_ENV === 'production';
 const DEVELOPMENT = process.env.NODE_ENV === 'development';
+const LOCAL = process.env.NODE_ENV === 'local';
 
 const plugins = PRODUCTION ?
   [
@@ -59,7 +60,7 @@ const plugins = PRODUCTION ?
 /**
  * Use environment variables in the client!
  */
-plugins.push(new DefinePlugin({ DEVELOPMENT, PRODUCTION, PORT }));
+plugins.push(new DefinePlugin({ LOCAL, DEVELOPMENT, PRODUCTION, PORT }));
 plugins.push(
   new optimize.CommonsChunkPlugin(
     {
@@ -70,7 +71,7 @@ plugins.push(
 );
 
 module.exports = {
-  devtool: DEVELOPMENT ? 'cheap-module-source-map' : '',
+  devtool: LOCAL || DEVELOPMENT ? 'cheap-module-source-map' : '',
   entry: {
     app: './client/js/app.js',
     vendor: [ 'ng-annotations' ],
@@ -136,7 +137,7 @@ module.exports = {
        */
       {
         test: /\.css$/,
-        use: DEVELOPMENT ?
+        use: LOCAL || DEVELOPMENT ?
           /**
            * For development use style-loader and css-loader
            */
@@ -184,7 +185,7 @@ module.exports = {
           },
         ],
       },
-      DEVELOPMENT ? { test: /\.(html)$/, loader: 'raw-loader' } : {},
+      LOCAL || DEVELOPMENT ? { test: /\.(html)$/, loader: 'raw-loader' } : {},
     ],
   },
   output: {
