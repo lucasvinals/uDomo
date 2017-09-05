@@ -31,7 +31,15 @@ export default class {
     this.Zone.ModifyZone(zone);
   }
 
-  RemoveZone(index) {
-    this.Zone.DeleteZone(this.zones[index]._id);
+  RemoveZone(id) {
+    this.Zone.DeleteZone(id);
+  }
+
+  SetInfo(zone) {
+    this.zoneInformation = zone;
+  }
+
+  SetDelete(zone) {
+    this.deleteZone = zone;
   }
 }

@@ -1,109 +1,82 @@
-<nav class='navbar navbar-inverse navbar-collapse'>
-    <div class='navbar-header'>
-        <a class='navbar-brand' ui-sref='uDomo.home'>uDomo</a>
-    </div>
-    <!-- Links -->
-    <ul class='row nav navbar-nav'> <!-- Menú -->
-        <!--<li><a ui-sref='users' data-ng-click='getUsers()'>Users</a></li>-->
-        <li>
-            <a ui-sref='uDomo.users' id='Users' data-toggle='dropdown'>Users</a>
-            <ul class='dropdown-menu' role='menu' aria-labelledby='Users'>
-                <li role='presentation'>
-                    <a  target='_self'
-                        role='menuitem'
-                        data-ng-click='GetUsers()'
-                        ui-sref='uDomo.users'>List of Users
-                    </a>
-                </li>
-                <li role='presentation' class='divider'></li>
-                <li role='presentation'>
-                    <a target='_self'
-                        role='menuitem'
-                        data-ng-click='GetPermissions()'
-                        ui-sref='uDomo.permissions'>Permissions
-                    </a>
-                </li>
-                <li role='presentation'>
-                    <a target='_self'
-                        role='menuitem'
-                        data-ng-click='GetConfigurations()'
-                        ui-sref='uDomo.configurations'>Configurations
-                    </a>
-                </li>
-            </ul>
+<div class="container-fluid">
+  <nav class='navbar navbar-expand-md navbar-dark fixed-top bg-dark'>
+    <!-- Brand -->
+    <a class='navbar-brand' ui-sref-active='active' ui-sref='uDomo.home'>uDomo</a>
+    <!-- ../ Brand -->
+    <div class="collapse navbar-collapse">
+      <!-- Links -->
+      <ul class='navbar-nav mr-auto nav nav-pills'>
+        <!-- Users -->
+        <li class="nav-item">
+          <a class="nav-link dropdown-toggle" ui-sref-active='active' ui-sref='uDomo.users' id='Users' data-toggle='dropdown'>Users</a>
+          <div class="dropdown-menu" aria-labelledby="Users">
+            <a class="dropdown-item" data-ng-click='GetUsers()' ui-sref='uDomo.users'>List of Users</a><!-- target='_self'-->
+            <a class="dropdown-item" data-ng-click='GetPermissions()' ui-sref='uDomo.permissions'>Permissions</a>
+            <a class="dropdown-item" data-ng-click='GetConfigurations()' ui-sref='uDomo.configurations'>Configurations</a>
+          </div>
         </li>
-        <li><a ui-sref='uDomo.devices' data-ng-click='GetDevices()'>Devices</a></li>
-        <li><a ui-sref='uDomo.zones' data-ng-click='GetZones()'>Zones</a></li>
-        <!--<li><a ui-sref='configur' data-ng-click='getConfigurations()'>Configurations</a></li>-->
-        <!-- <li data-ng-show='Token'><a ng-href='/Me'>Me</a></li> -->
-        <!-- <li data-ng-hide='Token'><a ng-href='/SignIn'>Signin</a></li> -->
-        <!-- <li data-ng-hide='Token'><a ng-href='/Register'>Register</a></li> -->
-        <!--<li data-ng-show='Token'><a ng-click='Logout()'>Logout</a></li>-->
-        
+        <!-- ../ Users -->
+        <!-- Devices -->
+        <li class="nav-item">
+          <a class="nav-link" ui-sref-active='active' ui-sref='uDomo.devices' data-ng-click='GetDevices()'>Devices</a>
+        </li>
+        <!-- ../ Devices -->
+        <!-- Zones -->
+        <li class="nav-item">
+          <a class="nav-link" ui-sref-active='active' ui-sref='uDomo.zones' data-ng-click='GetZones()'>Zones</a>
+        </li>
+        <!-- ../ Zones -->  
         <!-- Readings -->
-        <li>
-            <a href='#' id='Readings' data-toggle='dropdown'>Readings</a>
-            <ul class='dropdown-menu' role='menu' aria-labelledby='Readings'>
-                <li role='presentation'>
-                    <a ui-sref='uDomo.serverReadings' role='menuitem'  target='_self'>Server</a>
-                </li>
-                <li role='presentation' class='divider'></li>
-                <li role='presentation'>
-                    <a ui-sref='uDomo.otherReadings' role='menuitem' target='_self'>Other Readings</a>
-                </li>
-            </ul>   
+        <li class="nav-item">
+          <a class="nav-link dropdown-toggle" ui-sref-active='active' id='Readings' data-toggle='dropdown'>Readings</a>
+          <div class="dropdown-menu" aria-labelledby="Readings">
+            <a class="dropdown-item" ui-sref='uDomo.serverReadings'>Server</a>
+            <a class="dropdown-item" ui-sref='uDomo.otherReadings'>Other Readings</a>
+          </div>
         </li>
-
+        <!-- ../ Readings -->
         <!-- Security -->
-        <li>
-            <a href='#' id='Security' data-toggle='dropdown'>Security</a>
-            <ul class='dropdown-menu' role='menu' aria-labelledby='Security'>
-                <li role='presentation'>
-                  <a target='_self' role='menuitem'>Video</a>
-                </li>
-                <li role='presentation'>
-                  <a target='_self' role='menuitem'>Perimeter</a>
-                </li>
-                <li role='presentation' class='divider'></li>
-                <li role='presentation'>
-                  <a role='menuitem' target='_self'>Last Warnings</a>
-                </li>
-            </ul>
+        <li class="nav-item">
+          <a class="nav-link dropdown-toggle" ui-sref-active='active' id='Security' data-toggle='dropdown'>Security</a>
+          <div class="dropdown-menu" aria-labelledby="Security">
+            <a class="dropdown-item">Video</a>
+            <a class="dropdown-item">Perimeter</a>
+            <a class="dropdown-item">Last Warnings</a>
+          </div>
         </li>
+        <!-- ../ Security -->
         <!-- Backups -->
-        <li>
-            <a id='Backups' href='#' data-toggle='dropdown'>Backups</a>
-            <ul class='dropdown-menu' role='menu' aria-labelledby='Backups'>
-                <li role='presentation'>
-                  <a target='_self' role='menuitem' >Create new database backup</a>
-                </li>
-                <li role='presentation' class='divider'></li>
-                <!-- Aca tiene que venir el ng-repeat para listar los backups disponibles-->
-                <li role='presentation'>
-                  <a role='menuitem' target='_self'>B1</a>
-                </li> <!--ng-bind='b.Name' -->
-            </ul>
+        <li class="nav-item">
+          <a class="nav-link dropdown-toggle" ui-sref-active='active' id='Backups' data-toggle='dropdown'>Backups</a>
+          <div class="dropdown-menu" aria-labelledby="Backups">
+            <a class="dropdown-item">Create new database backup</a>
+            <!-- Aca tiene que venir el ng-repeat para listar los backups disponibles-->
+            <a class="dropdown-item">Last Warnings</a>
+          </div>
         </li>
-<!--<li><a href='/scenes'>Scenes</a></li>-->
-    </ul>
-    <ul class='nav navbar-nav navbar-right'>
-        <li ng-hide='Token'>
-            <button class='btn btn-sm btn-primary'
-                    title='Join'
-                    data-toggle='modal' 
-                    data-target='#newUsers'>Register
-            </button>
-            <button class='btn btn-sm btn-success'
-                    title='Log In'
-                    data-toggle='modal' 
-                    data-target='#login'>Login
-            </button>
-        </li>
-        <li>
-            <a id='username' ng-bind='currentUser.Name' data-toggle='dropdown'></a>
-            <ul class='dropdown-menu' role='menu' aria-labelledby='username'>
-                <li role='presentation'><a role='menuitem' ng-click='Logout()'>Logout</a></li>
-            </ul>
-        </li>
-    </ul>
-</nav>
+        <!-- ../ Backups -->
+      </ul>
+      <!-- ../ Links -->
+      <!-- <ul class='nav navbar-nav navbar-right'>
+          <li ng-hide='Token'>
+              <button class='btn btn-sm btn-primary'
+                      title='Join'
+                      data-toggle='modal' 
+                      data-target='#newUsers'>Register
+              </button>
+              <button class='btn btn-sm btn-success'
+                      title='Log In'
+                      data-toggle='modal' 
+                      data-target='#login'>Login
+              </button>
+          </li>
+          <li>
+              <a id='username' ng-bind='currentUser.Name' data-toggle='dropdown'></a>
+              <ul class='dropdown-menu' role='menu' aria-labelledby='username'>
+                  <li role='presentation'><a role='menuitem' ng-click='Logout()'>Logout</a></li>
+              </ul>
+          </li>
+      </ul> -->
+    </div>
+  </nav>
+</div>

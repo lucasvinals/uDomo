@@ -11,7 +11,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const httpStatus = require('http-status');
-const connectDatabase = require('./tools/connectToMongoDB.js');
+const connectDatabase = require('./tools/connectToMongoDB');
 const req = require;
 
 function LoadModules(relPath) {
@@ -164,12 +164,10 @@ function init({ serverPort }) {
     /**
      * Error handler listener for client error catching.
      */
-    express
-      .Router({ mergeParams: true })
-      .post('/api/log', (request, response, next) => {
-        process.log.error(request.body);
-        next();
-      });
+    app.post('/api/log', (request, response) => {
+      process.log.error(request.body);
+      return response.status(httpStatus.OK).send('Error logged in server\'s console');
+    });
     /**
      * Connect to database engine
      */

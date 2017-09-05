@@ -78,27 +78,17 @@ export default class {
   }
 
   DeleteZone(zoneId) {
-    return this.Message
-      .confirm(
-        'Desea eliminar el área?',
-        Number('10'),
-        (response) => {
-          if (response) {
-            return this.http
-              .delete(`/api/zone/${ zoneId }`)
-              .then(() => {
-                this.Message.success('La zona fue eliminada.');
-                this.Observer.Notify();
-                return zoneId;
-              })
-              .catch((httpError) => {
-                this.Message.error('Ocurrió un error con la consulta http');
-                throw new Error(httpError);
-              });
-          }
-          return false;
-        }
-      );
+    return this.http
+      .delete(`/api/zone/${ zoneId }`)
+      .then(() => {
+        this.Message.success('La zona fue eliminada.');
+        this.Observer.Notify();
+        return zoneId;
+      })
+      .catch((httpError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error(httpError);
+      });
   }
 }
 /* var self = this;
