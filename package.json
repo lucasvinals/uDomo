@@ -20,7 +20,7 @@
     "nsp": "nsp check",
     "snyk-auth": "snyk auth",
     "snyk-test": "snyk test -q",
-    "snyk-protect": "snyk protect -q",
+    "snyk-protect": "snyk protect",
     "test": "snyk test"
   },
   "repository": {
