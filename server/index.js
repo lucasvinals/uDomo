@@ -181,6 +181,7 @@ function init({ serverPort }) {
   process.log.info(
     `\n> New instance of Server with PID ${ process.pid } started in ${ (Date.now() - started) } ms.`
   );
+  return Promise.resolve(true);
 }
 
 module.exports = init;
