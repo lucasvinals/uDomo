@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
-
+const { url } = require('../config/db');
+/**
+ * Prevents the mongo mpromise deprecation message
+ */
+mongoose.Promise = require('bluebird');
 /**
  * Connect to MongoDB engine
  */
@@ -12,7 +16,7 @@ function connect() {
    */
   if (mongoose.connection.readyState === 0) {
     return mongoose.connect(
-      process.MongoURL,
+      url,
       {
         useMongoClient: true,
         keepAlive: true,
