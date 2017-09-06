@@ -1,5 +1,4 @@
 const { execFileSync } = require('child_process');
-const port = process.clusterPort + 1;
 const { mongo } = require('./environment');
 
 function getBinary(searchWith = 'which') {
@@ -15,8 +14,7 @@ module.exports = {
   /**
    * URL to connect to mongo
    */
-  url: `${ mongo.url }:${ port }/uDomo`,
-  port,
+  url: mongo.url,
   /**
    * Database directory.
    */
