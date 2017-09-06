@@ -5,7 +5,7 @@
   "main": "cluster.js",
   "version": "1.0.0",
   "scripts": {
-    "start": "NODE_ENV=development CORES=1 nodemon --inspect --watch ./server -- ./cluster.js",
+    "start": "NODE_ENV=${NODE_ENV:-local} CORES=1 nodemon --inspect --watch ./server -- ./cluster.js",
     "cluster": "yarn run forever:stop && NODE_ENV=production forever start cluster.js",
     "clean": "rimraf ./udomo dump.rdb *.log .com.google* v8* /root/.forever/*.log",
     "copy-views": "mkdir -p ./udomo/views && cp -R ./client/views/**/ ./udomo/views/",
@@ -116,7 +116,7 @@
         "error",
         {
           "multiline": true,
-          "minItems": 5
+          "minItems": 3
         }
       ],
       "id-length": [
