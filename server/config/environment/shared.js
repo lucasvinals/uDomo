@@ -5,7 +5,8 @@ module.exports = {
     python: '',
     javascript: '',
   },
-  entrophy: '3ud-!AMDepHhemCPh*n#', // Change this to a different secret string!
+  // Change this to a different secret string!
+  entrophy: '3ud-!AMDepHhemCPh*n#',
   clusterPort: process.env.CLUSTER_PORT || defaultPort,
   ssl: {
     cert: `${ process.ROOTDIR }/server/ssl/server/server.crt`,
