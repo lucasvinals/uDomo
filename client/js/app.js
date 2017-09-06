@@ -1,10 +1,11 @@
 if (DEVELOPMENT) {
   const Require = require;
-  Require('../../node_modules/alertifyjs/build/css/alertify.min.css');
-  Require('../../node_modules/alertifyjs/build/css/themes/semantic.min.css');
-  window.alertify = Require('../../node_modules/alertifyjs/build/alertify.min.js');
-  window.jQuery = Require('../../node_modules/jquery/dist/jquery.min.js');
-  Require('../../node_modules/bootstrap/dist/js/bootstrap.min.js');
+  window.Popper = Require('popper.js').default;
+  window.jQuery = Require('jquery');
+  Require('bootstrap/scss/bootstrap.scss');
+  Require('bootstrap/js/src/dropdown');
+  Require('bootstrap/js/src/alert');
+  Require('bootstrap/js/src/modal');
   /**
    * Angular-ui-router loads also Angular.
    */
@@ -32,8 +33,8 @@ if (DEVELOPMENT) {
   Require('../views/zone/modals/create.html');
 }
 
-import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/style.css';
+
 /**
  * Patterns
  */

@@ -1,22 +1,7 @@
-#!/bin/bash
 #### Automate various common task to init a recently downloaded copy of uDomo ####
 # Author: Lucas Viñals
 # Created: 04/2016
 # Modified: 06/2017
-
-# Platform -> 'linux-debian', 'osx'
-INPUT_PLATFORM_ERROR=0
-if [ "$1" = 'linux-debian-based' ]; then
-  PLATFORM='linux-debian-based'
-elif [ "$1" = 'osx' ]; then
-  PLATFORM='osx'
-else
-  INPUT_PLATFORM_ERROR=1
-fi
-if [ $INPUT_PLATFORM_ERROR -ne 0 ]; then
-  echo $(tput setaf 1)Error. Cannot find any platform with the name: \"$1\".
-  exit 1
-fi
 
 # Main directory
 HOMEDIR=~
@@ -24,6 +9,30 @@ HOMEDIR=~
 LIBRARIESDIR=$HOMEDIR'/Arduino/libraries'
 # Server main directory
 SERVERDIR=$HOMEDIR'/uDomo/server'
+
+# Install required packages
+echo $(tput setaf 4)'> Updating the system and installing needed software.'$(tput sgr0)
+INPUT_PLATFORM_ERROR=0 # Flag to trigger the error
+DEPENDENCIES_uDomo='git mongodb redis python openssl pwgen patch' # System required packages
+
+# Debian linux based systems
+if [ "$1" == 'debian' ]; then
+  su - root -c 'apt -qq update && apt --yes --force-yes install '$DEPENDENCIES_uDomo
+# Arch linux based systems
+elif [ "$1" == 'arch' ]; then
+  su - root -c 'pacman -Syy '$DEPENDENCIES_uDomo
+# OSX systems
+elif [ "$1" == 'osx' ]; then
+  brew install $DEPENDENCIES_uDomo
+else
+  INPUT_PLATFORM_ERROR=1
+fi
+
+# Throw an error if the platform is not recognized.
+if [ $INPUT_PLATFORM_ERROR -ne 0 ]; then
+  echo $(tput setaf 1)Error. Cannot find any platform with the name: \"$1\".
+  exit 1
+fi
 
 # Install NodeJS
 echo $(tput setaf 4)"> Installing NodeJS"$(tput sgr0)
@@ -33,8 +42,7 @@ echo $(tput setaf 4)"> Installing NodeJS"$(tput sgr0)
     rm -rf .nvm
     git clone https://github.com/creationix/nvm.git .nvm
     cd .nvm
-    # Install NVM
-    ./install.sh
+    ./install.sh # Install NVM
   fi
   # Update PATH to use NVM
   if [ -f $HOMEDIR'/.bashrc' ]; then
@@ -45,19 +53,9 @@ echo $(tput setaf 4)"> Installing NodeJS"$(tput sgr0)
   nvm install node
 )
 
-# Update PATH with the newly installed Node
-source $HOMEDIR/.nvm/nvm.sh
+source $HOMEDIR/.nvm/nvm.sh # Update PATH with the newly installed Node
 
-# Install required packages
-echo $(tput setaf 4)'> Updating the system and installing needed software.'$(tput sgr0)
-npm i -g yarn
-# MongoDB installs (04/10/2016) the outdated v2.4 in Raspbian (Debian), but we're good for now.
-DEPENDENCIES_uDomo='git mongodb redis-server python openssl pwgen'
-if [ "$PLATFORM" == 'linux-debian-based' ]; then
-  su - root -c 'apt -qq update && apt --yes --force-yes install '$DEPENDENCIES_uDomo
-elif [ "$PLATFORM" == 'osx' ]; then
-  brew install $DEPENDENCIES_uDomo
-fi
+npm i -g yarn # Install yarn globally
 
 # Check if there is an Arduino libraries directory; if not, create.
 if [ ! -d $LIBRARIESDIR ]; then
@@ -93,12 +91,9 @@ if [ ! -d $SERVERDIR'/db' ]; then
   mkdir $SERVERDIR'/db/logs' && echo '<------ uDomo Database Log ------>' > $SERVERDIR'/db/logs/log.txt'
 fi
 
-
 echo $(tput setaf 4)"> Installing/updating libraries."$(tput sgr0)
 # Install all project dependencies
-# ( cd $HOMEDIR'/uDomo' && yarn --ignore-engines)
-yarn --ignore-engines
-# Install some aditional (recommended) global packages
+( cd $HOMEDIR/uDomo && yarn )
 
 # Generate all SSL certificates
 # Great guide from: https://matoski.com/article/node-express-generate-ssl/
@@ -184,10 +179,13 @@ yarn run nsp
 yarn run snyk-protect
 # yarn run snyk-test
 
-# Set a cron service to start the application when there is a network running.
-if [ ! -f '/etc/network/if-up.d/uDomo' ]; then
-  su - root -c 'cat '$SERVERDIR'/tools/initOnIFUP.txt > /etc/network/if-up.d/uDomo'
-  su - root -c 'chmod 0600 /etc/network/if-up.d/uDomo'
+# Now (09/2017) forever-service is not supported in Arch Linux.
+if [ "$1" != 'arch' ]; then
+  echo $(tput setaf 3)"> Installing service with forever-service..."
+  # Install global packages
+  yarn global add forever forever-service
+  # Set a forever service to start the application when system's up.
+  (NODE_ENV=production forever-service install --start cluster.js)
 fi
 
 echo $(tput setaf 3)"> Please, edit the database file in '$SERVERDIR'/config/db.js accordingly."

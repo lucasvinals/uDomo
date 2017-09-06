@@ -8,22 +8,17 @@
 				<th>Public IP</th>
 			</thead>
 			<tbody class="text-left">
-				<td ng-bind="coreTemperature + ' °C'"
-					ng-class="temperatureColor(coreTemperature)"
-                    ng-show="coreTemperature != undefined"
-					class="boldText col-md-6">
+				<td ng-class="temperatureColor(coreTemperature)" ng-show="coreTemperature != undefined" class="col-md-6">
+          <strong><span ng-bind="coreTemperature + ' °C'"></span></strong>
 				</td>
-                <td ng-show="coreTemperature == undefined"
-					class="boldText col-md-6">
-                    <span class="glyphicon glyphicon-minus text-warning"></span>
+        <td ng-show="coreTemperature == undefined" class="col-md-6">
+          <strong><span class="glyphicon glyphicon-minus text-warning"></span></strong>
 				</td>
-				<td ng-bind="publicIP" 
-                    class="col-md-6 boldText"
-                    ng-show="publicIP != null">
-                </td>
-                <td ng-show="publicIP == null"
-					class="col-md-6">
-                    <span class="glyphicon glyphicon-minus text-warning"></span>
+				<td class="col-md-6" ng-show="publicIP != null">
+          <strong><span ng-bind="publicIP"></span></strong>
+        </td>
+        <td ng-show="publicIP == null" class="col-md-6">
+          <span class="glyphicon glyphicon-minus text-warning"></span>
 				</td>
 			</tbody>
 		</table>

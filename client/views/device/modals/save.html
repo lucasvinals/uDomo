@@ -8,11 +8,11 @@
             <h4>Datos del Dispositivo</h4>
             <form class='form text-left' role='form' name='formADispositivo' novalidate>
                 <div class="form-group">
-                    <h5 class="negrita deshabilitado">ID => 
+                    <h5 class="deshabilitado">ID => 
                         <span ng-bind='tmpDevice._id'></span>
                     </h5>
-                    <h5 class="negrita deshabilitado">IP => 
-                        <span ng-bind='tmpDevice.IP'></span>
+                    <h5>IP => 
+                      <span ng-bind='tmpDevice.IP'></span>
                     </h5>
                 </div>
                 <div class="form-group" show-errors>
@@ -37,7 +37,7 @@
                             ng-model='tmpDevice.N' />    
                 </div>
 
-                <h4 class='negrita'>Selecione o 
+                <h4>Selecione o 
                     <a  href='/zones'
                         aria-label='Go to zones Ir a Áreas' 
                         title='Ir a áreas' 
@@ -51,7 +51,7 @@
                                     name='Zones'
                                     value='{{zone.Name}}'
                                     data-ng-click='tmpDevice.zoneSelected = zone._id' />
-                            <span   class='negrita'
+                            <span
                                     data-ng-bind='zone.Name'></span>
                         </label>
                     </div>

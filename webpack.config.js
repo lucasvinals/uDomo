@@ -132,6 +132,20 @@ module.exports = {
         ],
         exclude: /node_modules/,
       },
+      {
+        test: /\.scss$/,
+        use: [
+          {
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader',
+          },
+          {
+            loader: 'sass-loader',
+          },
+        ],
+      },
       /**
        * CSS styles
        */
@@ -173,17 +187,8 @@ module.exports = {
        * Fonts
        */
       {
-        test: /\.(woff2?|woff|ttf|eot|svg)$/,
-        use: [
-          {
-            loader: 'url-loader',
-            options: {
-              cacheDirectory: './webpack_cache/',
-              limit: 10000,
-              name: 'fonts/[name].[ext]',
-            },
-          },
-        ],
+        test: /\.woff($|\?)|\.woff2($|\?)|\.ttf($|\?)|\.eot($|\?)|\.svg($|\?)/,
+        loader: 'url-loader',
       },
       LOCAL || DEVELOPMENT ? { test: /\.(html)$/, loader: 'raw-loader' } : {},
     ],
