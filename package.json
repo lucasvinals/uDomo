@@ -5,7 +5,7 @@
   "main": "cluster.js",
   "version": "1.0.0",
   "scripts": {
-    "start": "NODE_ENV=${NODE_ENV:-local} CORES=1 nodemon --inspect --watch ./server -- ./cluster.js",
+    "start": "CORES=1 nodemon --inspect --watch ./server -- ./cluster.js",
     "cluster": "yarn run forever:stop && NODE_ENV=production forever start cluster.js",
     "clean": "rimraf ./udomo dump.rdb *.log .com.google* v8* /root/.forever/*.log",
     "copy-views": "mkdir -p ./udomo/views && cp -R ./client/views/**/ ./udomo/views/",
@@ -19,7 +19,7 @@
     "local": "yarn run init-redis && concurrently --kill-others --raw 'yarn start' 'webpack-dev-server' 'yarn run init-mongod'",
     "logs:server:production": "tail -f ~/.forever/*.log",
     "init-redis": "redis-server --daemonize yes",
-    "init-mongod": "mongod --port 12079 --logappend --syslog --journal --smallfiles --quiet",
+    "init-mongod": "MONGODB_PORT=${MONGODB_PORT:-27017} && mongod --port $MONGODB_PORT --logappend --syslog --journal --smallfiles --quiet",
     "nsp": "nsp check",
     "snyk-auth": "snyk auth",
     "snyk-test": "snyk test -q",
