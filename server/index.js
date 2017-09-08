@@ -11,7 +11,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const httpStatus = require('http-status');
-const connectDatabase = require('./tools/connectToMongoDB');
+const connectDatabase = require(`${ process.ROOTDIR }/server/tools/mongoDB/${ process.platform }/connectDatabase`);
 const req = require;
 
 function LoadModules(relPath) {
