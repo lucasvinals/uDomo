@@ -1,4 +1,4 @@
-if (DEVELOPMENT) {
+if (DEVELOPMENT || LOCAL) {
   const Require = require;
   window.Popper = Require('popper.js').default;
   window.jQuery = Require('jquery');
@@ -82,8 +82,11 @@ import FactoryReading from './services/reading';
 import ControllerOtherSensor from './controllers/reading/others';
 import ControllerServerSensor from './controllers/reading/server';
 const uDomoReading = angular.module('uDomo.Reading', []);
-[ FactoryReading, ControllerOtherSensor, ControllerServerSensor ]
-  .map((component) => component.autodeclare(uDomoReading));
+[
+  FactoryReading,
+  ControllerOtherSensor,
+  ControllerServerSensor,
+].map((component) => component.autodeclare(uDomoReading));
 /**
  * Device
  */
@@ -132,8 +135,11 @@ import ControllerPerimeter from './controllers/security/perimeter';
 import ControllerWarning from './controllers/security/warnings';
 import ControllerVideo from './controllers/security/video';
 const uDomoSecurity = angular.module('uDomo.Security', []);
-[ ControllerPerimeter, ControllerWarning, ControllerVideo ]
-  .map((component) => component.autodeclare(uDomoSecurity));
+[
+  ControllerPerimeter,
+  ControllerWarning,
+  ControllerVideo,
+].map((component) => component.autodeclare(uDomoSecurity));
 /**
  * Filters
  */
@@ -186,7 +192,7 @@ config.autodeclare(uDomo);
 /**
  * HMR (Hot Module Replacement) for development.
  */
-if (DEVELOPMENT && module.hot) {
+if ((DEVELOPMENT || LOCAL) && module.hot) {
   module.hot.accept();
 }
 
