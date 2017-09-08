@@ -13,4 +13,4 @@ function seedDatabase() {
     });
 }
 
-module.exports = process.env.NODE_ENV === 'local' ? seedDatabase : Promise.resolve(true);
+module.exports = process.env.NODE_ENV === 'local' ? seedDatabase : () => true;
