@@ -1,5 +1,6 @@
 const started = Date.now();
 const { cpus } = require('os');
+
 /**
  * Common config
  */
@@ -12,10 +13,6 @@ const https = require('https');
 const { times, repeat } = require('lodash');
 const Promise = require('bluebird');
 const { readFileSync } = require('fs');
-/**
- * Shell commands.
- */
-const execFile = Promise.promisify(require('child_process').execFile);
 /**
  * How many cores are available?
  */
@@ -41,11 +38,6 @@ process.clusterHost = 'localhost';
  */
 process.clusterPort = Number(process.env.PORT) || clusterPort;
 /**
- * Database configurations
- */
-const database = require('./server/config/db');
-process.MongoURL = database.url;
-/**
  * Server to spawn numProcesses times.
  */
 const childServer = require('./server');
@@ -66,80 +58,6 @@ process.devices = [];
 function killServer(killError) {
   process.log.error(`This error caused the server to be killed: ${ killError }`);
   return process.kill(process.pid);
-}
-/**
- * Init redis-server
- * Further application restarts get the same instance
- * Redis is awesome!
- */
-function initRedis() {
-  return execFile('redis-server', [ '--daemonize yes' ]);
-}
-/**
- * Shutdown mongod process
- */
-function killMongoDB(previousError) {
-  if (previousError) {
-    process.log.error(`Something happened previously: ${ previousError }`);
-  }
-
-  return execFile(
-    `${ database.binary }`,
-    [
-      '--dbpath',
-      `${ database.storage }`,
-      '--shutdown',
-    ]
-  );
-}
-/**
- * Repair mongod database directory
- */
-function repairMongoDB() {
-  return execFile(
-    `${ database.binary }`,
-    [
-      '--repair',
-      '--dbpath',
-      `${ database.storage }`,
-    ]
-  );
-}
-/**
- * Init the MongoDB engine.
- * @returns {Function}
- */
-function initMongoDB() {
-  process.log.info('> Initializing database engine...');
-  /**
-   * Options descriptions:
-   * --smallfiles: Use a smaller file size.
-   * --logappend: Append new logs instead of replacing the old one.
-   * --fork: Create a child process and exit parent.
-   * With --fork option, mongod exits clean and the callback reaches a result!
-   */
-  return execFile(
-    `${ database.binary }`,
-    [
-      '--dbpath',
-      `${ database.storage }`,
-      '--logpath',
-      `${ database.defaultLog }`,
-      '--port',
-      `${ clusterPort + 1 }`,
-      '--smallfiles',
-      '--logappend',
-      '--fork',
-    ],
-    {
-      /**
-       * If the mongod service didn't start in
-       * [timeout] milliseconds, throw an error.
-       */
-      timeout: 15000,
-    }
-  )
-    .then(() => database.url);
 }
 /**
  * Get a number from 1 to numProcesses accordingly to the IP.
@@ -206,9 +124,7 @@ function spawnMaster() {
         workers[worker.id] = cluster.fork();
       }
     })
-    .on('disconnect', () => {
-      killMongoDB().then(process.log.warning('Database engine closed.'));
-    });
+    .on('disconnect', () => process.log.warning('Cluster server disconnected!'));
   /**
    * Create the outside facing server listening on process.clusterPort
    */
@@ -247,44 +163,20 @@ function spawnMaster() {
  */
 function normalInit() {
   /**
-   * If it's master:
-   * (1) Init the mongod process with params.
-   * (2) Connect to the recently created database engine.
-   * (3) If development, seed the database with dummy data.
-   * (4) Init the master process.
+   * (1) Check for a correct number of cores if the user specified this.
+   * (2) If local, seed the database with dummy data (seedDatabase).
+   * (3) Init the master process.
    */
   return checkCorrectNumberOfCores()
-    .then(initRedis)
-    /**
-     * If it's the 'local' environment, start mongod in place and seed database.
-     * If not, then continue with normal master process initialization.
-     */
-    .then(() => {
-      if (process.env.NODE_ENV === 'local') {
-        return initMongoDB()
-          .then(seedDatabase);
-      }
-      return true;
-    })
+    .then(seedDatabase)
     .then(spawnMaster);
 }
 
 if (cluster.isMaster) {
-  normalInit()
-    /**
-     * If an error has occured in LOCAL environment:
-     * (1) Kill (shutdown) the running instance of mongod.
-     * (2) Repair the database.
-     * (3) Retry normal workflow.
-     */
-    .catch(() => process.env.NODE_ENV !== 'local' || killMongoDB()
-      .then(repairMongoDB)
-      .then(normalInit)
-    )
-    /**
-     * If some error is unrecoverable, kill the application.
-     */
-    .catch(killServer);
+  /**
+   * If something goes wrong, kill server
+   */
+  normalInit().catch(killServer);
 } else {
   /**
    * Spawn the server listening to the main connection.
