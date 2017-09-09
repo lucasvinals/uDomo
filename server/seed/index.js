@@ -1,7 +1,7 @@
 const CreateZone = require('./zone');
 const CreateDevice = require('./device');
 const DropDatabase = require('./database');
-const connectDatabase = require('../tools/connectToMongoDB.js');
+const connectDatabase = require(`${ process.ROOTDIR }/server/tools/mongoDB/${ process.platform }/connectDatabase`);
 
 function seedDatabase() {
   connectDatabase();
@@ -13,4 +13,4 @@ function seedDatabase() {
     });
 }
 
-module.exports = seedDatabase;
+module.exports = process.env.NODE_ENV === 'local' ? seedDatabase : () => true;

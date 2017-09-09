@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { url } = require('../config/db');
+const { mongo } = require('../../../config/environment');
 /**
  * Prevents the mongo mpromise deprecation message
  */
@@ -16,7 +16,7 @@ function connect() {
    */
   if (mongoose.connection.readyState === 0) {
     return mongoose.connect(
-      url,
+      mongo.url,
       {
         useMongoClient: true,
         keepAlive: true,

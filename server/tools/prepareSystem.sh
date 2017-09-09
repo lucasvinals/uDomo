@@ -84,13 +84,6 @@ fi
 # If there is an old log, erase it.
 rm -f $SERVERDIR'/npm-debug.log'
 
-# Check if there is a database directory; if not, create.
-if [ ! -d $SERVERDIR'/db' ]; then
-  echo $(tput setaf 3)"> The tree directory db doesn\'t exists. Creating..."$(tput sgr0)
-  mkdir -p $SERVERDIR'/db/data/db'
-  mkdir $SERVERDIR'/db/logs' && echo '<------ uDomo Database Log ------>' > $SERVERDIR'/db/logs/log.txt'
-fi
-
 echo $(tput setaf 4)"> Installing/updating libraries."$(tput sgr0)
 # Install all project dependencies
 ( cd $HOMEDIR/uDomo && yarn )
@@ -188,5 +181,4 @@ if [ "$1" != 'arch' ]; then
   (NODE_ENV=production forever-service install --start cluster.js)
 fi
 
-echo $(tput setaf 3)"> Please, edit the database file in '$SERVERDIR'/config/db.js accordingly."
 echo $(tput setaf 2)"> Project ready. Please, start the uDomo service with yarn run production or yarn run development when the system is configured."
