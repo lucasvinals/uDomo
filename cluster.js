@@ -10,18 +10,12 @@ const { clusterPort, ssl } = require('./server/config/environment');
 const cluster = require('cluster');
 const https = require('https');
 const { times, repeat } = require('lodash');
-const mongoose = require('mongoose');
 const Promise = require('bluebird');
 const { readFileSync } = require('fs');
 /**
  * Shell commands.
  */
 const execFile = Promise.promisify(require('child_process').execFile);
-/**
- * Set mongoose default Promise library to bluebird,
- * this prevents the mongo mpromise deprecation message
- */
-mongoose.Promise = Promise;
 /**
  * How many cores are available?
  */
@@ -91,7 +85,11 @@ function killMongoDB(previousError) {
 
   return execFile(
     `${ database.binary }`,
-    [ '--dbpath', `${ database.storage }`, '--shutdown' ]
+    [
+      '--dbpath',
+      `${ database.storage }`,
+      '--shutdown',
+    ]
   );
 }
 /**
@@ -100,7 +98,11 @@ function killMongoDB(previousError) {
 function repairMongoDB() {
   return execFile(
     `${ database.binary }`,
-    [ '--repair', '--dbpath', `${ database.storage }` ]
+    [
+      '--repair',
+      '--dbpath',
+      `${ database.storage }`,
+    ]
   );
 }
 /**
@@ -124,7 +126,7 @@ function initMongoDB() {
       '--logpath',
       `${ database.defaultLog }`,
       '--port',
-      `${ database.port }`,
+      `${ clusterPort + 1 }`,
       '--smallfiles',
       '--logappend',
       '--fork',
@@ -253,25 +255,32 @@ function normalInit() {
    */
   return checkCorrectNumberOfCores()
     .then(initRedis)
-    .then(initMongoDB)
-    .then(seedDatabase)
+    /**
+     * If it's the 'local' environment, start mongod in place and seed database.
+     * If not, then continue with normal master process initialization.
+     */
+    .then(() => {
+      if (process.env.NODE_ENV === 'local') {
+        return initMongoDB()
+          .then(seedDatabase);
+      }
+      return true;
+    })
     .then(spawnMaster);
 }
 
 if (cluster.isMaster) {
   normalInit()
     /**
-     * An error has occured, so:
+     * If an error has occured in LOCAL environment:
      * (1) Kill (shutdown) the running instance of mongod.
      * (2) Repair the database.
      * (3) Retry normal workflow.
      */
-    // .catch(() =>
-    //   killMongoDB()
-    //     .then(repairMongoDB)
-    //     .then(normalInit)
-    // )
-    .catch(console.log)
+    .catch(() => process.env.NODE_ENV !== 'local' || killMongoDB()
+      .then(repairMongoDB)
+      .then(normalInit)
+    )
     /**
      * If some error is unrecoverable, kill the application.
      */

@@ -5,9 +5,9 @@ const { realpathSync } = require('fs');
  */
 process.ROOTDIR = realpathSync('.');
 /**
- * Set the environment with CLI option or 'development'
+ * Set the environment. 'local' by default
  */
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+process.env.NODE_ENV = process.env.NODE_ENV || 'local';
 
 module.exports = merge(
   require('./shared'),

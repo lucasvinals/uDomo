@@ -5,7 +5,7 @@
   "main": "cluster.js",
   "version": "1.0.0",
   "scripts": {
-    "start": "NODE_ENV=development CORES=1 nodemon --inspect --watch ./server -- ./cluster.js",
+    "start": "NODE_ENV=${NODE_ENV:-local} CORES=1 nodemon --inspect --watch ./server -- ./cluster.js",
     "cluster": "yarn run forever:stop && NODE_ENV=production forever start cluster.js",
     "clean": "rimraf ./udomo dump.rdb *.log .com.google* v8* /root/.forever/*.log",
     "copy-views": "mkdir -p ./udomo/views && cp -R ./client/views/**/ ./udomo/views/",
@@ -16,6 +16,7 @@
     "build:production": "yarn run basicWorkflow && NODE_ENV=production webpack -p",
     "production": "NODE_ENV=production concurrently --kill-others-on-fail --raw 'yarn run build:production' 'yarn run cluster'",
     "development": "NODE_ENV=development concurrently --kill-others --raw 'yarn start' 'webpack-dev-server'",
+    "local": "concurrently --kill-others --raw 'yarn start' 'webpack-dev-server'",
     "logs:production": "tail -f ~/.forever/*.log",
     "nsp": "nsp check",
     "snyk-auth": "snyk auth",
@@ -96,6 +97,7 @@
     },
     "globals": {
       "DEVELOPMENT": true,
+      "LOCAL": true,
       "PRODUCTION": true,
       "PORT": true,
       "angular": true
@@ -114,7 +116,7 @@
         "error",
         {
           "multiline": true,
-          "minItems": 5
+          "minItems": 3
         }
       ],
       "id-length": [

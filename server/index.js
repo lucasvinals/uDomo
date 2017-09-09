@@ -75,7 +75,7 @@ app
    */
   .use(express.static(`${ process.ROOTDIR }/udomo`));
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'development') {
   /**
    * Log HTTP Requests in console
    */
@@ -181,6 +181,7 @@ function init({ serverPort }) {
   process.log.info(
     `\n> New instance of Server with PID ${ process.pid } started in ${ (Date.now() - started) } ms.`
   );
+  return Promise.resolve(true);
 }
 
 module.exports = init;
