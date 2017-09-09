@@ -11,7 +11,7 @@
             <!--<td 
                 ng-include="'views/devices/a.htm'"
                 ng-controller="deviceController"
-                ng-click="gotoAreas()">
+                ng-click="gotoZones()">
             </td> -->
             <td class='tdDispositivos' 
                 ng-class='{"devOnlineSaved": dev.Online && dev.Saved, 
@@ -54,11 +54,5 @@
         </tr>
     </tbody>
 </table>
-
-<!-- Modal Agregar Dispositivos -->
-<ng-include src="'views/devices/modals/saveDevice.html'"></ng-include>  
-<!-- Fin Modal Agregar Dispositivos -->
-
-<!-- Detalle del dispositivo seleccionado--> 
-<ng-include src="'views/devices/modals/infoDevice.html'"></ng-include>
-<!-- Fin Detalle de dispositivo seleccionado -->
+<ng-include src="'./views/device/modals/save.html'"></ng-include>  
+<ng-include src="'./views/device/modals/info.html'"></ng-include>

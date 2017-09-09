@@ -1,22 +1,39 @@
-if (DEVELOPMENT) {
+if (DEVELOPMENT || LOCAL) {
   const Require = require;
-  Require('../views/index.html');
+  window.Popper = Require('popper.js').default;
+  window.jQuery = Require('jquery');
+  Require('bootstrap/scss/bootstrap.scss');
+  Require('bootstrap/js/src/dropdown');
+  Require('bootstrap/js/src/alert');
+  Require('bootstrap/js/src/modal');
+  /**
+   * Angular-ui-router loads also Angular.
+   */
+  Require('../../node_modules/@uirouter/angularjs/release/angular-ui-router.min.js');
+  Require('../index.html');
   Require('../views/configuration/index.html');
   Require('../views/device/index.html');
+  Require('../views/device/modals/info.html');
+  Require('../views/device/modals/save.html');
   Require('../views/home/index.html');
   Require('../views/notFound/index.html');
   Require('../views/parts/header.html');
   Require('../views/parts/login.html');
   Require('../views/permission/index.html');
   Require('../views/reading/index.html');
+  Require('../views/reading/others.html');
+  Require('../views/reading/server.html');
   Require('../views/scene/index.html');
   Require('../views/security/index.html');
+  Require('../views/security/perimeter.html');
+  Require('../views/security/video.html');
+  Require('../views/security/warnings.html');
   Require('../views/user/index.html');
   Require('../views/zone/index.html');
+  Require('../views/zone/modals/create.html');
 }
 
-import angular from 'angular';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import '../css/style.css';
 
 /**
  * Patterns
@@ -138,7 +155,6 @@ Directives.autodeclare(uDomoDirectives);
 /**
  * Routes
  */
-import 'angular-ui-router';
 import Routes from './app.routes';
 const uDomoRoutes = angular.module('uDomo.Routes', []);
 Routes.autodeclare(uDomoRoutes);
@@ -176,8 +192,27 @@ config.autodeclare(uDomo);
 /**
  * HMR (Hot Module Replacement) for development.
  */
-if (DEVELOPMENT && module.hot) {
+if ((DEVELOPMENT || LOCAL) && module.hot) {
   module.hot.accept();
 }
+
+/**
+ * Handle errors properly /m/
+ * https://www.sitepoint.com/proper-error-handling-javascript/
+ */
+window.addEventListener('error',
+  (exception) => {
+    const { stack } = exception.error;
+    let message = exception.error.toString();
+
+    if (stack) {
+      message += `\n${ stack }`;
+    }
+    window.log.error('Un error! ', message);
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/log', true);
+    xhr.send(message);
+  }
+);
 
 export default uDomo.name;

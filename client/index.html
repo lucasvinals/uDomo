@@ -1,0 +1,17 @@
+﻿<!DOCTYPE html>
+<html lang='es' ng-app='uDomo'>
+    <head>
+        <meta charset='UTF-8'>
+        <base href='/'>
+        <link rel=icon href="../images/favicon.ico" sizes="16x16" type="image/ico">
+        <title>uDomo - Simple Automation</title>
+        <link href="../css/style.css"><link>
+    </head>
+    <body ng-style='ChangeImage'> <!-- ng-strict-di='true'-->
+      <div ng-include="'./views/parts/header.html'"></div>
+      <ui-view></ui-view>
+      <div ng-include="'./views/parts/footer.html'"></div>
+    </body>
+    <script src="./vendor.bundle.js"></script>
+    <script src="./bundle.js"></script>
+</html>

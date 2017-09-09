@@ -1,102 +1,89 @@
-<div>
-    <button class="col-md-offset-4 col-md-4 btn btn-lg btn-primary"
-            data-toggle="modal"
-            data-target="#createArea">
-        <span class="glyphicon glyphicon-plus"></span> Crear Área
-    </button>
-    <br><br>
-   
-    <ng-include src="'views/areas/modals/createArea.html'"></ng-include>
-  
-    
-    <!-- 
-    <div id="listDevices" tabindex="-1" class="modal fade" role="dialog" aria-labelledby="executionOptionLabel">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <form class="form text-left col-md-offset-1" role="form">
-                    <table class="table">
-                        <caption>Dispositivos Activos</caption>
-                        <tbody>
-                            <tr class="text-left" data-ng-repeat="device in currentDevices">
-                                <td><label data-ng-bind="device.Z + '_' + device.N"></label></td>
-                                <td>
-                                    <span class="glyphicon glyphicon-ok btn btn-success" 
-                                            data-ng-click="addDevice(device)"></span>
-                                    <span class="glyphicon glyphicon-plus btn btn-info" 
-                                            data-ng-click="showDeviceInfo($index)"
-                                            data-toggle="modal" 
-                                            data-target="#devInfo"></span>
-                                    <a href="http://{{device._id}}:8888/code" target="_blank">
-                                        <span class="glyphicon glyphicon-cog btn btn-warning"></span>
-                                    </a>
-                                </td>
-                            </tr><br><br>
-                        </tbody>
-                    </table>
-                    </div>
-                </form><br>
-            </div>
-        </div>
-    </div>
-    <div id="devInfo" tabindex="-1"
-         class="modal fade ng-modal-overlay"
-         role="dialog" aria-labelledby="executionOptionLabel">
-        <div class="modal-dialog modal-md">
-            <div class="modal-content">
-                <form class="form text-left col-md-offset-1" role="form">
-                    <h4>Detalle de "<span data-ng-bind="deviceInfo.N + ' - ' + deviceInfo.Z"></span>"</h4>
-                    Zona:           <label class="text-primary" data-ng-bind="deviceInfo.Z">  </label>
-                    N&uacute;mero:  <label class="text-primary" data-ng-bind="deviceInfo.N">  </label>
-                    IP:             <label class="text-primary" data-ng-bind="deviceInfo._id"></label><br>
-                    Temperatura:    <label class="text-primary" data-ng-bind="deviceInfo.T">  </label>
-                    Altitud (SNM):        <label class="text-primary" data-ng-bind="deviceInfo.A">  </label>
-                    Presi&oacute;n: <label class="text-primary" data-ng-bind="deviceInfo.P">  </label><br>
-                    Estado de pines: 
-                    <div data-ng-repeat="(pin, value) in deviceInfo.Pins">
-                        <span class="text-primary" data-ng-bind="pin"></span> : <span data-ng-bind="value"></span> 
-                    </div>
-                </form><br>
-            </div>
-        </div>
-    </div>
-   -->
-    <h3 class="text-info">Lista de Áreas</h3>
-    <table class="table table-striped col-md-6">
-        <thead>
-            <th>Nombre</th>
-            <th colspan="2">Acción</th>
-        </thead>
-        <tbody>
-            <tr class="text-left" data-ng-repeat="area in areas">
-                <td data-ng-bind="area.Name"></td>
-                <td>
-                    <span class="glyphicon glyphicon-ok btn btn-success"
-                            data-toggle="modal" data-target="#listDevices"
-                            data-ng-click="lastAreaSel($index)"></span>
-                    <span class="glyphicon glyphicon-plus btn btn-info" 
-                            data-toggle="modal" 
-                            data-target="#Area{{$index}}"></span>
-                    <span class="glyphicon glyphicon-remove btn btn-danger" 
-                            data-ng-click="removeArea($index)"></span>
-                </td>
-                <td>
-                    <div id="Area{{$index}}" tabindex="-1"
-                         class="modal fade" role="dialog"
-                         aria-labelledby="executionOptionLabel">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form class="form text-left col-md-offset-1" role="form">
-                                    <h4>Detalles del Área</h4>
-                                    <div class="modal-body">
-                                        Nombre: <label data-ng-bind="area.Name"></label><br>
-                                    </div>
-                                </form><br>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-   
+<div class="text-center">
+  <button class="col-md-offset-4 col-md-4 btn btn-lg btn-primary createButton" data-toggle="modal" data-target="#createZone">
+    <span class="glyphicon glyphicon-plus"></span> Crear Área
+  </button>
+
+  <!-- Modals -->
+  <ng-include src="'./views/zone/modals/create.html'"></ng-include>
+  <ng-include src="'./views/zone/modals/information.html'"></ng-include>
+  <ng-include src="'./views/zone/modals/delete.html'"></ng-include>
+  <!-- ../ Modals -->
+
+  <table class="table table-hover">
+    <thead class="thead-inverse">
+        <tr>
+          <th>Nombre</th>
+          <th colspan="2">Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+      <tr class="text-left" data-ng-repeat="zone in Zone.zones">
+        <td data-ng-bind="zone.Name"></td>
+        <td>
+          <button class="btn btn-success" data-toggle="modal" data-target="#listDevices" data-ng-click="lastZoneSel($index)">
+            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+          </button>
+          <button class="btn btn-info" data-toggle="modal" data-target="#informationZone" ng-click="Zone.SetInfo(zone)">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+          </button>
+          <button class="btn btn-danger" data-toggle="modal" data-target="#deleteZone" ng-click="Zone.SetDelete(zone)">
+            <span class="glyphicon glyphicon-remove"></span>
+          </button>  
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
+
+
+<!-- 
+  <div id="listDevices" tabindex="-1" class="modal fade" role="dialog" aria-labelledby="executionOptionLabel">
+      <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+              <form class="form text-left col-md-offset-1" role="form">
+                  <table class="table">
+                      <caption>Dispositivos Activos</caption>
+                      <tbody>
+                          <tr class="text-left" data-ng-repeat="device in currentDevices">
+                              <td><label data-ng-bind="device.Z + '_' + device.N"></label></td>
+                              <td>
+                                  <span class="glyphicon glyphicon-ok btn btn-success" 
+                                          data-ng-click="addDevice(device)"></span>
+                                  <span class="glyphicon glyphicon-plus btn btn-info" 
+                                          data-ng-click="showDeviceInfo($index)"
+                                          data-toggle="modal" 
+                                          data-target="#devInfo"></span>
+                                  <a href="http://{{device._id}}:8888/code" target="_blank">
+                                      <span class="glyphicon glyphicon-cog btn btn-warning"></span>
+                                  </a>
+                              </td>
+                          </tr><br><br>
+                      </tbody>
+                  </table>
+                  </div>
+              </form><br>
+          </div>
+      </div>
+  </div>
+  <div id="devInfo" tabindex="-1"
+        class="modal fade ng-modal-overlay"
+        role="dialog" aria-labelledby="executionOptionLabel">
+      <div class="modal-dialog modal-md">
+          <div class="modal-content">
+              <form class="form text-left col-md-offset-1" role="form">
+                  <h4>Detalle de "<span data-ng-bind="deviceInfo.N + ' - ' + deviceInfo.Z"></span>"</h4>
+                  Zona:           <label class="text-primary" data-ng-bind="deviceInfo.Z">  </label>
+                  N&uacute;mero:  <label class="text-primary" data-ng-bind="deviceInfo.N">  </label>
+                  IP:             <label class="text-primary" data-ng-bind="deviceInfo._id"></label><br>
+                  Temperatura:    <label class="text-primary" data-ng-bind="deviceInfo.T">  </label>
+                  Altitud (SNM):        <label class="text-primary" data-ng-bind="deviceInfo.A">  </label>
+                  Presi&oacute;n: <label class="text-primary" data-ng-bind="deviceInfo.P">  </label><br>
+                  Estado de pines: 
+                  <div data-ng-repeat="(pin, value) in deviceInfo.Pins">
+                      <span class="text-primary" data-ng-bind="pin"></span> : <span data-ng-bind="value"></span> 
+                  </div>
+              </form><br>
+          </div>
+      </div>
+  </div>
+  -->

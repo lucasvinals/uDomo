@@ -1,83 +1,92 @@
 {
-  "name": "udomo_webapplication",
+  "name": "udomo",
   "author": "Lucas Vinals",
   "license": "GPL-3.0",
   "main": "cluster.js",
   "version": "1.0.0",
   "scripts": {
-    "start": "NODE_ENV=development node cluster.js -c 1",
-    "cluster": "NODE_ENV=production node cluster.js",
-    "clean": "rimraf udomo dump.rdb *.log",
-    "copystatic": "mkdir -p ./udomo && cp -r ./client/views ./udomo/views",
-    "basicWorkflow": "npm run clean && npm run copystatic",
-    "prepareSystem": "bash ./server/tools/prepareSystem.sh",
-    "production": "npm run basicWorkflow && NODE_ENV=production webpack && npm start",
-    "development": "(NODE_ENV=development webpack-dev-server &) && npm start"
+    "start": "CORES=1 nodemon --inspect --watch ./server -- ./cluster.js",
+    "cluster": "yarn run forever:stop && NODE_ENV=production forever start cluster.js",
+    "clean": "rimraf ./udomo dump.rdb *.log .com.google* v8* /root/.forever/*.log",
+    "copy-views": "mkdir -p ./udomo/views && cp -R ./client/views/**/ ./udomo/views/",
+    "copy-images": "mkdir -p ./udomo/images && cp -R ./client/images/* ./udomo/images/",
+    "copystatic": "concurrently --raw 'yarn run copy-views' 'yarn run copy-images'",
+    "forever:stop": "forever stopall",
+    "basicWorkflow": "yarn run clean && yarn run copystatic",
+    "build:production": "yarn run basicWorkflow && NODE_ENV=production webpack -p",
+    "production": "yarn run init-redis && NODE_ENV=production concurrently --kill-others-on-fail --raw 'yarn run build:production' 'yarn run cluster'",
+    "development": "yarn run init-redis && NODE_ENV=development concurrently --kill-others --raw 'yarn start' 'webpack-dev-server'",
+    "local": "yarn run init-redis && concurrently --kill-others --raw 'yarn start' 'webpack-dev-server' 'yarn run init-mongod'",
+    "logs:server:production": "tail -f ~/.forever/*.log",
+    "init-redis": "redis-server --daemonize yes",
+    "init-mongod": "MONGODB_PORT=${MONGODB_PORT:-27017} && mongod --port $MONGODB_PORT --logappend --syslog --journal --smallfiles --quiet",
+    "nsp": "nsp check",
+    "snyk-auth": "snyk auth",
+    "snyk-test": "snyk test -q",
+    "snyk-protect": "snyk protect",
+    "test": "snyk test"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/lucasvinals/uDomo"
   },
   "dependencies": {
-    "alertifyjs": "^1.9.0",
-    "angular": "^1.6.3",
-    "angular-ui-router": "^1.0.3",
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
-    "bootstrap": "^3.3.7",
     "compression": "^1.6.2",
-    "express": "^4.15.3",
-    "helmet": "^3.6.1",
+    "concurrently": "^3.4.0",
+    "express": "^4.15.4",
+    "forever": "^0.15.3",
+    "helmet": "^3.8.1",
     "http-status": "^1.0.1",
-    "jsonwebtoken": "^7.4.1",
+    "jsonwebtoken": "^7.4.2",
     "lodash": "^4.17.4",
     "method-override": "^2.3.9",
-    "mongoose": "^4.10.2",
-    "mongoose-delete": "^0.3.4",
+    "mongoose": "^4.11.7",
+    "mongoose-delete": "^0.4.0",
     "ng-annotations": "^1.1.0",
-    "optimist": "^0.6.1",
-    "socket.io": "^2.0.1",
-    "socket.io-redis": "^5.1.0",
-    "uuid": "^3.0.1"
+    "nsp": "^2.6.3",
+    "snyk": "^1.38.2",
+    "socket.io": "2.0.3",
+    "socket.io-client": "^2.0.3",
+    "socket.io-redis": "5.1.0",
+    "uuid": "^3.0.1",
+    "ws": "^3.1.0"
   },
   "devDependencies": {
-    "babel-core": "^6.24.1",
+    "@uirouter/angularjs": "^1.0.6",
+    "alertifyjs": "^1.11.0",
+    "angular": "^1.6.5",
+    "babel-core": "^6.26.0",
     "babel-eslint": "^7.2.3",
     "babel-loader": "^7.0.0",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
-    "babel-preset-env": "^1.5.1",
+    "babel-preset-env": "^1.6.0",
     "babel-preset-es2015": "^6.24.1",
-    "bootstrap-loader": "^2.1.0",
-    "bootstrap-sass": "^3.3.7",
+    "bootstrap": "4.0.0-beta",
     "css-loader": "^0.28.4",
-    "eslint": "^3.17.1",
-    "eslint-config-strict": "^13.0.0",
-    "extract-text-webpack-plugin": "^2.1.0",
-    "file-loader": "^0.11.1",
+    "eslint": "^4.4.1",
+    "eslint-config-strict": "^14.0.0",
+    "extract-text-webpack-plugin": "^3.0.0",
+    "file-loader": "^1.0.0",
     "glob": "^7.1.2",
-    "google-closure-compiler-js": "^20170521.0.0",
-    "gulp": "^3.9.1",
-    "gulp-clean-css": "^3.4.0",
-    "gulp-concat": "^2.6.1",
-    "gulp-nodemon": "^2.2.1",
-    "gulp-processhtml": "^1.1.0",
-    "html-webpack-plugin": "^2.28.0",
+    "html-webpack-plugin": "^2.30.1",
     "jquery": "^3.2.1",
-    "mocha": "^3.4.2",
+    "mocha": "^3.5.0",
     "morgan": "^1.8.2",
     "node-sass": "^4.5.3",
-    "psi": "^3.0.0",
+    "nodemon": "^1.11.0",
+    "popper.js": "^1.12.2",
+    "purify-css": "^1.2.5",
+    "purifycss-webpack": "^0.7.0",
     "raw-loader": "^0.5.1",
-    "require-dir": "^0.3.1",
-    "resolve-url-loader": "^2.0.2",
     "rimraf": "^2.6.1",
-    "run-sequence": "^1.2.2",
-    "sass-loader": "^6.0.5",
+    "sass-loader": "^6.0.6",
     "style-loader": "^0.18.1",
     "syntax-error": "^1.3.0",
     "url-loader": "^0.5.8",
-    "webpack": "^2.6.0",
-    "webpack-dev-server": "^2.4.5"
+    "webpack": "^3.5.5",
+    "webpack-dev-server": "^2.7.1"
   },
   "eslintConfig": {
     "extends": [
@@ -90,7 +99,10 @@
     },
     "globals": {
       "DEVELOPMENT": true,
-      "PRODUCTION": true
+      "LOCAL": true,
+      "PRODUCTION": true,
+      "PORT": true,
+      "angular": true
     },
     "parser": "babel-eslint",
     "parserOptions": {
@@ -100,7 +112,15 @@
       "no-process-env": [
         0
       ],
+      "no-underscore-dangle": 0,
       "filenames/match-regex": 0,
+      "array-element-newline": [
+        "error",
+        {
+          "multiline": true,
+          "minItems": 3
+        }
+      ],
       "id-length": [
         2,
         {
@@ -120,5 +140,10 @@
         }
       ]
     }
+  },
+  "snyk": true,
+  "optionalDependencies": {
+    "bufferutil": "^3.0.2",
+    "utf-8-validate": "^3.0.3"
   }
 }

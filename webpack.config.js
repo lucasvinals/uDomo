@@ -1,64 +1,88 @@
+const {
+  DefinePlugin,
+  HotModuleReplacementPlugin,
+  NamedModulesPlugin,
+  optimize,
+} = require('webpack');
 const path = require('path');
-const webpack = require('webpack');
+const glob = require('glob');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
-
+const PurifyCSSPlugin = require('purifycss-webpack');
+const { clusterPort } = require('./server/config/environment');
+const PORT = process.env.PORT || clusterPort;
 const PRODUCTION = process.env.NODE_ENV === 'production';
 const DEVELOPMENT = process.env.NODE_ENV === 'development';
+const LOCAL = process.env.NODE_ENV === 'local';
 
 const plugins = PRODUCTION ?
-[
-  new webpack.optimize.UglifyJsPlugin(
-    {
-      sourceMap: true,
-      compress: {
-        warnings: true,
-      },
-    }
-  ),
-  new ExtractTextPlugin('style-[contenthash:10].css'),
-  new HTMLWebpackPlugin(
-    {
-      template: './client/views/indexProduction.html',
-      filename: './views/index.html',
-      minify: {
-        minifyURLs: 'String',
-        removeComments: true,
-        removeScriptTypeAttributes: true,
-        removeStyleLinkTypeAttributes: true,
-        removeTagWhitespace: true,
-        useShortDoctype: true,
-        removeAttributeQuotes: true,
-        minifyJS: true,
-        minifyCSS: true,
-        caseSensitive: true,
-        collapseWhitespace: true,
-      },
-    }
-  ),
-] :
-[
-  new webpack.HotModuleReplacementPlugin(),
-  new webpack.NamedModulesPlugin(),
-];
+  [
+    new optimize.UglifyJsPlugin(
+      {
+        sourceMap: true,
+        compress: {
+          warnings: true,
+          'screw_ie8': true,
+        },
+        beautify: false,
+        comments: false,
+      }
+    ),
+    new ExtractTextPlugin('style-[contenthash:10].css'),
+    new PurifyCSSPlugin(
+      {
+        paths: glob.sync(path.join(__dirname, 'udomo/views/**/*.html')),
+        minimize: true,
+      }
+    ),
+    new HTMLWebpackPlugin(
+      {
+        template: './client/views/indexProduction.html',
+        filename: './views/index.html',
+        minify: {
+          minifyURLs: 'String',
+          removeComments: true,
+          removeScriptTypeAttributes: true,
+          removeStyleLinkTypeAttributes: true,
+          removeTagWhitespace: true,
+          useShortDoctype: true,
+          removeAttributeQuotes: true,
+          minifyJS: true,
+          minifyCSS: true,
+          caseSensitive: true,
+          collapseWhitespace: true,
+        },
+      }
+    ),
+  ] :
+  [ new HotModuleReplacementPlugin(), new NamedModulesPlugin() ];
 
 /**
  * Use environment variables in the client!
  */
+plugins.push(new DefinePlugin({ LOCAL, DEVELOPMENT, PRODUCTION, PORT }));
 plugins.push(
-  new webpack.DefinePlugin(
+  new optimize.CommonsChunkPlugin(
     {
-      DEVELOPMENT: JSON.stringify(DEVELOPMENT),
-      PRODUCTION: JSON.stringify(PRODUCTION),
+      name: 'vendor',
+      filename: 'vendor.bundle.js',
     }
   )
 );
 
 module.exports = {
-  devtool: 'source-map',
-  entry: './client/js/app.js',
+  devtool: LOCAL || DEVELOPMENT ? 'cheap-module-source-map' : '',
+  entry: {
+    app: './client/js/app.js',
+    vendor: [ 'ng-annotations' ],
+  },
   plugins,
-  resolve: {},
+  resolve: {
+    alias: {
+      'ng-annotations': `${ process.ROOTDIR }/node_modules/ng-annotations/index.js`,
+    },
+    unsafeCache: true,
+  },
   module: {
     rules: [
       /**
@@ -66,20 +90,27 @@ module.exports = {
        */
       {
         test: /\.js$/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            plugins: [ 'transform-decorators-legacy' ],
-            presets: [
-              [
-                'es2015',
-                {
-                  modules: false,
-                },
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              /**
+               * Excellent guide for performance tips
+               * https://medium.com/@lcxfs1991/webpack-performance-the-comprehensive-guide-4d382d36253b
+               */
+              cacheDirectory: './webpack_cache/',
+              plugins: [ 'transform-decorators-legacy' ],
+              presets: [
+                [
+                  'es2015',
+                  {
+                    modules: false,
+                  },
+                ],
               ],
-            ],
+            },
           },
-        },
+        ],
         exclude: /node_modules/,
       },
       /**
@@ -88,39 +119,78 @@ module.exports = {
        * if not, include as file (file-loader)
        */
       {
-        test: /\.(png|jpg|gif)$/,
-        use: 'url-loader?limit=10000&name=images/[hash:12].[ext]',
+        test: /\.(png|jpg|gif|ico)$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              cacheDirectory: './webpack_cache/',
+              limit: 10000,
+              name: 'images/[hash:12].[ext]',
+            },
+          },
+        ],
         exclude: /node_modules/,
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          {
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader',
+          },
+          {
+            loader: 'sass-loader',
+          },
+        ],
       },
       /**
        * CSS styles
        */
       {
         test: /\.css$/,
-        use: PRODUCTION ?
+        use: LOCAL || DEVELOPMENT ?
+          /**
+           * For development use style-loader and css-loader
+           */
+          [
+            {
+              loader: 'style-loader',
+            },
+            {
+              loader: 'css-loader',
+              options: {
+                localIndentName: '[path][name]---[local]',
+              },
+            },
+          ] :
+          /**
+           * For production use ExtractTextPlugin
+           */
           ExtractTextPlugin.extract(
             {
-              use: 'css-loader?minimize&localIdentName=[hash:base64:10]',
+              use: {
+                loader: 'css-loader',
+                options: {
+                  cacheDirectory: './webpack_cache/',
+                  minimize: true,
+                  localIdentName: '[hash:base64:10]',
+                },
+              },
             }
-          ) :
-          /**
-           * For development use style-loader
-           */
-          [ 'style-loader', 'css-loader?localIdentName=[path][name]---[local]' ],
-        include: /node_modules\/bootstrap/,
+          ),
+        include: [ /node_modules\/bootstrap/, /node_modules\/alertifyjs/, /client\/css/ ],
       },
       /**
        * Fonts
        */
       {
-        test: /\.(woff2?|woff|ttf|eot|svg)$/,
-        loader: 'url-loader?limit=10000&name=fonts/[name].[ext]',
+        test: /\.woff($|\?)|\.woff2($|\?)|\.ttf($|\?)|\.eot($|\?)|\.svg($|\?)/,
+        loader: 'url-loader',
       },
-      DEVELOPMENT ?
-      {
-        test: /\.(html)$/,
-        loader: 'raw-loader',
-      } : {},
+      LOCAL || DEVELOPMENT ? { test: /\.(html)$/, loader: 'raw-loader' } : {},
     ],
   },
   output: {
@@ -129,7 +199,7 @@ module.exports = {
     filename: PRODUCTION ? 'bundle.[hash:12].min.js' : 'bundle.js',
   },
   devServer: {
-    contentBase: './client/views',
+    contentBase: './client',
     /**
      * This loads HMR on webpack.
      */
@@ -143,18 +213,21 @@ module.exports = {
      */
     open: true,
     /**
+     * This fix the 'undefined' page open
+     */
+    openPage: '',
+    /**
      * Gzip content
      */
     compress: true,
     /**
-     * Redirect all /api calls to uDomo backend
+     * Redirect all uDomo '/api' calls...
      */
     proxy: {
       '/api': {
         target: {
-          host: 'localhost',
-          port: 12078,
-          protocol: 'http:',
+          host: '0.0.0.0',
+          port: PORT,
         },
         secure: false,
       },

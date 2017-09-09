@@ -1,10 +1,18 @@
 import { inject, controller } from 'ng-annotations';
-import { set } from 'lodash';
 
 @controller('ControllerMain')
-@inject('$rootScope', '$location', '$scope', 'FactoryStorage', 'FactoryMain', 'FactoryUser', 'FactoryCommon', 'FactoryBackup')
+@inject(
+  '$rootScope',
+  '$location',
+  '$scope',
+  'FactoryStorage',
+  'FactoryMain',
+  'FactoryUser',
+  'FactoryCommon',
+  'FactoryBackup'
+)
 export default class {
-  constructor($rootScope, $location, scope, Storage, Main, User, Common, Backup) {
+  constructor($rootScope, $location, scope, Storage, Main, User, Common, Backup) { //eslint-disable-line
     this.rootScope = $rootScope;
     this.location = $location;
     this.scope = scope;
@@ -20,7 +28,7 @@ export default class {
     /**
      * Clean exit
      */
-    this.scope.$on('$destroy', () => this.Main.clearListeners());
+    this.scope.$on('$destroy', () => this.Main.ClearListeners());
   }
 
   Login(user) {
@@ -34,7 +42,7 @@ export default class {
   }
 
   CreateUser(user) {
-    set(user, '_id', this.Common.newID());
+    user._id = this.Common.newID();
     user.Permissions = { 'Administrador': true };
     this.User.CreateUser(user, (errorcb, resUser) => {
       if (resUser && !errorcb) {

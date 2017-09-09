@@ -1,18 +1,16 @@
 const CreateZone = require('./zone');
 const CreateDevice = require('./device');
 const DropDatabase = require('./database');
-const { ENV } = require('../config/environment');
+const connectDatabase = require(`${ process.ROOTDIR }/server/tools/mongoDB/${ process.platform }/connectDatabase`);
 
 function seedDatabase() {
-  if (ENV === 'development') {
-    return DropDatabase()
+  connectDatabase();
+  return DropDatabase()
     .then(CreateZone)
     .then((zones) => zones.map(CreateDevice))
     .catch((seedError) => {
       throw new Error(seedError);
     });
-  }
-  return true;
 }
 
-module.exports = seedDatabase;
+module.exports = process.env.NODE_ENV === 'local' ? seedDatabase : () => true;

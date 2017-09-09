@@ -1,4 +1,3 @@
-import angular from 'angular';
 import { service } from 'ng-annotations';
 
 @service('FactoryObserver')

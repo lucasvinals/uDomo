@@ -1,38 +1,27 @@
 const started = Date.now();
-/**
- * Command line '--' style arguments
- */
-const { argv } = require('optimist');
+const { cpus } = require('os');
+
 /**
  * Common config
  */
-const { DEFAULT_CLUSTER_PORT } = require('./server/config/environment');
+const { clusterPort, ssl } = require('./server/config/environment');
 /**
  * Libraries
  */
 const cluster = require('cluster');
-const net = require('net');
+const https = require('https');
 const { times, repeat } = require('lodash');
-const mongoose = require('mongoose');
 const Promise = require('bluebird');
-/**
- * Shell commands.
- */
-const execFile = Promise.promisify(require('child_process').execFile);
-/**
- * Set mongoose default Promise library to bluebird,
- * this prevents the mongo mpromise deprecation message
- */
-mongoose.Promise = Promise;
+const { readFileSync } = require('fs');
 /**
  * How many cores are available?
  */
-const machineCPUs = Number(require('os').cpus().length);
+const machineCPUs = Number(cpus().length);
 /**
  * If '-cores' option is passed, then set them accordingly,
  * if not, then use all cores available.
  */
-const numProcesses = Number(argv.c) || machineCPUs;
+const numProcesses = Number(process.env.CORES) || machineCPUs;
 /**
  * Custom log, with colours.
  * Could be replaces with a library, but this works well.
@@ -47,12 +36,7 @@ process.clusterHost = 'localhost';
 /**
  * Set the application port
  */
-process.clusterPort = Number(argv.p) || DEFAULT_CLUSTER_PORT;
-/**
- * Database configurations
- */
-const database = require('./server/config/db');
-process.MongoURL = database.url;
+process.clusterPort = Number(process.env.PORT) || clusterPort;
 /**
  * Server to spawn numProcesses times.
  */
@@ -71,86 +55,9 @@ process.devices = [];
  * If an unrecoverable error occurs,
  * kill the process.
  */
-function killServer() {
+function killServer(killError) {
+  process.log.error(`This error caused the server to be killed: ${ killError }`);
   return process.kill(process.pid);
-}
-/**
- * Init redis-server
- * Further application restarts get the same instance
- * Redis is awesome!
- */
-function initRedis() {
-  return execFile('redis-server', [ '--daemonize yes' ]);
-}
-/**
- * Shutdown mongod process
- */
-function killMongoDB(previousError) {
-  if (previousError) {
-    process.log.error(`Something happened previously: ${ previousError }`);
-  }
-
-  return execFile(
-    `${ database.binary }`,
-    [
-      '--dbpath',
-      `${ database.storage }`,
-      '--shutdown',
-    ]
-  );
-}
-/**
- * Repair mongod database directory
- */
-function repairMongoDB() {
-  return execFile(
-    `${ database.binary }`,
-    [
-      '--repair',
-      '--dbpath',
-      `${ database.storage }`,
-    ]
-  );
-}
-/**
- * Init the MongoDB engine.
- * @returns {Function}
- */
-function initMongoDB() {
-  process.log.info('> Initializing database engine...');
-  /**
-   * Options descriptions:
-   * --smallfiles: Use a smaller file size.
-   * --logappend: Append new logs instead of replacing the old one.
-   * --fork: Create a child process and exit parent.
-   * With --fork option, mongod exits clean and the callback reaches a result!
-   */
-  return execFile(
-    `${ database.binary }`,
-    [
-      '--dbpath', `${ database.storage }`,
-      '--logpath', `${ database.defaultLog }`,
-      '--port', `${ database.port }`,
-      '--smallfiles',
-      '--logappend',
-      '--fork',
-    ],
-    {
-      /**
-       * If the mongod service didn't start in
-       * [timeout] milliseconds, throw an error.
-       */
-      timeout: 15000,
-    }
-  )
-  .then(() => database.url);
-}
-/**
- * Connect to mongod running database.
- * @param {String} url
- */
-function connectToMongoDB(url) {
-  return mongoose.connect(url, { server: { reconnectTries: Number.MAX_VALUE } });
 }
 /**
  * Get a number from 1 to numProcesses accordingly to the IP.
@@ -178,7 +85,7 @@ function checkCorrectNumberOfCores() {
       message() && reject(new Error(`Invalid number of cores: ${ numProcesses }`)) :
       fullfill();
   })
-  .catch(killServer);
+    .catch(killServer);
 }
 
 /**
@@ -217,30 +124,38 @@ function spawnMaster() {
         workers[worker.id] = cluster.fork();
       }
     })
-    .on('disconnect', () => {
-      killMongoDB().then(process.log.warning('Database engine closed.'));
-    });
+    .on('disconnect', () => process.log.warning('Cluster server disconnected!'));
   /**
    * Create the outside facing server listening on process.clusterPort
    */
-  return net
-  .createServer({ pauseOnConnect: true })
-  .on('connection', (connection) => {
-    /**
-     * Received a connection and need to pass it to the appropriate worker.
-     * Get the worker for this connection's source IP and send it the connection.
-     */
-    const ipAddress = connection.remoteAddress;
-    const index = getWorkerIndex(ipAddress, numProcesses);
-    workers[index].send('uDomoNewConnection', connection);
-  })
-  .listen(process.clusterPort, () => {
-    process.log.info(
-      `\n> New instance of Master with PID ${ process.pid } started in ${ (Date.now() - started) } ms.`
-      .replace(/\s+/g, ' ')
-      .trim()
-    );
-  });
+  return https
+    .createServer(
+      {
+        ca: readFileSync(ssl.ca),
+        cert: readFileSync(ssl.cert),
+        key: readFileSync(ssl.key),
+        rejectUnauthorized: false,
+        requestCert: true,
+        timeout: 2000,
+      }
+    )
+    .on('connection', (connection) => {
+      connection.pause();
+      /**
+       * Received a connection and need to pass it to the appropriate worker.
+       * Get the worker for this connection's source IP and send it the connection.
+       */
+      const ipAddress = connection.remoteAddress;
+      const index = getWorkerIndex(ipAddress, numProcesses);
+      workers[index].send('uDomoNewConnection', connection);
+    })
+    .listen(process.clusterPort, () => {
+      process.log.info(
+        `\n> New instance of Master with PID ${ process.pid } started in ${ (Date.now() - started) } ms.`
+          .replace(/\s+/g, ' ')
+          .trim()
+      );
+    });
 }
 
 /**
@@ -248,40 +163,23 @@ function spawnMaster() {
  */
 function normalInit() {
   /**
-   * If it's master:
-   * (1) Init the mongod process with params.
-   * (2) Connect to the recently created database engine.
-   * (3) If development, seed the database with dummy data.
-   * (4) Init the master process.
+   * (1) Check for a correct number of cores if the user specified this.
+   * (2) If local, seed the database with dummy data (seedDatabase).
+   * (3) Init the master process.
    */
   return checkCorrectNumberOfCores()
-    .then(initRedis)
-    .then(initMongoDB)
-    .then(connectToMongoDB)
     .then(seedDatabase)
     .then(spawnMaster);
 }
 
 if (cluster.isMaster) {
-  normalInit()
-    /**
-     * An error has occured, so:
-     * (1) Kill (shutdown) the running instance of mongod.
-     * (2) Repair the database.
-     * (3) Retry normal workflow.
-     */
-    .catch(() =>
-      killMongoDB()
-        .then(repairMongoDB)
-        .then(normalInit)
-    )
-    /**
-     * If some error is unrecoverable, kill the application.
-     */
-    .catch(killServer);
+  /**
+   * If something goes wrong, kill server
+   */
+  normalInit().catch(killServer);
 } else {
   /**
-   * Spanw the server listening to the main connection.
+   * Spawn the server listening to the main connection.
    */
   childServer({ 'serverPort': 0 });
 }

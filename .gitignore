@@ -1,23 +1,24 @@
 #Logs
 *.log
 dump.rdb
+.tmp
 
 #Libraries and builds
 node_modules/
 udomo/
 devices/main/thirdParty
 node*
-server/binaries/
-etc/
+v8*
+webpack_cache
+
+# SSL certificates and keys
+server/ssl
 
 #Backups
 server/backups/
 
 #Database
 server/db/
-
-#Specific system configuration
-environment
 
 #IDEs
 .vscode/

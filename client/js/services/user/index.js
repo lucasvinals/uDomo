@@ -1,5 +1,3 @@
-
-import angular from 'angular';
 import { service, inject } from 'ng-annotations';
 
 @service('FactoryUser')
@@ -42,7 +40,7 @@ export default class {
           throw new Error(ErrorCreated);
         }
         this.Message.success(`El usuario ${ UserCreated.Name } fue creado.`);
-        this.Observer.notify();
+        this.Observer.Notify();
       })
       .catch((postError) => {
         this.Message.error('Ocurrió un error con la consulta http');
@@ -60,7 +58,7 @@ export default class {
           throw new Error('ModifyUserError', ErrorModifing);
         }
         this.Message.success(`El usuario ${ UserModified.Name } fue modificado.`);
-        this.Observer.notify();
+        this.Observer.Notify();
         return UserModified;
       })
       .catch((putError) => {
@@ -71,23 +69,23 @@ export default class {
 
   DeleteUser(id) {
     return this.Message.confirm(
-    'Desea eliminar el usuario?',
-    Number('5'),
-    (response) =>
-      response && this.http
-        .delete(`/api/user/${ id }`)
-        .then((deletedResult) => {
-          const { ok, 'n': NumberOfDeletes } = deletedResult.data.User;
-          if (ok && NumberOfDeletes) {
-            this.Message.success('El usuario fue eliminado.');
-            this.Observer.notify();
-          }
-          return id;
-        })
-        .catch((deleteError) => {
-          this.Message.error('Ocurrió un error con la consulta http');
-          throw new Error('HTTPRequestError', JSON.stringify(deleteError));
-        })
+      'Desea eliminar el usuario?',
+      Number('5'),
+      (response) =>
+        response && this.http
+          .delete(`/api/user/${ id }`)
+          .then((deletedResult) => {
+            const { ok, 'n': NumberOfDeletes } = deletedResult.data.User;
+            if (ok && NumberOfDeletes) {
+              this.Message.success('El usuario fue eliminado.');
+              this.Observer.Notify();
+            }
+            return id;
+          })
+          .catch((deleteError) => {
+            this.Message.error('Ocurrió un error con la consulta http');
+            throw new Error('HTTPRequestError', JSON.stringify(deleteError));
+          })
     );
   }
 
@@ -171,7 +169,7 @@ export default class {
           throw new Error(CreateConfigurationError);
         }
         this.Message.success(`La configuración ${ Configurations.Name } fue creada.`);
-        this.Observer.notify();
+        this.Observer.Notify();
         return Configurations;
       })
       .catch((postError) => {
@@ -181,19 +179,19 @@ export default class {
   }
   Login(user) {
     return this.http
-    .post('/api/authenticate', user)
-    .then((loginData) => {
-      const { Error: userLoginError, User } = loginData.data;
-      if (userLoginError) {
-        this.Message.error(`Error:${ JSON.stringify(userLoginError) }`);
-        throw new Error('UserLoginError', JSON.stringify(userLoginError));
-      }
-      return User;
-    })
-    .catch((postError) => {
-      this.Message.error('Ocurrió un error con la consulta http');
-      throw new Error('HTTPRequestError', JSON.stringify(postError));
-    });
+      .post('/api/authenticate', user)
+      .then((loginData) => {
+        const { Error: userLoginError, User } = loginData.data;
+        if (userLoginError) {
+          this.Message.error(`Error:${ JSON.stringify(userLoginError) }`);
+          throw new Error('UserLoginError', JSON.stringify(userLoginError));
+        }
+        return User;
+      })
+      .catch((postError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error('HTTPRequestError', JSON.stringify(postError));
+      });
   }
 
   Logout() {
@@ -201,7 +199,7 @@ export default class {
   }
 
   ClearListeners() {
-    this.Observer.unsubscribeAll();
-    this.Socket.cleanExit();
+    this.Observer.UnsubscribeAll();
+    this.Socket.CleanExit();
   }
 }

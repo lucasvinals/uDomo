@@ -1,117 +1,184 @@
-#!/bin/bash
-# Archivo de configuración que me hice para automatizar varias tareas que
-# siempre se tienen que hacer al arrancar el repositorio de uDomo recién
-# descargado.
-# Autor: Lucas Viñals
-# Creado: 04/2016
+#### Automate various common task to init a recently downloaded copy of uDomo ####
+# Author: Lucas Viñals
+# Created: 04/2016
+# Modified: 06/2017
 
-# Directorio principal [directorio dentro del cual esta uDomo, Arduino, etc]
-HOMEDIR='/root'
-# Arquitectura de procesador (cambiar dependiendo de el sistema donde corra)
-# RaspberryPi: armv7l, armv6l, arm64
-# x64: linux-x64
-# x86: linux-x86
-ARCHITECTURE_uDomo='linux-x64'
-# Bibliotecas de ESP8266
+# Main directory
+HOMEDIR=~
+# ESP8266 Libraries
 LIBRARIESDIR=$HOMEDIR'/Arduino/libraries'
-
-# Instalar aplicaciones necesarias
-echo -e "\e[103m\e[91m Updating the system and installing needed software \e[0m"
-# MongoDB installs (04/10/2016) the outdated v2.4 in Raspbian (Debian), but we're good for now.
-sudo apt -qq update && sudo apt --yes --force-yes install bash git tar mongodb realpath yarn redis-server
-
+# Server main directory
 SERVERDIR=$HOMEDIR'/uDomo/server'
 
-# Set default environment to production
-echo 'production' > $SERVERDIR'/../environment'
+# Install required packages
+echo $(tput setaf 4)'> Updating the system and installing needed software.'$(tput sgr0)
+INPUT_PLATFORM_ERROR=0 # Flag to trigger the error
+DEPENDENCIES_uDomo='git mongodb redis python openssl pwgen patch' # System required packages
 
-BINARIESDIR=$SERVERDIR'/binaries'
-if [ -d "$BINARIESDIR" ]; then
-  echo -e '\e[103m\e[91m Emptying tree directory '$BINARIESDIR'...\e[0m'
-  rm -r $BINARIESDIR
+# Debian linux based systems
+if [ "$1" == 'debian' ]; then
+  su - root -c 'apt -qq update && apt --yes --force-yes install '$DEPENDENCIES_uDomo
+# Arch linux based systems
+elif [ "$1" == 'arch' ]; then
+  su - root -c 'pacman -Syy '$DEPENDENCIES_uDomo
+# OSX systems
+elif [ "$1" == 'osx' ]; then
+  brew install $DEPENDENCIES_uDomo
 else
-  echo -e "\e[103m\e[91m The tree directory '$BINARIESDIR' doesn't exists. Creating...\e[0m"
+  INPUT_PLATFORM_ERROR=1
 fi
 
-mkdir $BINARIESDIR
-# Descargo la última versión de NodeJS
-( cd $BINARIESDIR && wget -A "*$ARCHITECTURE_uDomo.tar.xz" -r -np -nc -l1 --no-check-certificate -e robots=off https://nodejs.org/dist/latest/)
-# Muevo el comprimido a el directorio principal
-mv $BINARIESDIR/nodejs.org/dist/latest/*.tar.xz $BINARIESDIR
-# Lo descomprimo..
-( cd $BINARIESDIR && tar xf *$ARCHITECTURE_uDomo.tar.xz )
-# Le cambio el nombre al directorio a "nodejs"
-mkdir $BINARIESDIR/nodejs && mv $BINARIESDIR/node-*/* $BINARIESDIR/nodejs
-# Elimino los archivos sobrantes
-rm -r $BINARIESDIR/node-* $BINARIESDIR/nodejs.org
-# Pruebo que ande bien
-$BINARIESDIR/nodejs/bin/node -e "console.log('\n\x1b[42m\x1b[37m\x1b[1m','NodeJS was successfully installed\!','\x1b[0m\n');"
-
-# Add NodeJS binaries to PATH
-if [ ! -f $HOMEDIR'/.profile' ]; then # .profile doesn't exists
-  echo 'PATH=$PATH:'$BINARIESDIR'/nodejs/bin' > $HOMEDIR/.profile
-else # .profile exists
-  ! $(grep -Fxq $(echo 'PATH=$PATH:'$BINARIESDIR'/nodejs/bin') $HOMEDIR/.profile) &&
-  echo 'PATH=$PATH:'$BINARIESDIR'/nodejs/bin' >> $HOMEDIR/.profile
+# Throw an error if the platform is not recognized.
+if [ $INPUT_PLATFORM_ERROR -ne 0 ]; then
+  echo $(tput setaf 1)Error. Cannot find any platform with the name: \"$1\".
+  exit 1
 fi
 
-# Update PATH
-source $HOMEDIR'/.profile';
+# Install NodeJS
+echo $(tput setaf 4)"> Installing NodeJS"$(tput sgr0)
+(
+  if [ ! -d $HOMEDIR'/.nvm' ]; then
+    cd $HOMEDIR
+    rm -rf .nvm
+    git clone https://github.com/creationix/nvm.git .nvm
+    cd .nvm
+    ./install.sh # Install NVM
+  fi
+  # Update PATH to use NVM
+  if [ -f $HOMEDIR'/.bashrc' ]; then
+    source $HOMEDIR/.bashrc
+  fi
+  source $HOMEDIR/.nvm/nvm.sh
+  # This installs the latest NodeJS version. For production, it's recommended to add '--lts' flag.
+  nvm install node
+)
 
-# Si no existe el directorio, lo creo.
-if [ ! -d "$LIBRARIESDIR" ]; then
-  echo -e "\e[103m\e[91m The tree directory '$LIBRARIESDIR' doesn't exists. Creating...\e[0m"
+source $HOMEDIR/.nvm/nvm.sh # Update PATH with the newly installed Node
+
+npm i -g yarn # Install yarn globally
+
+# Check if there is an Arduino libraries directory; if not, create.
+if [ ! -d $LIBRARIESDIR ]; then
+  echo $(tput setaf 3)"> The tree directory "$LIBRARIESDIR" doesn\'t exists. Creating..."$(tput sgr0)
   mkdir -p $LIBRARIESDIR
 fi
 
-# Descargo SocketIO para ESP8266
+# Download SocketIO para ESP8266
 if [ ! -d $LIBRARIESDIR'/Socket.io-v1.x-Library' ]; then
-  echo -e "\e[103m\e[91m Downloading SocketIO...\e[0m"
+  echo $(tput setaf 6)"> Downloading SocketIO..."$(tput sgr0)
   ( cd $LIBRARIESDIR && git clone https://github.com/washo4evr/Socket.io-v1.x-Library.git )
 fi
 
-# Descargo ArduinoJSON
+# Download ArduinoJSON
 if [ ! -d $LIBRARIESDIR'/ArduinoJson' ]; then
-  echo -e "\e[103m\e[91m Downloading ArduinoJson...\e[0m"
+  echo $(tput setaf 6)"> Downloading ArduinoJson..."$(tput sgr0)
   ( cd $LIBRARIESDIR && git clone https://github.com/bblanchon/ArduinoJson.git )
 fi
 
-# Descargo ESP8266TrueRandom
+# Download ESP8266TrueRandom
 if [ ! -d $LIBRARIESDIR'/ESP8266TrueRandom' ]; then
-  echo -e "\e[103m\e[91m Downloading ESP8266TrueRandom...\e[0m"
+  echo $(tput setaf 6)"> Downloading ESP8266TrueRandom..."$(tput sgr0)
   ( cd $LIBRARIESDIR && git clone https://github.com/marvinroger/ESP8266TrueRandom.git )
 fi
 
-# Si hay un log viejo, lo borro.
-[ -f $SERVERDIR'/npm-debug.log' ] && echo -e "\e[103m\e[91m Previous NPM logs. Deleting...\e[0m" && rm $SERVERDIR'/npm-debug.log'
+# If there is an old log, erase it.
+rm -f $SERVERDIR'/npm-debug.log'
 
-# Si no existe el directorio público, lo creo.
-[ ! -d $SERVERDIR'/../udomo' ] && echo -e "\e[103m\e[91m The tree directory 'udomo' doesn't exists. Creating...\e[0m" && mkdir $SERVERDIR'/../udomo'
+echo $(tput setaf 4)"> Installing/updating libraries."$(tput sgr0)
+# Install all project dependencies
+( cd $HOMEDIR/uDomo && yarn )
 
-# Si no existe el árbol de directorios de la base de datos, lo creo.
-if [ ! -d $SERVERDIR'/db' ]; then
-  echo -e "\e[103m\e[91m The tree directory 'db' doesn't exists. Creating...\e[0m"
-  mkdir -p $SERVERDIR'/db/data/db'
-  mkdir $SERVERDIR'/db/logs' && echo "" > $SERVERDIR'/db/logs/log.txt'
+# Generate all SSL certificates
+# Great guide from: https://matoski.com/article/node-express-generate-ssl/
+echo $(tput setaf 4)"> Generating all SSL certificates..."$(tput sgr0)
+## Generate CA certificates
+CA_DIR=$SERVERDIR'/ssl/ca'
+echo $(tput setaf 6)"> Creating SSL Certificate Authority directory..."$(tput sgr0)
+mkdir -p $CA_DIR
+
+# Generate passphrase
+PASSPHRASE=$(pwgen 50 1 -s)
+
+# Generate private key
+echo $(tput setaf 6)"> Generating private key CA..."$(tput sgr0)
+openssl genrsa \
+-aes256 \
+-out $CA_DIR'/ca.key' \
+-passout pass:$PASSPHRASE \
+4096
+
+# Certificate signing request
+echo $(tput setaf 6)"> Signing request CA..."$(tput sgr0)
+openssl req \
+-new \
+-days 1024 \
+-key $CA_DIR'/ca.key' \
+-passin pass:$PASSPHRASE \
+-out $CA_DIR'/ca.csr' \
+-subj "/C=AR/ST=SantaFe/L=Rosario/O=ACME Signing Authority Inc/CN=local.udomo.com"
+
+# Signing the certificate
+echo $(tput setaf 6)"> Sign the certificate CA..."$(tput sgr0)
+openssl x509 \
+-req \
+-days 365 \
+-in $CA_DIR'/ca.csr' \
+-out $CA_DIR'/ca.crt' \
+-signkey $CA_DIR'/ca.key' \
+-passin pass:$PASSPHRASE
+
+## Generate server certificates
+SERVER_SSL_DIR=$SERVERDIR'/ssl/server'
+echo $(tput setaf 6)"> Generating SSL server certificates..."$(tput sgr0)
+mkdir -p $SERVER_SSL_DIR
+
+# Generate private key
+echo $(tput setaf 6)"> Creating private key server..."$(tput sgr0)
+openssl genrsa \
+-aes256 \
+-passout pass:$PASSPHRASE \
+-out $SERVER_SSL_DIR'/server.key' \
+4096
+
+#  Certificate Signing Request
+echo $(tput setaf 6)"> Signing request server..."$(tput sgr0)
+openssl req \
+-new \
+-key $SERVER_SSL_DIR'/server.key' \
+-passin pass:$PASSPHRASE \
+-out $SERVER_SSL_DIR'/server.csr' \
+-subj "/C=AR/ST=SantaFe/L=Rosario/O=ACME Signing Authority Inc/CN=local.udomo.com"
+
+# Remove passphrase
+echo $(tput setaf 6)"> Removing passphrase server..."$(tput sgr0)
+cp $SERVER_SSL_DIR'/server.key' $SERVER_SSL_DIR'/server.key.passphrase'
+openssl rsa \
+-in $SERVER_SSL_DIR'/server.key.passphrase' \
+-passin pass:$PASSPHRASE \
+-out $SERVER_SSL_DIR'/server.key'
+
+# Signing the certificate
+echo $(tput setaf 6)"> Signing the server certificate..."$(tput sgr0)
+openssl x509 \
+-req \
+-days 365 \
+-in $SERVER_SSL_DIR'/server.csr' \
+-signkey $SERVER_SSL_DIR'/server.key' \
+-out $SERVER_SSL_DIR'/server.crt'
+
+echo $(tput setaf 3)"> Checking dependencies vulnerabilities..."$(tput sgr0)
+yarn run nsp
+#yarn run snyk-auth &
+yarn run snyk-protect
+# yarn run snyk-test
+
+# Now (09/2017) forever-service is not supported in Arch Linux.
+if [ "$1" != 'arch' ]; then
+  echo $(tput setaf 3)"> Installing service with forever-service..."
+  # Install global packages
+  yarn global add forever forever-service
+  # Set a forever service to start the application when system's up.
+  (NODE_ENV=production forever-service install --start cluster.js)
 fi
 
-echo -e "\e[44m Installing/updating libraries \e[0m\n"
-( cd $HOMEDIR'/uDomo' && yarn )
-yarn global add gulp nsp snyk npm-check
-
-# Esto es un error conocido de NPM cuando se instala en un directorio especificado. Deja un directorio llamado "etc" vacío
-[ -d $SERVERDIR'/../etc' ] && rm -r $SERVERDIR'/../etc'
-
-# Añado un cron para que se inicie con un sólo hilo por lo menos (npm start), cuando levante la red (if-up)
-if [ ! -f '/etc/network/if-up.d/uDomo' ]; then
-  sudo bash -c 'cat << EOF > /etc/network/if-up.d/uDomo
-  #!/bin/bash
-  ( cd /home/pi/uDomo && $BINARIESDIR/nodejs/bin/npm start )
-  EOF'
-  # Le doy permisos de lectura y ejecución para mi usuario
-  sudo chmod 0600 /etc/network/if-up.d/uDomo
-fi
-
-echo -e "\n\e[91m\e[103m Please, edit the database file in "$SERVERDIR"/config/db.js accordingly. \n"
-echo -e "\n All system is ready. Now, because the PATH is not automatically updated, you should log out / log in. \e[0m"
-echo -e "\n\e[42m\e[97m Start the uDomo service with '$BINARIESDIR"/nodejs/bin/npm start' or '$BINARIESDIR"/nodejs/bin/npm run cluster' once the system is configured. \e[0m"
+echo $(tput setaf 2)"> Project ready. Please, start the uDomo service with yarn run production or yarn run development when the system is configured."

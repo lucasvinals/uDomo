@@ -1,9 +1,8 @@
 const started = Date.now();
-const Promise = require('bluebird');
 const morgan = require('morgan')('dev');
 const compression = require('compression')();
 const crypto = require('crypto');
-const fileSystem = require('fs');
+const { readdirSync, existsSync } = require('fs');
 const socketio = require('socket.io')();
 const sioRedis = require('socket.io-redis');
 const methodOverride = require('method-override')('X-HTTP-Method-Override');
@@ -11,34 +10,37 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
-const { cloneDeep } = require('lodash');
 const httpStatus = require('http-status');
+const connectDatabase = require(`${ process.ROOTDIR }/server/tools/mongoDB/${ process.platform }/connectDatabase`);
 const req = require;
 
-function uDomoModules(path) {
-  return new Promise((resolve, reject) =>
-    fileSystem.readdir(
-      `${ String(__dirname) }${ path }`,
-      (fsError, modules) => {
-        if (fsError) {
-          return reject(new Error(fsError));
-        }
-        return resolve(
-          modules
-            .filter((mod) => !mod.includes('handlers'))
-            .map(
-              (module) => cloneDeep(
-                {
-                  file: req(`.${ path }/${ module }`),
-                  name: module,
-                }
-              )
-            )
-        );
+function LoadModules(relPath) {
+  const path = `${ process.ROOTDIR }/server/${ relPath }`;
+  return readdirSync(path)
+    .filter((module) => module !== 'handlers')
+    .map((module) => {
+      const submodule = `${ path }/${ module }`;
+      /**
+       * Set module name
+       */
+      const moduleFiles = { name: module };
+      /**
+       * Load declarated REST modules
+       */
+      if (existsSync(`${ submodule }/index.js`)) {
+        Object.assign(moduleFiles, { rest: req(`${ submodule }/index.js`) });
       }
-    )
-  );
+      /**
+       * Load declarated websockets modules
+       */
+      if (existsSync(`${ submodule }/${ module }.websocket.js`)) {
+        Object.assign(moduleFiles, { ws: req(`${ submodule }/${ module }.websocket.js`) });
+      }
+      return moduleFiles;
+    });
 }
+
+const uDomoModules = LoadModules('api');
 
 /**
  * Express configuration
@@ -73,7 +75,7 @@ app
    */
   .use(express.static(`${ process.ROOTDIR }/udomo`));
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'development') {
   /**
    * Log HTTP Requests in console
    */
@@ -104,7 +106,6 @@ function init({ serverPort }) {
    * Socket.IO attached to Express instance
    */
   socketio.attach(server);
-
   /**
    * Store sessions in db
    */
@@ -113,37 +114,6 @@ function init({ serverPort }) {
    * Prevent EventEmmiter memory leak
    */
   socketio.sockets.setMaxListeners(0);
-
-  /**
-   * Init modules in 'server/api'
-   */
-  uDomoModules('/api')
-    .then((modules) => {
-      /**
-       * Define the /api/[method], require corresponding module and init.
-       * Once Express 5.0 is stable, change Express Router intance for app.router
-       */
-      modules.map((module) =>
-        app.use(`/api/${ module.name }`, module.file(express.Router({ mergeParams: true }), socketio))
-      );
-      /**
-       * Don't allow these routes
-       */
-      app.route('/:url(auth|components|app|bower_components|assets)/*', (request, response) => {
-        response.sendStatus(httpStatus.METHOD_NOT_ALLOWED);
-      });
-      /**
-       * On other requests, send index.html.
-       */
-      app.get('*', (request, response) =>
-        response.sendFile('index.html', { root: `${ process.ROOTDIR }/udomo/views` })
-      );
-    })
-    .catch((ModuleError) => process.log.error(`Error ocurred loading modules: ${ ModuleError }`));
-
-  /**
-   * LISTENERS
-   */
   /**
    *  Emulate a connection event on the server by emitting the event with
    *  the connection the master sent us.
@@ -155,16 +125,63 @@ function init({ serverPort }) {
       connection.resume();
     }
   });
+
   /**
-   * If an error occurs, log it
+   * If an error occurs, log it. I think this is not the best option,
+   * but for now works. Should be Winston, Trace,etc...?
    */
   process.on('uncaughtException', (uncaughtError) =>
-    process.log.error(`An error has occurred ${ uncaughtError.stack }`));
+    process.log.error(`An error has occurred ${ uncaughtError.stack }`)
+  );
 
+  try {
+    uDomoModules.map((module) => {
+      /**
+       * Define the /api/[method], require corresponding module and init.
+       * Once Express 5.0 is stable, change Express Router intance for app.router
+       */
+      app.use(`/api/${ module.name }`, module.rest(express.Router({ mergeParams: true })));
+      /**
+       * Init websockets modules
+       */
+      if (module.ws) {
+        module.ws(socketio, module.name);
+      }
+      return module;
+    });
+    /**
+     * Don't allow these routes
+     */
+    app.route('/:url(auth|components|app|bower_components|assets)/*', (request, response) => {
+      response.sendStatus(httpStatus.METHOD_NOT_ALLOWED);
+    });
+    /**
+     * On other requests, send index.html.
+     */
+    app.get('*', (request, response) =>
+      response.sendFile('index.html', { root: `${ process.ROOTDIR }/udomo/views` })
+    );
+    /**
+     * Error handler listener for client error catching.
+     */
+    app.post('/api/log', (request, response) => {
+      process.log.error(request.body);
+      return response.status(httpStatus.OK).send('Error logged in server\'s console');
+    });
+    /**
+     * Connect to database engine
+     */
+    connectDatabase();
+  } catch (exception) {
+    process.log.error(`Error ocurred loading modules: ${ exception }`);
+  }
   /**
    * Log server info
    */
-  process.log.info(`\n> New instance of Server with PID ${ process.pid } started in ${ (Date.now() - started) } ms.`);
+  process.log.info(
+    `\n> New instance of Server with PID ${ process.pid } started in ${ (Date.now() - started) } ms.`
+  );
+  return Promise.resolve(true);
 }
 
 module.exports = init;

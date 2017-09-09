@@ -10,23 +10,19 @@
             </thead>
             <tbody class="text-left">
                 <!--***************************** Server Sensor Temperature *****************************-->
-                <td class="boldText col-md-3" 
-                    ng-bind="serverSensorT + ' °C'"
-                    ng-class="temperatureColor(serverSensorT)"
-                    ng-show="serverSensorT != undefined">
+                <td class="col-md-3" ng-class="temperatureColor(serverSensorT)" ng-if="serverSensorT != undefined">
+                  <strong><span ng-bind="serverSensorT + ' °C'"></span></strong>
                 </td>
-                <td ng-show="serverSensorT == undefined"
-					class="boldText col-md-3">
-                    <span class="glyphicon glyphicon-minus text-warning"></span>
-				</td>
+                <td ng-if="serverSensorT == undefined" class="col-md-3">
+                  <strong><span class="glyphicon glyphicon-minus text-warning"></span></strong>
+				        </td>
                 <!--************************************************************************************-->
                 <!--****************************** Server Sensor Pressure ******************************-->
-                <td class="boldText col-md-3" 
-                    ng-bind="serverSensorP + ' hPa'"
-                    ng-show="serverSensorP != undefined">
+                <td class="col-md-3" ng-if="serverSensorP != undefined">
+                  <strong>{{::serverSensorP + ' hPa'}}</strong>
                 </td>
                 <td ng-show="serverSensorP == undefined"
-					class="boldText col-md-3">
+					class="col-md-3">
                     <span class="glyphicon glyphicon-minus text-warning"></span>
 				</td>
                 <!--*************************************************************************************-->
@@ -43,12 +39,12 @@
                 </td>
                <!--*************************************************************************************-->
                 <!--***************************** Server Sensor Altitude *******************************-->
-                <td class="boldText col-md-3" 
+                <td class="col-md-3" 
                     ng-bind="serverSensorA + ' m'"
                     ng-show="serverSensorA != undefined">
                 </td>
                 <td ng-show="serverSensorA == undefined"
-					class="boldText col-md-3">
+					class="col-md-3">
                     <span class="glyphicon glyphicon-minus text-warning"></span>
 				</td>
                <!--*************************************************************************************-->

@@ -10,10 +10,10 @@ export default class {
     this.Message = Message;
   }
 
-  clearListeners() {
+  ClearListeners() {
     this.Observer.UnsubscribeAll();
-    this.Socket.clear('Zones/Zone/Read/Response');
-    this.Socket.emit('disconnect', {});
+    this.Socket.Clear('Zones/Zone/Read/Response');
+    this.Socket.Emit('disconnect', {});
   }
 
   Subscribe(fn) {
@@ -25,38 +25,38 @@ export default class {
   }
 
   GetZones() {
-    this.http
-    .get('/api/zone')
-    .then((zones) => {
-      const { Error: GetZonesError, Zones } = zones.data;
-      if (GetZonesError) {
-        this.Message.error(`Error: ${ JSON.stringify(GetZonesError) }`);
-        throw new Error('GetZonesError', JSON.stringify(GetZonesError));
-      }
-      return Zones;
-    })
-    .catch((httpZoneError) => {
-      this.Message.error('Ocurrió un error con la consulta http');
-      window.log.error(JSON.stringify(httpZoneError));
-    });
+    return this.http
+      .get('/api/zone')
+      .then((zones) => {
+        const { Error: GetZonesError, Zones } = zones.data;
+        if (GetZonesError) {
+          this.Message.error(`Error: ${ JSON.stringify(GetZonesError) }`);
+          throw new Error('GetZonesError', JSON.stringify(GetZonesError));
+        }
+        return Zones;
+      })
+      .catch((httpError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        window.log.error(httpError);
+      });
   }
 
   CreateZone(zoneToCreate) {
     return this.http.post('/api/zone', zoneToCreate)
       .then((response) => {
-        const { Error: CreateZoneError, Zone } = response.data;
+        const { Error: CreateZoneError, Zones } = response.data;
         if (CreateZoneError) {
-          this.Message.error(`Error: ${ JSON.stringify(CreateZoneError) }`);
-          window.log.error(JSON.stringify(CreateZoneError));
-          throw new Error('CreateZoneError', JSON.stringify(CreateZoneError));
+          this.Message.error(`Error: ${ CreateZoneError }`);
+          window.log.error(CreateZoneError);
+          throw new Error(CreateZoneError);
         }
-        this.Message.success(`El área ${ Zone.Name } fue creada.`);
-        this.Observer.notify();
-        return Zone;
+        this.Message.success(`El área ${ Zones.Name } fue creada.`);
+        this.Observer.Notify();
+        return Zones;
       })
       .catch((httpError) => {
         this.Message.error('Ocurrió un error con la consulta http');
-        throw new Error('HTTPRequestError', JSON.stringify(httpError));
+        throw new Error(httpError);
       });
   }
 
@@ -73,35 +73,22 @@ export default class {
       })
       .catch((httpError) => {
         this.Message.error('Ocurrió un error con la consulta http');
-        throw new Error('HTTPRequestError', JSON.stringify(httpError));
+        throw new Error(httpError);
       });
   }
 
   DeleteZone(zoneId) {
-    return this.Message
-      .confirm(
-        'Desea eliminar el área?',
-        Number('10'),
-        (response) => {
-          if (response) {
-            return this.http
-              .delete(`/api/zone/${ zoneId }`)
-              .then((deletedResult) => {
-                const { ok, 'n': NumberOfDeletes } = deletedResult.data.Zone;
-                if (ok && NumberOfDeletes) {
-                  this.Message.success('La zona fue eliminada.');
-                  this.Observer.notify();
-                }
-                return zoneId;
-              })
-              .catch((httpError) => {
-                this.Message.error('Ocurrió un error con la consulta http');
-                throw new Error('HTTPRequestError', JSON.stringify(httpError));
-              });
-          }
-          return false;
-        }
-      );
+    return this.http
+      .delete(`/api/zone/${ zoneId }`)
+      .then(() => {
+        this.Message.success('La zona fue eliminada.');
+        this.Observer.Notify();
+        return zoneId;
+      })
+      .catch((httpError) => {
+        this.Message.error('Ocurrió un error con la consulta http');
+        throw new Error(httpError);
+      });
   }
 }
 /* var self = this;

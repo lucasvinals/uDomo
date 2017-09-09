@@ -13,7 +13,7 @@ export default class {
    * If we are here, a 404 page, set a cool background
    */
   SetNotFoundBackground() {
-    this.rootScope.ChangeImage = { background: 'url(img/notFound.jpg)', 'background-size': 'cover' };
+    this.rootScope.ChangeImage = { background: 'url(images/notFound.jpg)', 'background-size': 'cover' };
   }
   /**
    * Reset background when leaves the controller

@@ -1,12 +1,28 @@
 ﻿<!DOCTYPE html>
-<html lang='es'>
+<html lang='es' ng-app='uDomo' >
     <head>
         <meta charset='UTF-8'>
         <base href='/'>
+        <link rel=icon href='./images/favicon.ico' sizes='16x16' type=image/ico>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous"> 
         <title>uDomo - Simple Automation</title>
     </head>
-    <body ng-app='uDomo' ng-style='ChangeImage'> <!-- ng-strict-di='true'-->
+    <body ng-style='ChangeImage' ng-strict-di>
       <div ng-include="'./views/parts/header.html'"></div>
-      <!--<div ui-view></div>-->
+      <ui-view></ui-view>
+      <div ng-include="'./views/parts/footer.html'"></div>
+      <!-- Angular packages -->
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/angular-ui-router/1.0.0-rc.1/angular-ui-router.min.js"></script>
+      <!-- ../ Angular packages -->
+      <!-- jQuery -->
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <!-- ../ jQuery -->
+      <!-- Popper -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+      <!-- ../ Popper -->
+      <!-- Bootstrap -->
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+      <!-- ../ Bootstrap -->
     </body>
 </html>
