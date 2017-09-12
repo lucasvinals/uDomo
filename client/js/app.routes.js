@@ -99,6 +99,7 @@ export default class {
         url: 'devices',
         templateUrl: './views/device/index.html',
         controller: 'ControllerDevice',
+        controllerAs: 'Device',
       })
       /**
        * Scenes state and management
