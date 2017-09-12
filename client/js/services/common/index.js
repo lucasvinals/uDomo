@@ -73,4 +73,7 @@ export default class {
       this.fourChars(),
     ].join('');
   }
+  ThrowError(exception) {
+    return new Error(exception);
+  }
 }
