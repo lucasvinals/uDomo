@@ -1,0 +1,67 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": "strict",
+    "parser": "babel-eslint",
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "globals": {
+      "DEVELOPMENT": true,
+      "LOCAL": true,
+      "PRODUCTION": true,
+      "PORT": true,
+      "angular": true
+    },
+    "rules": {
+        "indent": [
+            "error",
+            2
+        ],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "array-element-newline": [
+          "error",
+          {
+            "multiline": true,
+            "minItems": 3
+          }
+        ],
+        "id-length": [
+          2,
+          {
+            "min": 2,
+            "max": 100,
+            "properties": "always",
+            "exceptions": [
+              "_"
+            ]
+          }
+        ],
+        "id-match": [
+          2,
+          "^([A-Za-z-_$]*|[A-Z][A-Z_]*[A-Z])$",
+          {
+            "properties": false
+          }
+        ],
+        "no-process-env": 0,
+        "class-methods-use-this": 0,
+        "no-underscore-dangle": 0,
+        "consistent-this": 0
+    }
+}
