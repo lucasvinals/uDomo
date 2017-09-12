@@ -93,67 +93,9 @@
     "webpack": "^3.5.5",
     "webpack-dev-server": "^2.7.1"
   },
-  "babel": {
-    "presets": [
-      "es2016",
-      "es2017"
-    ]
-  },
-  "eslintConfig": {
-    "extends": [
-      "strict"
-    ],
-    "env": {
-      "es6": true,
-      "node": true
-    },
-    "globals": {
-      "DEVELOPMENT": true,
-      "LOCAL": true,
-      "PRODUCTION": true,
-      "PORT": true,
-      "angular": true
-    },
-    "parser": "babel-eslint",
-    "parserOptions": {
-      "ecmaVersion": 2017
-    },
-    "rules": {
-      "no-process-env": [
-        0
-      ],
-      "no-underscore-dangle": 0,
-      "filenames/match-regex": 0,
-      "array-element-newline": [
-        "error",
-        {
-          "multiline": true,
-          "minItems": 3
-        }
-      ],
-      "id-length": [
-        2,
-        {
-          "min": 2,
-          "max": 100,
-          "properties": "always",
-          "exceptions": [
-            "_"
-          ]
-        }
-      ],
-      "id-match": [
-        2,
-        "^([A-Za-z-_$]*|[A-Z][A-Z_]*[A-Z])$",
-        {
-          "properties": false
-        }
-      ]
-    }
-  },
-  "snyk": true,
   "optionalDependencies": {
     "bufferutil": "^3.0.2",
     "utf-8-validate": "^3.0.3"
-  }
+  },
+  "snyk": true
 }
