@@ -4,7 +4,7 @@
 # Modified: 06/2017
 
 # Main directory
-HOMEDIR=~
+HOMEDIR=$(cd $(dirname .) && cd ../../../ && pwd)
 # ESP8266 Libraries
 LIBRARIESDIR=$HOMEDIR'/Arduino/libraries'
 # Server main directory
