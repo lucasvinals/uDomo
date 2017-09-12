@@ -9,6 +9,7 @@ const glob = require('glob');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const PurifyCSSPlugin = require('purifycss-webpack');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const { clusterPort } = require('./server/config/environment');
 const PORT = process.env.PORT || clusterPort;
 const PRODUCTION = process.env.NODE_ENV === 'production';
@@ -57,20 +58,29 @@ const plugins = PRODUCTION ?
   ] :
   [ new HotModuleReplacementPlugin(), new NamedModulesPlugin() ];
 
-/**
- * Use environment variables in the client!
- */
-plugins.push(new DefinePlugin({ LOCAL, DEVELOPMENT, PRODUCTION, PORT }));
 plugins.push(
+  /**
+   * Use environment variables in the client!
+   */
+  new DefinePlugin({ LOCAL, DEVELOPMENT, PRODUCTION, PORT }),
+  /**
+   * Separate external modules
+   * in another file.
+   */
   new optimize.CommonsChunkPlugin(
     {
       name: 'vendor',
       filename: 'vendor.bundle.js',
     }
-  )
+  ),
+  /**
+   * Typescript loader.
+   */
+  new ForkTsCheckerWebpackPlugin()
 );
 
 module.exports = {
+  // context: __dirname, // eslint-disable-line
   devtool: LOCAL || DEVELOPMENT ? 'cheap-module-source-map' : '',
   entry: {
     app: './client/js/app.js',
@@ -85,6 +95,14 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /\.tsx?$/,
+        loader: 'ts-loader',
+        options: {
+          tsconfig: './tsconfig.json',
+          transpileOnly: true,
+        },
+      },
       /**
        * Transpile ES6 (ES2015) to ES5 with Babel
        */
@@ -181,7 +199,11 @@ module.exports = {
               },
             }
           ),
-        include: [ /node_modules\/bootstrap/, /node_modules\/alertifyjs/, /client\/css/ ],
+        include: [
+          /node_modules\/bootstrap/,
+          /node_modules\/alertifyjs/,
+          /client\/css/,
+        ],
       },
       /**
        * Fonts

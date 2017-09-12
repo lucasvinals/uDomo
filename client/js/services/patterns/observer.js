@@ -28,9 +28,6 @@ export default class {
    * Ex: CRUD operations
    */
   Notify() {
-    angular.forEach(this.Observers, (observer) =>
-      // const exec = observer();
-      observer
-    );
+    angular.forEach(this.Observers, (observer) => observer());
   }
 }

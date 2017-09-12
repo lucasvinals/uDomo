@@ -1,9 +1,12 @@
 import { controller, inject } from 'ng-annotations';
 
+let ZoneControllerInstance = null;
+
 @controller('ControllerZone')
 @inject('FactoryZone', 'FactoryCommon', '$scope')
 export default class {
   constructor(Zone, Common, scope) {
+    ZoneControllerInstance = this;
     this.Zone = Zone;
     this.Common = Common;
     this.scope = scope;
@@ -13,33 +16,40 @@ export default class {
   }
 
   GetZones() {
-    return this.Zone.GetZones()
-      .then((zones) => {
-        this.zones = zones;
-      })
-      .catch((zoneError) => {
-        throw new Error('ZoneError', zoneError);
-      });
+    const { Zone, SetZones, Common } = ZoneControllerInstance;
+    return Zone.GetZones()
+      .then(SetZones)
+      .catch(Common.ThrowError);
   }
 
   CreateZone(zone) {
-    zone._id = this.Common.newID();
-    this.Zone.CreateZone(zone);
+    const { Zone } = ZoneControllerInstance;
+    const newZone = Object.assign(zone, { _id: ZoneControllerInstance.Common.newID() });
+    return Zone.CreateZone(newZone);
   }
 
   ModifyZone(zone) {
-    this.Zone.ModifyZone(zone);
+    const { Zone } = ZoneControllerInstance;
+    return Zone.ModifyZone(zone);
   }
 
   RemoveZone(id) {
-    this.Zone.DeleteZone(id);
+    const { Zone } = ZoneControllerInstance;
+    return Zone.DeleteZone(id);
   }
 
   SetInfo(zone) {
-    this.zoneInformation = zone;
+    ZoneControllerInstance.zoneInformation = zone;
+    return zone;
   }
 
   SetDelete(zone) {
-    this.deleteZone = zone;
+    ZoneControllerInstance.deleteZone = zone;
+    return zone;
+  }
+
+  SetZones(zones) {
+    ZoneControllerInstance.zones = zones;
+    return zones;
   }
 }
