@@ -104,10 +104,15 @@ const uDomoUser = angular.module('uDomo.User', []);
 /**
  * Zone
  */
+import ResourceZone from './resources/zone';
 import FactoryZone from './services/zone';
 import ControllerZone from './controllers/zone';
 const uDomoZone = angular.module('uDomo.Zone', []);
-[ FactoryZone, ControllerZone ].map((component) => component.autodeclare(uDomoZone));
+[
+  ResourceZone,
+  FactoryZone,
+  ControllerZone,
+].map((component) => component.autodeclare(uDomoZone));
 /**
  * Main
  */
@@ -184,6 +189,13 @@ const uDomo = angular.module(
     'uDomo.Device',
   ]
 );
+
+/**
+ * Resources
+ */
+import Resource from './resources';
+Resource.autodeclare('uDomo');
+
 /**
  * Configuration
  */
