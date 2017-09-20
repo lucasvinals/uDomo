@@ -76,4 +76,12 @@ export default class {
   ThrowError(exception) {
     return new Error(exception);
   }
+  ProcessResponse(response) {
+    const ResponseFromServer = response.data || response;
+    if (ResponseFromServer.Error) {
+      throw new Error(JSON.stringify(ResponseFromServer.Error));
+    }
+    Reflect.deleteProperty(ResponseFromServer, 'Error');
+    return ResponseFromServer[Object.keys(ResponseFromServer)[0]];
+  }
 }
