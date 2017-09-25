@@ -1,55 +1,45 @@
 import { controller, inject } from 'ng-annotations';
 
-let ZoneControllerInstance = null;
-
-@controller('ControllerZone')
-@inject('FactoryZone', 'FactoryCommon', '$scope')
-export default class {
-  constructor(Zone, Common, scope) {
-    ZoneControllerInstance = this;
-    this.Zone = Zone;
-    this.Common = Common;
-    this.scope = scope;
+@controller()
+@inject('FactoryZone', 'FactoryCommon')
+export default class ControllerZone {
+  constructor(FactoryZone, FactoryCommon) {
+    this.Zone = FactoryZone;
+    this.Common = FactoryCommon;
     this.GetZones();
-    this.Zone.Subscribe(this.GetZones);
-    this.scope.$on('$destroy', this.Zone.ClearListeners);
+    // this.scope.$on('$destroy', this.Zone.ClearListeners);
   }
 
   GetZones() {
-    const { Zone, SetZones, Common } = ZoneControllerInstance;
-    return Zone.GetZones()
-      .then(SetZones)
-      .catch(Common.ThrowError);
+    return this.Zone
+      .GetZones()
+      .then((zones) => {
+        this.zones = zones;
+        return this.zones;
+      })
+      .catch(this.Common.ThrowError);
   }
 
   CreateZone(zone) {
-    const { Zone } = ZoneControllerInstance;
-    const newZone = Object.assign(zone, { _id: ZoneControllerInstance.Common.newID() });
-    return Zone.CreateZone(newZone);
+    const newZone = Object.assign(zone, { _id: this.Common.newID() });
+    return this.Zone.CreateZone(newZone);
   }
 
   ModifyZone(zone) {
-    const { Zone } = ZoneControllerInstance;
-    return Zone.ModifyZone(zone);
+    return this.Zone.ModifyZone(zone);
   }
 
   RemoveZone(id) {
-    const { Zone } = ZoneControllerInstance;
-    return Zone.DeleteZone(id);
+    return this.Zone.DeleteZone(id);
   }
 
   SetInfo(zone) {
-    ZoneControllerInstance.zoneInformation = zone;
-    return zone;
+    this.zoneInformation = zone;
+    return this.zoneInformation;
   }
 
   SetDelete(zone) {
-    ZoneControllerInstance.deleteZone = zone;
-    return zone;
-  }
-
-  SetZones(zones) {
-    ZoneControllerInstance.zones = zones;
-    return zones;
+    this.deleteZone = zone;
+    return this.deleteZone;
   }
 }

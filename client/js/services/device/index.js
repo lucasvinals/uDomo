@@ -1,116 +1,40 @@
 import { service, inject } from 'ng-annotations';
 
 @service('FactoryDevice')
-@inject('FactoryMessage', 'FactorySocket', 'FactoryObserver', '$http')
+@inject('ResourceDevice', 'FactoryCommon')
 export default class {
-  constructor(Message, Socket, Observer, http) {
-    this.http = http;
-    this.Socket = Socket;
-    this.Observer = Observer;
-    this.Message = Message;
-    this.devices = [];
-  }
-  /**
-   * Subscribe to a particular function with Observer Pattern
-   * @param {function} observer
-   */
-  Subscribe(observer) {
-    return this.Observer.Subscribe(observer);
-  }
-  /**
-   * Unubscribe a particular function in the Observer array
-   * @param {function} observer
-   */
-  Unsubscribe(observer) {
-    return this.Observer.Unsubscribe(observer);
-  }
-  /**
-   * Get all devices from the server.
-   */
-  GetDevices() {
-    this.http
-      .get('/api/device')
-      .then((devices) => {
-        const { Error: GetDevicesError, Devices } = devices.data;
-        if (GetDevicesError) {
-          this.Message.error(`Error: ${ JSON.stringify(GetDevicesError) }`);
-          throw new Error('GetDevicesError', JSON.stringify(GetDevicesError));
-        }
-        return Devices;
-      })
-      .catch((httpDeviceError) => {
-        this.Message.error('Ocurrió un error con la consulta http');
-        window.log.error(JSON.stringify(httpDeviceError));
-      });
+  constructor(ResourceDevice, Common) {
+    this.Device = ResourceDevice;
+    this.ProcessResponse = Common.ProcessResponse;
+    this.ThrowError = Common.ThrowError;
   }
 
-  /**
-   * Subscribe to devices event to update devices.
-   */
-  GetDevicesFromSocket() {
-    return this.Socket.on('devices', (devices) => devices);
+  GetDevices() {
+    return this.Device
+      .GetAll()
+      .then(this.ProcessResponse)
+      .catch(this.ThrowError);
   }
 
   SaveDevice(device) {
-    return this.http.post('/api/device', device)
-      .then((response) => {
-        const { Error: CreateDeviceError, Device } = response.data;
-        if (CreateDeviceError) {
-          this.Message.error(`Error: ${ JSON.stringify(CreateDeviceError) }`);
-          window.log.error(JSON.stringify(CreateDeviceError));
-          throw new Error(CreateDeviceError);
-        }
-        this.Message.success(`The device ${ Device.Name } was saved.`);
-        this.Observer.Notify();
-        return Device;
-      })
-      .catch((httpError) => {
-        this.Message.error('Something happen with the HTTP request.');
-        throw new Error(httpError);
-      });
+    return this.Device
+      .Create(device)
+      .then(this.ProcessResponse)
+      .catch(this.ThrowError);
   }
 
   DeleteDevice(id) {
-    return this.Message
-      .confirm(
-        'Desea eliminar el dispositivo?',
-        Number('10'),
-        (response) => {
-          if (response) {
-            return this.http
-              .delete(`/api/device/${ id }`)
-              .then((deletedResult) => {
-                const { ok, 'n': NumberOfDeletes } = deletedResult.data.Zone;
-                if (ok && NumberOfDeletes) {
-                  this.Message.success('El dispositivo fue eliminado.');
-                  this.Observer.Notify();
-                }
-                return id;
-              })
-              .catch((httpError) => {
-                this.Message.error('Something happen with the HTTP request.');
-                throw new Error(httpError);
-              });
-          }
-          return false;
-        }
-      );
+    return this.Device
+      .Delete(id)
+      .then(this.ProcessResponse)
+      .catch(this.ThrowError);
   }
+
   ModifyDevice(device) {
-    return this.http
-      .put('/api/device', device)
-      .then((modifyDeviceResponse) => {
-        const { Error: ModifyDeviceError, Device } = modifyDeviceResponse.data;
-        if (ModifyDeviceError) {
-          this.Message.error(`Error: ${ JSON.stringify(ModifyDeviceError) }`);
-          throw new Error(ModifyDeviceError);
-        }
-        return Device;
-      })
-      .catch((httpError) => {
-        this.Message.error('Ocurrió un error con la consulta http');
-        throw new Error(httpError);
-      });
+    return this.Device
+      .Modify(device)
+      .then(this.ProcessResponse)
+      .catch(this.ThrowError);
   }
 
   ClearListeners(clearInter) {

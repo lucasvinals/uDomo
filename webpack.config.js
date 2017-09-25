@@ -118,14 +118,7 @@ module.exports = {
                */
               cacheDirectory: './webpack_cache/',
               plugins: [ 'transform-decorators-legacy' ],
-              presets: [
-                [
-                  'es2015',
-                  {
-                    modules: false,
-                  },
-                ],
-              ],
+              presets: [ 'env', 'stage-2' ],
             },
           },
         ],
